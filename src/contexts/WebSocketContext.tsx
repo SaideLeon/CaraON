@@ -6,9 +6,10 @@ const getWebSocketURL = () => {
   if (typeof window === 'undefined') {
     return ''; // Return empty string for SSR
   }
-  // Hardcode the backend URL for WebSocket connection
-  const protocol = 'wss';
-  const host = 'caraonback.cognick.qzz.io';
+  // Use a relative URL and let the browser determine the host.
+  // The Next.js dev server proxy will handle this in development.
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const host = window.location.host;
   return `${protocol}://${host}/`;
 }
 
