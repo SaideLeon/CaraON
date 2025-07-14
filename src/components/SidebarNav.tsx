@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, MessageCircleCode } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, MessageCircleCode, User, MoreVertical } from 'lucide-react';
 
 import {
   Sidebar,
@@ -12,10 +12,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
+  SidebarFooter
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from './ui/button';
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => {
     return pathname === path;
@@ -58,6 +71,44 @@ export function SidebarNav() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
+      <SidebarFooter>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="justify-start w-full h-auto px-2 py-2">
+                    <div className="flex justify-between items-center w-full">
+                        <div className="flex items-center gap-2">
+                            <Avatar className="h-8 w-8">
+                                <AvatarFallback>
+                                    <User className="h-4 w-4" />
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
+                                <span className="text-sm font-medium">{user?.name || 'User'}</span>
+                                <span className="text-xs text-muted-foreground truncate">{user?.email || 'no-email@example.com'}</span>
+                            </div>
+                        </div>
+                        <MoreVertical className="h-4 w-4 ml-2 group-data-[collapsible=icon]:hidden" />
+                    </div>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" className="w-56">
+                <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user?.email || 'no-email@example.com'}</p>
+                    </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>
+                    <LogOut className="mr-2 h-4 w-4"/>
+                    <span>Logout</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
