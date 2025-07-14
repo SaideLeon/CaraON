@@ -26,6 +26,22 @@ const nextConfig: NextConfig = {
       },
     ]
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+        // @ts-ignore
+        config.devServer = {
+            ...config.devServer,
+            proxy: {
+                '/': {
+                    target: 'http://caraonback.cognick.qzz.io',
+                    ws: true,
+                    changeOrigin: true,
+                },
+            },
+        };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
