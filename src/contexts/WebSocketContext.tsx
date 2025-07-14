@@ -2,7 +2,14 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 
-const WEBSOCKET_URL = 'wss://caraonback.cognick.qzz.io';
+const getWebSocketURL = () => {
+  if (typeof window === 'undefined') {
+    return ''; // Return empty string for SSR
+  }
+  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const host = window.location.host;
+  return `${protocol}://${host}/`;
+}
 
 interface WebSocketMessage {
   type: 'qr_code' | 'instance_status';
@@ -24,6 +31,9 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    const WEBSOCKET_URL = getWebSocketURL();
+    if (!WEBSOCKET_URL) return;
+
     const socket = new WebSocket(WEBSOCKET_URL);
 
     socket.onopen = () => {
