@@ -46,17 +46,17 @@ export function InstanceCard({ instance }: InstanceCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow duration-300">
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className='w-full'>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
             <MessageSquare className="h-8 w-8 text-primary mb-2" />
             <CardTitle className="font-headline text-xl truncate">{instance.name}</CardTitle>
           </div>
-          <div className={cn("flex items-center gap-2 text-sm font-medium", config.textColor)}>
+          <div className={cn("flex shrink-0 items-center gap-2 text-sm font-medium", config.textColor)}>
               <span className="relative flex h-3 w-3">
                   <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", config.color, {'animate-ping': currentStatus === 'pending' || currentStatus === 'connected' })}></span>
                   <span className={cn("relative inline-flex h-3 w-3 rounded-full", config.color)}></span>
               </span>
-              {config.label}
+              <span>{config.label}</span>
           </div>
         </div>
       </CardHeader>
