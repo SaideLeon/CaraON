@@ -10,8 +10,7 @@ import { InstanceCard } from '@/components/dashboard/InstanceCard';
 import type { Instance } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const API_BASE_URL = 'http://caraonback.cognick.qzz.io/api/v1';
+import api from '@/services/api';
 
 export default function DashboardPage() {
   const { token } = useAuth();
@@ -28,11 +27,8 @@ export default function DashboardPage() {
       if (!token) return;
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/user/instances`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error('Failed to fetch instances.');
-        const data: Instance[] = await response.json();
+        const response = await api.get('/user/instances');
+        const data: Instance[] = response.data;
         setInstances(data.map(inst => ({ ...inst, status: 'pending' })));
       } catch (error) {
         console.error(error);

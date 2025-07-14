@@ -12,18 +12,15 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
-  DialogClose
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import type { Instance } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
-
-const API_BASE_URL = 'http://caraonback.cognick.qzz.io/api/v1';
+import api from '@/services/api';
 
 const instanceSchema = z.object({
   name: z.string().min(3, { message: 'Instance name must be at least 3 characters.' }),
@@ -48,7 +45,6 @@ export function CreateInstanceDialog({
   open,
   onOpenChange
 }: CreateInstanceDialogProps) {
-  const { token } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [createdInstance, setCreatedInstance] = useState<Instance | null>(null);
@@ -59,20 +55,11 @@ export function CreateInstanceDialog({
   });
 
   const onSubmit = async (data: InstanceFormValues) => {
-    if (!token) return;
     setLoading(true);
     setCreatedInstance(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/new/instance`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Failed to create instance.');
+      const response = await api.post('/new/instance', data);
+      const result = response.data;
       
       toast({
         title: 'Instance Creation Initiated',
@@ -81,7 +68,8 @@ export function CreateInstanceDialog({
       setCreatedInstance(result.instance);
       onInstanceCreated(result.instance);
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Error', description: error.message });
+      const message = error.response?.data?.message || 'Failed to create instance.';
+      toast({ variant: 'destructive', title: 'Error', description: message });
       setLoading(false);
     } 
     // loading remains true until QR code is received or timeout

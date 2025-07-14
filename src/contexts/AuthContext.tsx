@@ -4,8 +4,8 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/lib/types';
+import api from '@/services/api';
 
-const API_BASE_URL = 'http://caraonback.cognick.qzz.io/api/v1';
 const TOKEN_KEY = 'caraon-token';
 
 interface AuthContextType {
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const handleAuthError = (error: any, defaultMessage: string) => {
-    const message = error.message || defaultMessage;
+    const message = error.response?.data?.message || error.message || defaultMessage;
     setAuthError(message);
     toast({
       variant: 'destructive',
@@ -61,16 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (data: any) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Invalid credentials');
-      }
-      handleAuthSuccess(result.token);
+      const response = await api.post('/auth/login', data);
+      handleAuthSuccess(response.data.token);
     } catch (error: any) {
       handleAuthError(error, 'Failed to log in.');
     } finally {
@@ -81,15 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (data: any) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Could not create account.');
-      }
+      await api.post('/auth/register', data);
       toast({
         title: 'Registration Successful',
         description: 'You can now log in with your credentials.',
