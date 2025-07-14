@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 
-const WEBSOCKET_URL = 'ws://caraonback.cognick.qzz.io';
+const WEBSOCKET_URL = 'wss://caraonback.cognick.qzz.io';
 
 interface WebSocketMessage {
   type: 'qr_code' | 'instance_status';
