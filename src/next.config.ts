@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'https://caraon-backend-v2-4c5n4x5l7a-uc.a.run.app/api/v1/:path*',
+        destination: 'http://caraonback.cognick.qzz.io/api/v1/:path*',
       },
     ]
   },
