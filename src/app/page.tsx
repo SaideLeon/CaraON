@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 
 export default function EnhancedLandingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div>
       {/* Hero Section */}
       <section className="relative container mx-auto px-4 pt-20 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-pink-400/10 animate-pulse opacity-50 dark:from-blue-400/20 dark:via-purple-400/20 dark:to-pink-400/20"></div>
