@@ -31,7 +31,7 @@ export function SidebarNav() {
   const { user, logout } = useAuth();
 
   const isActive = (path: string) => {
-    return pathname === path;
+    return pathname.startsWith(path);
   };
 
   return (
@@ -55,7 +55,7 @@ export function SidebarNav() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive('/agents')} tooltip="Agents">
-              <Link href="#">
+              <Link href="/agents">
                 <Bot />
                 <span>Agents</span>
               </Link>
@@ -63,7 +63,7 @@ export function SidebarNav() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive('/organizations')} tooltip="Organizations">
-              <Link href="#">
+              <Link href="/organizations">
                 <Briefcase />
                 <span>Organizations</span>
               </Link>
