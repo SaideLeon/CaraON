@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { PlusCircle, Wifi, WifiOff, Loader2 } from 'lucide-react';
+import { PlusCircle, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,8 @@ export default function DashboardPage() {
     if (lastMessage) {
       if (lastMessage.type === 'qr_code' && lastMessage.data) {
         setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
-        setIsDialogOpen(true);
+        // This assumes the dialog for the new instance is already open
+        // We might need to find a way to open it if it's not
       }
       if (lastMessage.type === 'instance_status') {
         setInstances(prev =>
@@ -54,26 +55,20 @@ export default function DashboardPage() {
               : inst
           )
         );
-        const matchedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
-        if (matchedInstance) {
-            toast({
-                title: `Instance '${matchedInstance.name}' Update`,
-                description: lastMessage.message,
-            });
-        }
       }
     }
-  }, [lastMessage, toast, instances]);
+  }, [lastMessage]);
 
   const handleInstanceCreated = (newInstance: Instance) => {
     setInstances(prev => [...prev, { ...newInstance, status: 'pending' }]);
     setIsDialogOpen(true);
   };
-
+  
   const closeDialog = () => {
     setIsDialogOpen(false);
     setQrCodeData(null);
   }
+
 
   return (
     <div className="container py-8">
@@ -116,7 +111,12 @@ export default function DashboardPage() {
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <h3 className="text-xl font-semibold">No instances found</h3>
           <p className="text-muted-foreground mt-2">Get started by creating your first WhatsApp instance.</p>
-          <CreateInstanceDialog onInstanceCreated={handleInstanceCreated} onDialogClose={closeDialog}>
+          <CreateInstanceDialog 
+            onInstanceCreated={handleInstanceCreated} 
+            onDialogClose={closeDialog}
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            >
             <Button className="mt-4">
               <PlusCircle className="mr-2 h-4 w-4" />
               Create Instance
