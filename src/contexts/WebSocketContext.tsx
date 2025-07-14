@@ -64,7 +64,8 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
 
         socket.onerror = (error) => {
           console.error('WebSocket error:', error);
-          socket.close(); // This will trigger the onclose handler to reconnect
+          // The 'onclose' event will be fired automatically, which handles the reconnect logic.
+          // Explicitly calling close() here can sometimes lead to duplicate or rapid-fire reconnect attempts.
         };
     }
     
@@ -75,6 +76,8 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       clearTimeout(timeoutId);
       if (socket) {
         // Unbind handlers to prevent memory leaks and reconnect attempts on unmount
+        socket.onopen = null;
+        socket.onmessage = null;
         socket.onclose = null;
         socket.onerror = null;
         socket.close();
