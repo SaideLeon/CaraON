@@ -18,19 +18,19 @@ const statusConfig = {
         icon: Power,
         label: 'Conectado',
         color: 'bg-green-500',
-        textColor: 'text-green-600 dark:text-green-400'
+        textColor: 'text-green-400'
     },
     disconnected: {
         icon: PowerOff,
         label: 'Desconectado',
         color: 'bg-red-500',
-        textColor: 'text-red-600 dark:text-red-400'
+        textColor: 'text-red-400'
     },
     pending: {
         icon: Loader2,
         label: 'Pendente',
         color: 'bg-yellow-500',
-        textColor: 'text-yellow-600 dark:text-yellow-400'
+        textColor: 'text-yellow-400'
     },
      error: {
         icon: PowerOff,
@@ -47,7 +47,7 @@ export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCa
     const Icon = config.icon;
   
   return (
-    <Card className="flex flex-col hover:shadow-md transition-shadow duration-300">
+    <Card className="flex flex-col hover:border-primary transition-colors duration-300">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
@@ -68,7 +68,7 @@ export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCa
       </CardContent>
       <CardFooter className="flex justify-end items-center gap-2">
          {(currentStatus === 'disconnected' || currentStatus === 'error') && (
-            <Button variant="destructive" size="sm" onClick={() => onReconnect(instance)}>
+            <Button variant="outline" size="sm" onClick={() => onReconnect(instance)}>
                 <RefreshCw className="mr-2 h-4 w-4"/>
                 Reconectar
             </Button>
@@ -79,7 +79,7 @@ export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCa
                 Desconectar
             </Button>
          )}
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="default" size="sm">
             <Link href="#">
                 Gerir
                 <LinkIcon className="ml-2 h-4 w-4"/>
