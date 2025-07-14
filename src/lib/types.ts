@@ -14,9 +14,15 @@ export interface Instance {
 
 export interface Agent {
   id: string;
-  name: "string",
-  flowId: "string",
-  persona: "string",
-  instanceId: "string",
-  organizationId: "string" | null
+  name: string;
+  flowId: string;
+  persona: string;
+  instanceId: string;
+  organizationId?: string | null;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  instanceId: string;
 }
