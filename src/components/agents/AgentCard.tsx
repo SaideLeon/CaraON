@@ -29,13 +29,13 @@ export function AgentCard({ agent }: AgentCardProps) {
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
          <Button asChild variant="outline" size="sm">
-            <Link href="#">
+            <Link href={`/agents/${agent.id}/edit`}>
                 <Edit className="mr-2 h-3 w-3"/>
                 Editar
             </Link>
         </Button>
         <Button asChild variant="default" size="sm">
-            <Link href="#">
+            <Link href={`/agents/${agent.id}/tune`}>
                 <Wand2 className="mr-2 h-3 w-3"/>
                 Afinar
             </Link>
