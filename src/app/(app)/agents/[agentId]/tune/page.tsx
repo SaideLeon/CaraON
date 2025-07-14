@@ -56,7 +56,7 @@ export default function TuneAgentPage() {
           {isLoading && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando as interações...</p>}
           {suggestion && (
             <div className="p-4 border rounded-md bg-accent/20">
-                <p className="text-sm text-accent-foreground flex gap-2">
+                <p className="text-sm text-foreground flex gap-2">
                     <Sparkles className="h-4 w-4 text-accent shrink-0 mt-0.5" />
                     <span>{suggestion}</span>
                 </p>
