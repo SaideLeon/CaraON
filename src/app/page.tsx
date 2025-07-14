@@ -136,14 +136,13 @@ export default function EnhancedLandingPage() {
       </section>
 
       {/* Dashboard Preview Section */}
-      <section className="py-20 bg-slate-100 dark:bg-slate-800/50">
+      <section className="py-20 bg-slate-50 dark:bg-slate-900/50">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-6xl">
             <div className="relative group animate-fade-in [animation-delay:1000ms]">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 animate-pulse"></div>
-              
-              <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-8 shadow-2xl hover:shadow-3xl transition-shadow duration-500">
-                <div className="bg-slate-200 dark:bg-slate-800 h-96 rounded-lg flex items-center justify-center">
+               <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition duration-1000 animate-pulse"></div>
+              <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl p-1 shadow-2xl hover:shadow-3xl transition-shadow duration-500">
+                <div className="bg-slate-200/60 dark:bg-slate-800/60 h-96 rounded-lg flex items-center justify-center">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                       <MessageCircleCode className="h-8 w-8 text-white" />
@@ -185,3 +184,5 @@ export default function EnhancedLandingPage() {
     </div>
   );
 }
+
+    
