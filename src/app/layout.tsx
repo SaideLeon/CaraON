@@ -9,7 +9,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 
 export const metadata: Metadata = {
   title: 'CaraON',
-  description: 'Manage your WhatsApp instances with AI-powered agents.',
+  description: 'Gira as suas instâncias do WhatsApp com agentes de IA.',
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pt" suppressHydrationWarning>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-body antialiased`}>
         <Providers>
           {children}

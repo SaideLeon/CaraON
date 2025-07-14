@@ -31,13 +31,13 @@ export function AgentCard({ agent }: AgentCardProps) {
          <Button asChild variant="outline" size="sm">
             <Link href="#">
                 <Edit className="mr-2 h-3 w-3"/>
-                Edit
+                Editar
             </Link>
         </Button>
         <Button asChild variant="default" size="sm">
             <Link href="#">
                 <Wand2 className="mr-2 h-3 w-3"/>
-                Tune
+                Afinar
             </Link>
         </Button>
       </CardFooter>

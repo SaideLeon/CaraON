@@ -46,26 +46,26 @@ export function SidebarNav() {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/dashboard')} tooltip="Instances">
+            <SidebarMenuButton asChild isActive={isActive('/dashboard')} tooltip="Instâncias">
               <Link href="/dashboard">
                 <LayoutGrid />
-                <span>Instances</span>
+                <span>Instâncias</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/agents')} tooltip="Agents">
+            <SidebarMenuButton asChild isActive={isActive('/agents')} tooltip="Agentes">
               <Link href="/agents">
                 <Bot />
-                <span>Agents</span>
+                <span>Agentes</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/organizations')} tooltip="Organizations">
+            <SidebarMenuButton asChild isActive={isActive('/organizations')} tooltip="Organizações">
               <Link href="/organizations">
                 <Briefcase />
-                <span>Organizations</span>
+                <span>Organizações</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -83,7 +83,7 @@ export function SidebarNav() {
                                 </AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
-                                <span className="text-sm font-medium">{user?.name || 'User'}</span>
+                                <span className="text-sm font-medium">{user?.name || 'Utilizador'}</span>
                                 <span className="text-xs text-muted-foreground truncate">{user?.email || 'no-email@example.com'}</span>
                             </div>
                         </div>
@@ -94,17 +94,17 @@ export function SidebarNav() {
             <DropdownMenuContent side="right" align="end" className="w-56">
                 <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
+                        <p className="text-sm font-medium leading-none">{user?.name || 'Utilizador'}</p>
                         <p className="text-xs leading-none text-muted-foreground">{user?.email || 'no-email@example.com'}</p>
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem>Configurações</DropdownMenuItem>
+                <DropdownMenuItem>Suporte</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4"/>
-                    <span>Logout</span>
+                    <span>Sair</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

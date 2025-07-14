@@ -21,10 +21,10 @@ export function OrganizationCard({ organization }: OrganizationCardProps) {
         </div>
       </CardHeader>
        <CardContent className="flex justify-between items-center">
-        <p className="text-xs text-muted-foreground truncate">Instance ID: {organization.instanceId}</p>
+        <p className="text-xs text-muted-foreground truncate">ID da Instância: {organization.instanceId}</p>
         <Button asChild variant="outline" size="sm">
             <Link href="#">
-                Manage
+                Gerir
                 <LinkIcon className="ml-2 h-4 w-4"/>
             </Link>
         </Button>

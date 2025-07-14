@@ -28,8 +28,8 @@ export default function AgentsPage() {
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: 'Error',
-          description: 'Could not load your instances.',
+          title: 'Erro',
+          description: 'Não foi possível carregar suas instâncias.',
         });
       } finally {
         setLoadingInstances(false);
@@ -48,8 +48,8 @@ export default function AgentsPage() {
     } catch (error) {
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: 'Could not load agents for this instance.',
+        title: 'Erro',
+        description: 'Não foi possível carregar os agentes para esta instância.',
       });
     } finally {
       setLoadingAgents(false);
@@ -63,8 +63,8 @@ export default function AgentsPage() {
     } else {
         // Otherwise, prompt the user to switch to the correct instance to see the new agent
         toast({
-            title: 'Agent Created',
-            description: `Select instance ${instances.find(i => i.id === newAgent.instanceId)?.name} to see your new agent.`
+            title: 'Agente Criado',
+            description: `Selecione a instância ${instances.find(i => i.id === newAgent.instanceId)?.name} para ver o seu novo agente.`
         })
     }
   };
@@ -78,12 +78,12 @@ export default function AgentsPage() {
         <Card>
             <CardContent className="p-4 flex items-center gap-4">
                 <div className="flex-1">
-                    <h2 className="text-lg font-medium">Select an Instance</h2>
-                    <p className="text-sm text-muted-foreground">Choose an instance to view and manage its agents.</p>
+                    <h2 className="text-lg font-medium">Selecione uma Instância</h2>
+                    <p className="text-sm text-muted-foreground">Escolha uma instância para ver e gerir os seus agentes.</p>
                 </div>
                 <Select onValueChange={handleInstanceChange} disabled={loadingInstances}>
                     <SelectTrigger className="w-[280px]">
-                        <SelectValue placeholder={loadingInstances ? 'Loading instances...' : 'Select an instance'} />
+                        <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma instância'} />
                     </SelectTrigger>
                     <SelectContent>
                     {instances.map((instance) => (
@@ -99,7 +99,7 @@ export default function AgentsPage() {
       {loadingAgents && (
          <div className="flex justify-center items-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p className="ml-4 text-muted-foreground">Loading agents...</p>
+            <p className="ml-4 text-muted-foreground">Carregando agentes...</p>
         </div>
       )}
 
@@ -111,14 +111,14 @@ export default function AgentsPage() {
 
       {!loadingAgents && selectedInstance && agents.length === 0 && (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
-          <h3 className="text-xl font-semibold">No agents found for this instance</h3>
+          <h3 className="text-xl font-semibold">Nenhum agente encontrado para esta instância</h3>
           <p className="text-muted-foreground mt-2">
-            Get started by creating your first AI agent.
+            Comece por criar o seu primeiro agente de IA.
           </p>
           <CreateAgentDialog onAgentCreated={handleAgentCreated}>
              <Button className="mt-4">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Create Agent
+                Criar Agente
               </Button>
           </CreateAgentDialog>
         </div>
@@ -126,9 +126,9 @@ export default function AgentsPage() {
 
        {!selectedInstance && !loadingAgents && (
          <div className="text-center py-16 border-2 border-dashed rounded-lg">
-            <h3 className="text-xl font-semibold">Please select an instance</h3>
+            <h3 className="text-xl font-semibold">Por favor, selecione uma instância</h3>
             <p className="text-muted-foreground mt-2">
-                Select an instance from the dropdown above to manage its agents.
+                Selecione uma instância na lista acima para gerir os seus agentes.
             </p>
          </div>
        )}

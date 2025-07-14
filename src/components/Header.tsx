@@ -13,16 +13,16 @@ import { CreateOrganizationDialog } from './organizations/CreateOrganizationDial
 
 const pageConfig: Record<string, { title: string; description: string }> = {
     '/dashboard': {
-        title: 'Instances',
-        description: 'Manage your WhatsApp connections.',
+        title: 'Instâncias',
+        description: 'Gira as suas ligações WhatsApp.',
     },
     '/agents': {
-        title: 'Agents',
-        description: 'Create and manage your AI agents.',
+        title: 'Agentes',
+        description: 'Crie e gira os seus agentes de IA.',
     },
     '/organizations': {
-        title: 'Organizations',
-        description: 'Manage your organizations and teams.',
+        title: 'Organizações',
+        description: 'Gira as suas organizações e equipas.',
     }
 }
 
@@ -45,8 +45,8 @@ export function Header() {
         return (
             <Button size="sm" onClick={() => setIsInstanceDialogOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">New Instance</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">Nova Instância</span>
+              <span className="sm:hidden">Nova</span>
             </Button>
         );
       case '/agents':
@@ -54,8 +54,8 @@ export function Header() {
           <CreateAgentDialog onAgentCreated={handleActionCreated} >
             <Button size="sm">
               <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">New Agent</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">Novo Agente</span>
+              <span className="sm:hidden">Novo</span>
             </Button>
           </CreateAgentDialog>
         );
@@ -64,8 +64,8 @@ export function Header() {
           <CreateOrganizationDialog onOrganizationCreated={handleActionCreated}>
             <Button size="sm">
               <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">New Organization</span>
-              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">Nova Organização</span>
+              <span className="sm:hidden">Nova</span>
             </Button>
           </CreateOrganizationDialog>
         );
@@ -76,7 +76,7 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
         <SidebarTrigger className="md:hidden"/>
         <div className="flex-1">
             <h1 className="text-xl sm:text-2xl font-headline font-bold">{title}</h1>
@@ -85,7 +85,7 @@ export function Header() {
         <div className="flex items-center gap-4">
             <div className={`flex items-center gap-2 text-sm ${isConnected ? 'text-green-600' : 'text-destructive'}`}>
                 {isConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-                <span className="hidden sm:inline">{isConnected ? 'Connected' : 'Disconnected'}</span>
+                <span className="hidden sm:inline">{isConnected ? 'Conectado' : 'Desconectado'}</span>
             </div>
              {renderActionButtons()}
         </div>

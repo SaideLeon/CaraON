@@ -23,7 +23,7 @@ import Image from 'next/image';
 import api from '@/services/api';
 
 const instanceSchema = z.object({
-  name: z.string().min(3, { message: 'Instance name must be at least 3 characters.' }),
+  name: z.string().min(3, { message: 'O nome da instância deve ter pelo menos 3 caracteres.' }),
 });
 
 type InstanceFormValues = z.infer<typeof instanceSchema>;
@@ -76,14 +76,14 @@ export function CreateInstanceDialog({
       const result = response.data;
       
       toast({
-        title: 'Instance Creation Initiated',
-        description: 'Waiting for QR code...',
+        title: 'Criação de Instância Iniciada',
+        description: 'Aguardando código QR...',
       });
       setCreatedInstance(result.instance);
       onInstanceCreated(result.instance);
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to create instance.';
-      toast({ variant: 'destructive', title: 'Error', description: message });
+      const message = error.response?.data?.message || 'Falha ao criar instância.';
+      toast({ variant: 'destructive', title: 'Erro', description: message });
       setLoading(false);
     } 
     // loading remains true until QR code is received or timeout
@@ -120,7 +120,7 @@ export function CreateInstanceDialog({
                 {showQRCode && qrCodeData && (
                     <div className="flex flex-col items-center gap-4">
                         <Image src={qrCodeData.data} alt="WhatsApp QR Code" width={250} height={250} />
-                        <p className="text-sm text-muted-foreground">QR code for: <span className="font-bold">{instanceForQr?.name}</span></p>
+                        <p className="text-sm text-muted-foreground">Código QR para: <span className="font-bold">{instanceForQr?.name}</span></p>
                     </div>
                 )}
             </div>
@@ -135,9 +135,9 @@ export function CreateInstanceDialog({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instance Name</FormLabel>
+                    <FormLabel>Nome da Instância</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Sales Team" {...field} />
+                      <Input placeholder="ex: Equipa de Vendas" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -146,7 +146,7 @@ export function CreateInstanceDialog({
               <DialogFooter>
                 <Button type="submit" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create and Get QR Code
+                  Criar e Obter Código QR
                 </Button>
               </DialogFooter>
             </form>
@@ -160,12 +160,12 @@ export function CreateInstanceDialog({
       <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!loading) {e.preventDefault()}}}>
         <DialogHeader>
           <DialogTitle className="font-headline">
-            {isReconnectMode ? 'Reconnect Instance' : (createdInstance ? 'Scan QR Code' : 'Create New Instance')}
+            {isReconnectMode ? 'Reconectar Instância' : (createdInstance ? 'Digitalizar Código QR' : 'Criar Nova Instância')}
           </DialogTitle>
           <DialogDescription>
             {isReconnectMode || createdInstance
-              ? `Scan the code with your WhatsApp app to connect "${instanceForQr?.name}".`
-              : "Give your new WhatsApp instance a name to get started."}
+              ? `Digitalize o código com a sua aplicação WhatsApp para ligar "${instanceForQr?.name}".`
+              : "Dê um nome à sua nova instância do WhatsApp para começar."}
           </DialogDescription>
         </DialogHeader>
         {renderContent()}

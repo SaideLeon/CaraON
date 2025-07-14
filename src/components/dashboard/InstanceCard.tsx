@@ -16,25 +16,25 @@ interface InstanceCardProps {
 const statusConfig = {
     connected: {
         icon: Power,
-        label: 'Connected',
+        label: 'Conectado',
         color: 'bg-green-500',
         textColor: 'text-green-600 dark:text-green-400'
     },
     disconnected: {
         icon: PowerOff,
-        label: 'Disconnected',
+        label: 'Desconectado',
         color: 'bg-red-500',
         textColor: 'text-red-600 dark:text-red-400'
     },
     pending: {
         icon: Loader2,
-        label: 'Pending',
+        label: 'Pendente',
         color: 'bg-yellow-500',
         textColor: 'text-yellow-600 dark:text-yellow-400'
     },
      error: {
         icon: PowerOff,
-        label: 'Error',
+        label: 'Erro',
         color: 'bg-destructive',
         textColor: 'text-destructive'
     }
@@ -70,18 +70,18 @@ export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCa
          {(currentStatus === 'disconnected' || currentStatus === 'error') && (
             <Button variant="destructive" size="sm" onClick={() => onReconnect(instance)}>
                 <RefreshCw className="mr-2 h-4 w-4"/>
-                Reconnect
+                Reconectar
             </Button>
          )}
          {currentStatus === 'connected' && (
             <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => onDisconnect(instance)}>
                 <PowerOff className="mr-2 h-4 w-4"/>
-                Disconnect
+                Desconectar
             </Button>
          )}
         <Button asChild variant="outline" size="sm">
             <Link href="#">
-                Manage
+                Gerir
                 <LinkIcon className="ml-2 h-4 w-4"/>
             </Link>
         </Button>

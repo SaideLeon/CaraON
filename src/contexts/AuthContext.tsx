@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Here you would typically fetch the user profile with the token
       // For now, we'll assume the token is valid and just need to navigate
       // A proper implementation would decode the token or call a /me endpoint
-      setUser({ id: '', name: 'User', email: '' }); // Placeholder user
+      setUser({ id: '', name: 'Utilizador', email: '' }); // Placeholder user
     }
     setLoading(false);
   }, []);
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleAuthSuccess = (newToken: string) => {
     localStorage.setItem(TOKEN_KEY, newToken);
     setToken(newToken);
-    setUser({ id: '', name: 'User', email: '' }); // Placeholder
+    setUser({ id: '', name: 'Utilizador', email: '' }); // Placeholder
     setAuthError(null);
     router.push('/dashboard');
   };
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthError(message);
     toast({
       variant: 'destructive',
-      title: 'Authentication Failed',
+      title: 'Falha na Autenticação',
       description: message,
     });
   };
@@ -64,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await api.post('/auth/login', data);
       handleAuthSuccess(response.data.token);
     } catch (error: any) {
-      handleAuthError(error, 'Failed to log in.');
+      handleAuthError(error, 'Falha ao iniciar sessão.');
     } finally {
       setLoading(false);
     }
@@ -75,12 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api.post('/auth/register', data);
       toast({
-        title: 'Registration Successful',
-        description: 'You can now log in with your credentials.',
+        title: 'Registo Bem-sucedido',
+        description: 'Agora pode iniciar sessão com as suas credenciais.',
       });
       router.push('/login');
     } catch (error: any) {
-      handleAuthError(error, 'Failed to register.');
+      handleAuthError(error, 'Falha ao registar.');
     } finally {
       setLoading(false);
     }

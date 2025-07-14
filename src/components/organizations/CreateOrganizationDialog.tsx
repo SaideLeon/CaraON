@@ -23,8 +23,8 @@ import { Loader2 } from 'lucide-react';
 import api from '@/services/api';
 
 const organizationSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters.'),
-  instanceId: z.string({ required_error: 'Please select an instance.' }),
+  name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+  instanceId: z.string({ required_error: 'Por favor, selecione uma instância.' }),
 });
 
 type OrganizationFormValues = z.infer<typeof organizationSchema>;
@@ -63,8 +63,8 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
         } catch (error) {
           toast({
             variant: 'destructive',
-            title: 'Error',
-            description: 'Could not load your instances.',
+            title: 'Erro',
+            description: 'Não foi possível carregar as suas instâncias.',
           });
         } finally {
           setLoadingInstances(false);
@@ -81,15 +81,15 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
       const newOrganization: Organization = response.data;
       
       toast({
-        title: 'Organization Created',
-        description: `Organization "${newOrganization.name}" has been successfully created.`,
+        title: 'Organização Criada',
+        description: `A organização "${newOrganization.name}" foi criada com sucesso.`,
       });
       onOrganizationCreated(newOrganization);
       setDialogOpen(false);
       form.reset();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Failed to create organization.';
-      toast({ variant: 'destructive', title: 'Error', description: message });
+      const message = error.response?.data?.message || 'Falha ao criar a organização.';
+      toast({ variant: 'destructive', title: 'Erro', description: message });
     } finally {
       setLoading(false);
     }
@@ -100,9 +100,9 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Create New Organization</DialogTitle>
+          <DialogTitle className="font-headline">Criar Nova Organização</DialogTitle>
           <DialogDescription>
-            Fill in the details below to create a new organization.
+            Preencha os detalhes abaixo para criar uma nova organização.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,9 +113,9 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Organization Name</FormLabel>
+                  <FormLabel>Nome da Organização</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Marketing Department" {...field} />
+                    <Input placeholder="ex: Departamento de Marketing" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -126,11 +126,11 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
                 name="instanceId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Instance</FormLabel>
+                    <FormLabel>Instância</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingInstances}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={loadingInstances ? 'Loading...' : 'Select an instance'} />
+                          <SelectValue placeholder={loadingInstances ? 'Carregando...' : 'Selecione uma instância'} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -148,7 +148,7 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
             <DialogFooter>
               <Button type="submit" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Organization
+                Criar Organização
               </Button>
             </DialogFooter>
           </form>

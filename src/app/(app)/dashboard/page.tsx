@@ -40,7 +40,7 @@ export default function DashboardPage() {
         setInstances(data.map(inst => ({ ...inst, status: inst.status?.toLowerCase() as any || 'pending' })));
       } catch (error) {
         console.error(error);
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not load your instances.' });
+        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar as suas instâncias.' });
       } finally {
         setLoading(false);
       }
@@ -57,14 +57,14 @@ export default function DashboardPage() {
         if (lastMessage.status === 'connected') {
             const connectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
             if(connectedInstance) {
-                toast({ title: 'Connected!', description: `Instance "${connectedInstance.name}" is now connected.` });
+                toast({ title: 'Conectado!', description: `A instância "${connectedInstance.name}" está agora conectada.` });
                 closeDialogs();
             }
         }
         if (lastMessage.status === 'disconnected') {
             const disconnectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
             if(disconnectedInstance) {
-                toast({ title: 'Disconnected', description: `Instance "${disconnectedInstance.name}" has been disconnected.` });
+                toast({ title: 'Desconectado', description: `A instância "${disconnectedInstance.name}" foi desconectada.` });
             }
         }
         setInstances(prev =>
@@ -98,14 +98,14 @@ export default function DashboardPage() {
     try {
         await api.post(`/instances/${instance.id}/reconnect`);
         toast({
-            title: 'Reconnection Initiated',
-            description: `Waiting for QR code for "${instance.name}"...`
+            title: 'Reconexão Iniciada',
+            description: `Aguardando código QR para "${instance.name}"...`
         });
     } catch (error) {
         toast({
             variant: 'destructive',
-            title: 'Error',
-            description: 'Failed to start reconnection process.'
+            title: 'Erro',
+            description: 'Falha ao iniciar o processo de reconexão.'
         });
         closeDialogs();
     }
@@ -125,10 +125,10 @@ export default function DashboardPage() {
             inst.id === disconnectingInstance.id ? { ...inst, status: 'disconnected' } : inst
         ));
     } catch (error: any) {
-        const message = error.response?.data?.error || 'Failed to disconnect instance.';
+        const message = error.response?.data?.error || 'Falha ao desconectar instância.';
         toast({
             variant: 'destructive',
-            title: 'Error',
+            title: 'Erro',
             description: message,
         });
     } finally {
@@ -152,15 +152,15 @@ export default function DashboardPage() {
         <AlertDialog open={!!disconnectingInstance} onOpenChange={() => setDisconnectingInstance(null)}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This will disconnect the WhatsApp session for the instance "{disconnectingInstance?.name}". You will need to scan a new QR code to reconnect.
+                        Isto irá desconectar a sessão do WhatsApp para a instância "{disconnectingInstance?.name}". Terá de digitalizar um novo código QR para se reconectar.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
                     <AlertDialogAction onClick={confirmDisconnect} disabled={isDisconnecting}>
-                        {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                        {isDisconnecting ? 'A desconectar...' : 'Desconectar'}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -179,11 +179,11 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
-          <h3 className="text-xl font-semibold">No instances found</h3>
-          <p className="text-muted-foreground mt-2">Get started by creating your first WhatsApp instance.</p>
+          <h3 className="text-xl font-semibold">Nenhuma instância encontrada</h3>
+          <p className="text-muted-foreground mt-2">Comece por criar a sua primeira instância do WhatsApp.</p>
            <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create Instance
+              Criar Instância
             </Button>
         </div>
       )}

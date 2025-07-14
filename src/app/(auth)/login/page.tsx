@@ -13,8 +13,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(1, { message: 'Password is required.' }),
+  email: z.string().email({ message: 'Endereço de email inválido.' }),
+  password: z.string().min(1, { message: 'A senha é obrigatória.' }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -37,8 +37,8 @@ export default function LoginPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-        <CardDescription>Enter your credentials to access your account.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Bem-vindo de Volta</CardTitle>
+        <CardDescription>Introduza as suas credenciais para aceder à sua conta.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -50,7 +50,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="user@example.com" {...field} />
+                    <Input placeholder="user@exemplo.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -61,7 +61,7 @@ export default function LoginPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="********" {...field} />
                   </FormControl>
@@ -70,14 +70,14 @@ export default function LoginPage() {
               )}
             />
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Log In'}
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Entrar'}
             </Button>
           </form>
         </Form>
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{' '}
+          Não tem uma conta?{' '}
           <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">
-            Register
+            Registe-se
           </Link>
         </div>
       </CardContent>

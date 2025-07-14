@@ -12,9 +12,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Loader2 } from 'lucide-react';
 
 const registerSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Invalid email address.' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  name: z.string().min(2, { message: 'O nome deve ter pelo menos 2 caracteres.' }),
+  email: z.string().email({ message: 'Endereço de email inválido.' }),
+  password: z.string().min(6, { message: 'A senha deve ter pelo menos 6 caracteres.' }),
 });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -38,8 +38,8 @@ export default function RegisterPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-        <CardDescription>Enter your details to get started.</CardDescription>
+        <CardTitle className="font-headline text-2xl">Criar uma Conta</CardTitle>
+        <CardDescription>Introduza os seus dados para começar.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -49,9 +49,9 @@ export default function RegisterPage() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your Name" {...field} />
+                    <Input placeholder="O seu nome" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -64,7 +64,7 @@ export default function RegisterPage() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="user@example.com" {...field} />
+                    <Input placeholder="user@exemplo.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -75,7 +75,7 @@ export default function RegisterPage() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="********" {...field} />
                   </FormControl>
@@ -84,14 +84,14 @@ export default function RegisterPage() {
               )}
             />
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Register'}
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Registar'}
             </Button>
           </form>
         </Form>
         <div className="mt-4 text-center text-sm">
-          Already have an account?{' '}
+          Já tem uma conta?{' '}
           <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
-            Log In
+            Entrar
           </Link>
         </div>
       </CardContent>
