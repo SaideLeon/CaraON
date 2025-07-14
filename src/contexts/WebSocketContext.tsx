@@ -6,8 +6,9 @@ const getWebSocketURL = () => {
   if (typeof window === 'undefined') {
     return ''; // Return empty string for SSR
   }
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  const host = window.location.host;
+  // Hardcode the backend URL for WebSocket connection
+  const protocol = 'wss';
+  const host = 'caraonback.cognick.qzz.io';
   return `${protocol}://${host}/`;
 }
 
@@ -34,34 +35,50 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     const WEBSOCKET_URL = getWebSocketURL();
     if (!WEBSOCKET_URL) return;
 
-    const socket = new WebSocket(WEBSOCKET_URL);
+    let socket: WebSocket;
+    let timeoutId: NodeJS.Timeout;
 
-    socket.onopen = () => {
-      console.log('WebSocket connection established.');
-      setIsConnected(true);
-    };
+    const connect = () => {
+        socket = new WebSocket(WEBSOCKET_URL);
 
-    socket.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data);
-        setLastMessage(message);
-      } catch (error) {
-        console.error('Failed to parse WebSocket message:', error);
-      }
-    };
+        socket.onopen = () => {
+          console.log('WebSocket connection established.');
+          setIsConnected(true);
+        };
 
-    socket.onclose = () => {
-      console.log('WebSocket connection closed.');
-      setIsConnected(false);
-    };
+        socket.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            setLastMessage(message);
+          } catch (error) {
+            console.error('Failed to parse WebSocket message:', error);
+          }
+        };
 
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+        socket.onclose = () => {
+          console.log('WebSocket connection closed. Attempting to reconnect...');
+          setIsConnected(false);
+          // Attempt to reconnect after a delay
+          timeoutId = setTimeout(connect, 5000);
+        };
+
+        socket.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          socket.close(); // This will trigger the onclose handler to reconnect
+        };
+    }
+    
+    connect();
 
     // Cleanup on component unmount
     return () => {
-      socket.close();
+      clearTimeout(timeoutId);
+      if (socket) {
+        // Unbind handlers to prevent memory leaks and reconnect attempts on unmount
+        socket.onclose = null;
+        socket.onerror = null;
+        socket.close();
+      }
     };
   }, []);
 
