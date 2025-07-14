@@ -7,6 +7,7 @@ import { Loader2 } from 'lucide-react';
 import { WebSocketProvider } from '@/contexts/WebSocketContext';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/SidebarNav';
+import { Header } from '@/components/Header';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { user, loading, token } = useAuth();
@@ -31,7 +32,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <SidebarProvider>
         <SidebarNav />
         <SidebarInset>
-            <main className="flex-1">{children}</main>
+            <div className="flex flex-col flex-1">
+                <Header />
+                <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+            </div>
         </SidebarInset>
       </SidebarProvider>
     </WebSocketProvider>
