@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { Agent, Instance } from '@/lib/types';
+import type { Agent, Instance, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import api from '@/services/api';
 
@@ -28,7 +28,7 @@ const agentSchema = z.object({
   flowId: z.string().min(1, 'Flow ID is required.'),
   persona: z.string().min(10, 'Persona must be at least 10 characters.'),
   instanceId: z.string({ required_error: 'Please select an instance.' }),
-  organizationId: z.string().optional(),
+  organizationId: z.string({ required_error: 'Please select an organization.' }).optional(),
 });
 
 type AgentFormValues = z.infer<typeof agentSchema>;
@@ -43,7 +43,9 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [instances, setInstances] = useState<Instance[]>([]);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loadingInstances, setLoadingInstances] = useState(false);
+  const [loadingOrgs, setLoadingOrgs] = useState(false);
 
   const form = useForm<AgentFormValues>({
     resolver: zodResolver(agentSchema),
@@ -51,9 +53,10 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
       name: '',
       flowId: 'GREETFLOW', // Default value as per docs
       persona: '',
-      organizationId: '',
     },
   });
+
+  const selectedInstanceId = form.watch('instanceId');
 
   useEffect(() => {
     const fetchInstances = async () => {
@@ -75,6 +78,29 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
     };
     fetchInstances();
   }, [open, toast]);
+
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      if (selectedInstanceId) {
+        setLoadingOrgs(true);
+        form.setValue('organizationId', undefined); // Reset org selection
+        setOrganizations([]);
+        try {
+          const response = await api.get(`/instances/${selectedInstanceId}/organizations`);
+          setOrganizations(response.data);
+        } catch (error) {
+           toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not load organizations for this instance.',
+          });
+        } finally {
+          setLoadingOrgs(false);
+        }
+      }
+    }
+    fetchOrganizations();
+  }, [selectedInstanceId, form, toast]);
 
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
@@ -171,10 +197,24 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                   name="organizationId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organization ID (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Paste Organization ID" {...field} />
-                      </FormControl>
+                      <FormLabel>Organization</FormLabel>
+                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedInstanceId || loadingOrgs}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={
+                                !selectedInstanceId ? "Select instance first" :
+                                loadingOrgs ? "Loading..." : "Select an organization"
+                            } />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {organizations.map((org) => (
+                            <SelectItem key={org.id} value={org.id}>
+                              {org.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
