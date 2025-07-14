@@ -9,6 +9,25 @@ import { Button } from '@/components/ui/button';
 export default function EnhancedLandingPage() {
   return (
     <div>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center">
+          <div className="mr-4 flex items-center">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <MessageCircleCode className="h-6 w-6 text-primary" />
+              <span className="font-bold font-headline">CaraON</span>
+            </Link>
+          </div>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <Button asChild variant="ghost">
+              <Link href="/login">Entrar</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/register">Comece Agora</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 pt-20 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-pink-400/10 animate-pulse opacity-50 dark:from-blue-400/20 dark:via-purple-400/20 dark:to-pink-400/20"></div>
