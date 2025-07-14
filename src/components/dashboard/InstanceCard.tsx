@@ -60,13 +60,13 @@ export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCa
                   <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", config.color, {'animate-ping': currentStatus === 'pending' || currentStatus === 'connected' })}></span>
                   <span className={cn("relative inline-flex h-3 w-3 rounded-full", config.color)}></span>
               </span>
-              <span>{config.label}</span>
+              <span className="hidden sm:inline">{config.label}</span>
           </div>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
       </CardContent>
-      <CardFooter className="flex justify-end items-center gap-2">
+      <CardFooter className="flex flex-col sm:flex-row sm:justify-end items-stretch sm:items-center gap-2">
          {(currentStatus === 'disconnected' || currentStatus === 'error') && (
             <Button variant="outline" size="sm" onClick={() => onReconnect(instance)}>
                 <RefreshCw className="mr-2 h-4 w-4"/>

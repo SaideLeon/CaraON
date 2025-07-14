@@ -98,7 +98,7 @@ export default function OrganizationsPage() {
       )}
 
       {!loadingOrganizations && selectedInstance && organizations.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {organizations.map(org => <OrganizationCard key={org.id} organization={org} />)}
         </div>
       )}
