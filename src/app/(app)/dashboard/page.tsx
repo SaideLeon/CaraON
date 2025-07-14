@@ -36,7 +36,8 @@ export default function DashboardPage() {
       try {
         const response = await api.get('/user/instances');
         const data: Instance[] = response.data;
-        setInstances(data.map(inst => ({ ...inst, status: 'pending' })));
+        // Convert status to lowercase as the UI components expect it that way
+        setInstances(data.map(inst => ({ ...inst, status: inst.status?.toLowerCase() as any || 'pending' })));
       } catch (error) {
         console.error(error);
         toast({ variant: 'destructive', title: 'Error', description: 'Could not load your instances.' });
@@ -78,7 +79,9 @@ export default function DashboardPage() {
   }, [lastMessage, instances, toast]);
 
   const handleInstanceCreated = (newInstance: Instance) => {
-    setInstances(prev => [...prev, { ...newInstance, status: 'pending' }]);
+    // API now returns status, so we can use it directly
+    const initialStatus = (newInstance.status?.toLowerCase() as any) || 'pending';
+    setInstances(prev => [...prev, { ...newInstance, status: initialStatus }]);
     setIsCreateDialogOpen(true);
   };
   

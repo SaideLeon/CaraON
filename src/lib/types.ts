@@ -4,12 +4,14 @@ export interface User {
   email: string;
 }
 
+export type InstanceStatus = 'connected' | 'disconnected' | 'pending' | 'error' | 'CONNECTED' | 'DISCONNECTED' | 'PENDING' | 'ERROR';
+
 export interface Instance {
   id: string;
   name: string;
   clientId: string;
   userId: string;
-  status?: 'connected' | 'disconnected' | 'pending' | 'error';
+  status: InstanceStatus;
 }
 
 export interface Agent {
