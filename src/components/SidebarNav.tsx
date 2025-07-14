@@ -42,7 +42,7 @@ export function SidebarNav() {
            <MessageCircleCode className="h-7 w-7 text-primary" />
            <span className="text-lg font-semibold font-headline">CaraON</span>
         </div>
-        <SidebarTrigger />
+        <SidebarTrigger className="md:hidden" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
