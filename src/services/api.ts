@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://caraonback.cognick.qzz.io/api/v1';
+const API_BASE_URL = 'https://caraon-backend-v2-4c5n4x5l7a-uc.a.run.app/api/v1';
 const TOKEN_KEY = 'caraon-token';
 
 const api = axios.create({
