@@ -6,12 +6,11 @@ import { MessageSquare, Link as LinkIcon, Power, PowerOff, Loader2, RefreshCw } 
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { useToast } from '@/hooks/use-toast';
-import api from '@/services/api';
 
 interface InstanceCardProps {
   instance: Instance;
   onReconnect: (instance: Instance) => void;
+  onDisconnect: (instance: Instance) => void;
 }
 
 const statusConfig = {
@@ -42,7 +41,7 @@ const statusConfig = {
 }
 
 
-export function InstanceCard({ instance, onReconnect }: InstanceCardProps) {
+export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCardProps) {
     const currentStatus = instance.status || 'pending';
     const config = statusConfig[currentStatus] || statusConfig.error;
     const Icon = config.icon;
@@ -66,13 +65,18 @@ export function InstanceCard({ instance, onReconnect }: InstanceCardProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-         {/* Can add more details here in the future */}
       </CardContent>
       <CardFooter className="flex justify-end items-center gap-2">
          {(currentStatus === 'disconnected' || currentStatus === 'error') && (
             <Button variant="destructive" size="sm" onClick={() => onReconnect(instance)}>
                 <RefreshCw className="mr-2 h-4 w-4"/>
                 Reconnect
+            </Button>
+         )}
+         {currentStatus === 'connected' && (
+            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => onDisconnect(instance)}>
+                <PowerOff className="mr-2 h-4 w-4"/>
+                Disconnect
             </Button>
          )}
         <Button asChild variant="outline" size="sm">

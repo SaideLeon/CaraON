@@ -11,6 +11,8 @@ import type { Instance } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import api from '@/services/api';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 export default function DashboardPage() {
   const { token } = useAuth();
@@ -19,9 +21,12 @@ export default function DashboardPage() {
 
   const [instances, setInstances] = useState<Instance[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<{ clientId: string, data: string } | null>(null);
   const [reconnectingInstance, setReconnectingInstance] = useState<Instance | null>(null);
+
+  const [disconnectingInstance, setDisconnectingInstance] = useState<Instance | null>(null);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
 
 
   useEffect(() => {
@@ -48,12 +53,17 @@ export default function DashboardPage() {
         setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
       }
       if (lastMessage.type === 'instance_status') {
-        // If status is connected, close the dialog regardless of whether it was a new connection or reconnection.
         if (lastMessage.status === 'connected') {
             const connectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
             if(connectedInstance) {
                 toast({ title: 'Connected!', description: `Instance "${connectedInstance.name}" is now connected.` });
-                closeDialog();
+                closeDialogs();
+            }
+        }
+        if (lastMessage.status === 'disconnected') {
+            const disconnectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
+            if(disconnectedInstance) {
+                toast({ title: 'Disconnected', description: `Instance "${disconnectedInstance.name}" has been disconnected.` });
             }
         }
         setInstances(prev =>
@@ -69,19 +79,19 @@ export default function DashboardPage() {
 
   const handleInstanceCreated = (newInstance: Instance) => {
     setInstances(prev => [...prev, { ...newInstance, status: 'pending' }]);
-    setIsDialogOpen(true);
+    setIsCreateDialogOpen(true);
   };
   
-  const closeDialog = () => {
-    setIsDialogOpen(false);
+  const closeDialogs = () => {
+    setIsCreateDialogOpen(false);
     setQrCodeData(null);
     setReconnectingInstance(null);
   }
 
   const handleReconnect = async (instance: Instance) => {
     setReconnectingInstance(instance);
-    setIsDialogOpen(true);
-    setQrCodeData(null); // Clear previous QR code
+    setIsCreateDialogOpen(true);
+    setQrCodeData(null); 
     try {
         await api.post(`/instances/${instance.id}/reconnect`);
         toast({
@@ -94,7 +104,33 @@ export default function DashboardPage() {
             title: 'Error',
             description: 'Failed to start reconnection process.'
         });
-        closeDialog();
+        closeDialogs();
+    }
+  }
+
+  const handleDisconnect = (instance: Instance) => {
+    setDisconnectingInstance(instance);
+  }
+
+  const confirmDisconnect = async () => {
+    if (!disconnectingInstance) return;
+
+    setIsDisconnecting(true);
+    try {
+        await api.post(`/instances/${disconnectingInstance.id}/disconnect`);
+        setInstances(prev => prev.map(inst => 
+            inst.id === disconnectingInstance.id ? { ...inst, status: 'disconnected' } : inst
+        ));
+    } catch (error: any) {
+        const message = error.response?.data?.error || 'Failed to disconnect instance.';
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: message,
+        });
+    } finally {
+        setIsDisconnecting(false);
+        setDisconnectingInstance(null);
     }
   }
 
@@ -102,13 +138,31 @@ export default function DashboardPage() {
   return (
     <>
        <CreateInstanceDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
             onInstanceCreated={handleInstanceCreated}
             qrCodeData={qrCodeData}
-            onDialogClose={closeDialog}
+            onDialogClose={closeDialogs}
             reconnectingInstance={reconnectingInstance}
         />
+        
+        <AlertDialog open={!!disconnectingInstance} onOpenChange={() => setDisconnectingInstance(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This will disconnect the WhatsApp session for the instance "{disconnectingInstance?.name}". You will need to scan a new QR code to reconnect.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmDisconnect} disabled={isDisconnecting}>
+                        {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
 
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -117,14 +171,14 @@ export default function DashboardPage() {
       ) : instances.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {instances.map(instance => (
-            <InstanceCard key={instance.id} instance={instance} onReconnect={handleReconnect} />
+            <InstanceCard key={instance.id} instance={instance} onReconnect={handleReconnect} onDisconnect={handleDisconnect} />
           ))}
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <h3 className="text-xl font-semibold">No instances found</h3>
           <p className="text-muted-foreground mt-2">Get started by creating your first WhatsApp instance.</p>
-           <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
+           <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Create Instance
             </Button>
