@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -17,8 +17,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { Agent } from '@/lib/types';
+import type { Agent, Instance } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import api from '@/services/api';
 
@@ -26,7 +27,7 @@ const agentSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
   flowId: z.string().min(1, 'Flow ID is required.'),
   persona: z.string().min(10, 'Persona must be at least 10 characters.'),
-  instanceId: z.string().min(1, 'Instance ID is required.'),
+  instanceId: z.string({ required_error: 'Please select an instance.' }),
   organizationId: z.string().optional(),
 });
 
@@ -41,6 +42,8 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [instances, setInstances] = useState<Instance[]>([]);
+  const [loadingInstances, setLoadingInstances] = useState(false);
 
   const form = useForm<AgentFormValues>({
     resolver: zodResolver(agentSchema),
@@ -48,10 +51,30 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
       name: '',
       flowId: 'GREETFLOW', // Default value as per docs
       persona: '',
-      instanceId: '',
       organizationId: '',
     },
   });
+
+  useEffect(() => {
+    const fetchInstances = async () => {
+      if (open) {
+        setLoadingInstances(true);
+        try {
+          const response = await api.get('/user/instances');
+          setInstances(response.data);
+        } catch (error) {
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not load your instances.',
+          });
+        } finally {
+          setLoadingInstances(false);
+        }
+      }
+    };
+    fetchInstances();
+  }, [open, toast]);
 
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
@@ -119,15 +142,26 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
               )}
             />
              <div className="grid grid-cols-2 gap-4">
-                <FormField
+               <FormField
                   control={form.control}
                   name="instanceId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Instance ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Paste Instance ID here" {...field} />
-                      </FormControl>
+                      <FormLabel>Instance</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingInstances}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={loadingInstances ? 'Loading...' : 'Select an instance'} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {instances.map((instance) => (
+                            <SelectItem key={instance.id} value={instance.id}>
+                              {instance.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
