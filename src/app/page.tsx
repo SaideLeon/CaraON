@@ -10,7 +10,7 @@ export default function EnhancedLandingPage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative container mx-auto px-4 pt-20 pb-16 overflow-hidden">
+      <section className="container mx-auto px-4 pt-20 pb-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-pink-400/10 animate-pulse opacity-50 dark:from-blue-400/20 dark:via-purple-400/20 dark:to-pink-400/20"></div>
         
         <div className="absolute top-20 left-1/4 w-4 h-4 bg-blue-400 rounded-full animate-bounce opacity-60"></div>
