@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { PlusCircle, Wifi, WifiOff } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import api from '@/services/api';
 
 export default function DashboardPage() {
   const { token } = useAuth();
-  const { lastMessage, isConnected } = useWebSocket();
+  const { lastMessage } = useWebSocket();
   const { toast } = useToast();
 
   const [instances, setInstances] = useState<Instance[]>([]);
@@ -71,31 +71,17 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-headline font-bold">Instances</h1>
-          <p className="text-muted-foreground">Manage your WhatsApp connections.</p>
-        </div>
-        <div className="flex items-center gap-4">
-            <div className={`flex items-center gap-2 text-sm ${isConnected ? 'text-green-600' : 'text-destructive'}`}>
-                {isConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-                <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
-            </div>
-            <CreateInstanceDialog
-              open={isDialogOpen}
-              onOpenChange={setIsDialogOpen}
-              onInstanceCreated={handleInstanceCreated}
-              qrCodeData={qrCodeData}
-              onDialogClose={closeDialog}
-            >
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Instance
-              </Button>
-            </CreateInstanceDialog>
-        </div>
-      </div>
+    <>
+       <CreateInstanceDialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onInstanceCreated={handleInstanceCreated}
+            qrCodeData={qrCodeData}
+            onDialogClose={closeDialog}
+        >
+            {/* This is a placeholder, the real trigger is in the Header now */}
+            <button className="hidden"></button>
+        </CreateInstanceDialog>
 
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -111,19 +97,19 @@ export default function DashboardPage() {
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <h3 className="text-xl font-semibold">No instances found</h3>
           <p className="text-muted-foreground mt-2">Get started by creating your first WhatsApp instance.</p>
-          <CreateInstanceDialog 
-            onInstanceCreated={handleInstanceCreated} 
-            onDialogClose={closeDialog}
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            >
-            <Button className="mt-4">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Create Instance
-            </Button>
-          </CreateInstanceDialog>
+           <CreateInstanceDialog 
+                onInstanceCreated={handleInstanceCreated} 
+                onDialogClose={closeDialog}
+                open={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                >
+                <Button className="mt-4">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Create Instance
+                </Button>
+            </CreateInstanceDialog>
         </div>
       )}
-    </div>
+    </>
   );
 }
