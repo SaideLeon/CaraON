@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -29,12 +29,13 @@ const instanceSchema = z.object({
 type InstanceFormValues = z.infer<typeof instanceSchema>;
 
 interface CreateInstanceDialogProps {
-  children: ReactNode;
+  children?: ReactNode;
   onInstanceCreated: (instance: Instance) => void;
   onDialogClose: () => void;
   qrCodeData?: { clientId: string, data: string } | null;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  reconnectingInstance?: Instance | null;
 }
 
 export function CreateInstanceDialog({
@@ -43,7 +44,8 @@ export function CreateInstanceDialog({
   onDialogClose,
   qrCodeData,
   open,
-  onOpenChange
+  onOpenChange,
+  reconnectingInstance
 }: CreateInstanceDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -53,6 +55,18 @@ export function CreateInstanceDialog({
     resolver: zodResolver(instanceSchema),
     defaultValues: { name: '' },
   });
+  
+  const isReconnectMode = !!reconnectingInstance;
+  const instanceForQr = reconnectingInstance || createdInstance;
+  
+  useEffect(() => {
+    if (!open) {
+        // Reset local state when dialog closes
+        setCreatedInstance(null);
+        setLoading(false);
+        form.reset();
+    }
+  }, [open, form]);
 
   const onSubmit = async (data: InstanceFormValues) => {
     setLoading(true);
@@ -75,11 +89,19 @@ export function CreateInstanceDialog({
     // loading remains true until QR code is received or timeout
   };
   
-  const showQRCode = qrCodeData && createdInstance && qrCodeData.clientId === createdInstance.clientId;
+  const showQRCode = qrCodeData && instanceForQr && qrCodeData.clientId === instanceForQr.clientId;
   
-  if (showQRCode && loading) {
-    setLoading(false);
-  }
+  useEffect(() => {
+    // When in reconnect mode, we start in a loading state.
+    if(isReconnectMode) {
+        setLoading(true);
+    }
+    // If we receive a QR code, stop loading.
+    if (showQRCode && loading) {
+        setLoading(false);
+    }
+  }, [isReconnectMode, showQRCode, loading])
+  
 
   const handleOpenChange = (isOpen: boolean) => {
     if (onOpenChange) {
@@ -87,29 +109,26 @@ export function CreateInstanceDialog({
     }
     if (!isOpen) {
         onDialogClose();
-        form.reset();
-        setCreatedInstance(null);
-        setLoading(false);
     }
   }
 
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle className="font-headline">
-            {createdInstance ? 'Scan QR Code' : 'Create New Instance'}
-          </DialogTitle>
-          <DialogDescription>
-            {createdInstance
-              ? "Scan the code with your WhatsApp app to connect."
-              : "Give your new WhatsApp instance a name to get started."}
-          </DialogDescription>
-        </DialogHeader>
+  const renderContent = () => {
+    if (isReconnectMode || createdInstance) {
+        return (
+            <div className="flex justify-center items-center py-4 min-h-[250px]">
+                {(loading && !showQRCode) && <Loader2 className="h-16 w-16 animate-spin text-primary" />}
+                {showQRCode && qrCodeData && (
+                    <div className="flex flex-col items-center gap-4">
+                        <Image src={qrCodeData.data} alt="WhatsApp QR Code" width={250} height={250} />
+                        <p className="text-sm text-muted-foreground">QR code for: <span className="font-bold">{instanceForQr?.name}</span></p>
+                    </div>
+                )}
+            </div>
+        )
+    }
 
-        {!createdInstance ? (
-          <Form {...form}>
+    return (
+        <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
               <FormField
                 control={form.control}
@@ -132,17 +151,24 @@ export function CreateInstanceDialog({
               </DialogFooter>
             </form>
           </Form>
-        ) : (
-            <div className="flex justify-center items-center py-4 min-h-[250px]">
-                {loading && !showQRCode && <Loader2 className="h-16 w-16 animate-spin text-primary" />}
-                {showQRCode && qrCodeData && (
-                    <div className="flex flex-col items-center gap-4">
-                        <Image src={qrCodeData.data} alt="WhatsApp QR Code" width={250} height={250} />
-                        <p className="text-sm text-muted-foreground">QR code for: <span className="font-bold">{createdInstance.name}</span></p>
-                    </div>
-                )}
-            </div>
-        )}
+    )
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!loading) {e.preventDefault()}}}>
+        <DialogHeader>
+          <DialogTitle className="font-headline">
+            {isReconnectMode ? 'Reconnect Instance' : (createdInstance ? 'Scan QR Code' : 'Create New Instance')}
+          </DialogTitle>
+          <DialogDescription>
+            {isReconnectMode || createdInstance
+              ? `Scan the code with your WhatsApp app to connect "${instanceForQr?.name}".`
+              : "Give your new WhatsApp instance a name to get started."}
+          </DialogDescription>
+        </DialogHeader>
+        {renderContent()}
       </DialogContent>
     </Dialog>
   );

@@ -21,6 +21,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState<{ clientId: string, data: string } | null>(null);
+  const [reconnectingInstance, setReconnectingInstance] = useState<Instance | null>(null);
+
 
   useEffect(() => {
     const fetchInstances = async () => {
@@ -44,10 +46,16 @@ export default function DashboardPage() {
     if (lastMessage) {
       if (lastMessage.type === 'qr_code' && lastMessage.data) {
         setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
-        // This assumes the dialog for the new instance is already open
-        // We might need to find a way to open it if it's not
       }
       if (lastMessage.type === 'instance_status') {
+        // If status is connected, close the dialog regardless of whether it was a new connection or reconnection.
+        if (lastMessage.status === 'connected') {
+            const connectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
+            if(connectedInstance) {
+                toast({ title: 'Connected!', description: `Instance "${connectedInstance.name}" is now connected.` });
+                closeDialog();
+            }
+        }
         setInstances(prev =>
           prev.map(inst =>
             inst.clientId === lastMessage.clientId
@@ -57,7 +65,7 @@ export default function DashboardPage() {
         );
       }
     }
-  }, [lastMessage]);
+  }, [lastMessage, instances, toast]);
 
   const handleInstanceCreated = (newInstance: Instance) => {
     setInstances(prev => [...prev, { ...newInstance, status: 'pending' }]);
@@ -67,6 +75,27 @@ export default function DashboardPage() {
   const closeDialog = () => {
     setIsDialogOpen(false);
     setQrCodeData(null);
+    setReconnectingInstance(null);
+  }
+
+  const handleReconnect = async (instance: Instance) => {
+    setReconnectingInstance(instance);
+    setIsDialogOpen(true);
+    setQrCodeData(null); // Clear previous QR code
+    try {
+        await api.post(`/instances/${instance.id}/reconnect`);
+        toast({
+            title: 'Reconnection Initiated',
+            description: `Waiting for QR code for "${instance.name}"...`
+        });
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Failed to start reconnection process.'
+        });
+        closeDialog();
+    }
   }
 
 
@@ -78,10 +107,8 @@ export default function DashboardPage() {
             onInstanceCreated={handleInstanceCreated}
             qrCodeData={qrCodeData}
             onDialogClose={closeDialog}
-        >
-            {/* This is a placeholder, the real trigger is in the Header now */}
-            <button className="hidden"></button>
-        </CreateInstanceDialog>
+            reconnectingInstance={reconnectingInstance}
+        />
 
       {loading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -90,24 +117,17 @@ export default function DashboardPage() {
       ) : instances.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {instances.map(instance => (
-            <InstanceCard key={instance.id} instance={instance} />
+            <InstanceCard key={instance.id} instance={instance} onReconnect={handleReconnect} />
           ))}
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <h3 className="text-xl font-semibold">No instances found</h3>
           <p className="text-muted-foreground mt-2">Get started by creating your first WhatsApp instance.</p>
-           <CreateInstanceDialog 
-                onInstanceCreated={handleInstanceCreated} 
-                onDialogClose={closeDialog}
-                open={isDialogOpen}
-                onOpenChange={setIsDialogOpen}
-                >
-                <Button className="mt-4">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Create Instance
-                </Button>
-            </CreateInstanceDialog>
+           <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Instance
+            </Button>
         </div>
       )}
     </>

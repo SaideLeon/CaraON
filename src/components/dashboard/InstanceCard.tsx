@@ -1,13 +1,17 @@
+'use client';
+
 import type { Instance } from '@/lib/types';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Link as LinkIcon, Power, PowerOff, Loader2 } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { MessageSquare, Link as LinkIcon, Power, PowerOff, Loader2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from '../ui/button';
+import { useToast } from '@/hooks/use-toast';
+import api from '@/services/api';
 
 interface InstanceCardProps {
   instance: Instance;
+  onReconnect: (instance: Instance) => void;
 }
 
 const statusConfig = {
@@ -38,18 +42,19 @@ const statusConfig = {
 }
 
 
-export function InstanceCard({ instance }: InstanceCardProps) {
+export function InstanceCard({ instance, onReconnect }: InstanceCardProps) {
     const currentStatus = instance.status || 'pending';
-    const config = statusConfig[currentStatus];
+    const config = statusConfig[currentStatus] || statusConfig.error;
     const Icon = config.icon;
   
   return (
-    <Card className="hover:shadow-md transition-shadow duration-300">
+    <Card className="flex flex-col hover:shadow-md transition-shadow duration-300">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <MessageSquare className="h-8 w-8 text-primary mb-2" />
-            <CardTitle className="font-headline text-xl truncate">{instance.name}</CardTitle>
+            <CardTitle className="font-headline text-xl truncate" title={instance.name}>{instance.name}</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</CardDescription>
           </div>
           <div className={cn("flex shrink-0 items-center gap-2 text-sm font-medium", config.textColor)}>
               <span className="relative flex h-3 w-3">
@@ -60,17 +65,23 @@ export function InstanceCard({ instance }: InstanceCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex justify-between items-center">
-        <p className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</p>
+      <CardContent className="flex-grow">
+         {/* Can add more details here in the future */}
+      </CardContent>
+      <CardFooter className="flex justify-end items-center gap-2">
+         {(currentStatus === 'disconnected' || currentStatus === 'error') && (
+            <Button variant="destructive" size="sm" onClick={() => onReconnect(instance)}>
+                <RefreshCw className="mr-2 h-4 w-4"/>
+                Reconnect
+            </Button>
+         )}
         <Button asChild variant="outline" size="sm">
-            {/* This would eventually link to a details page */}
-            {/* For now, it's a placeholder */}
             <Link href="#">
                 Manage
                 <LinkIcon className="ml-2 h-4 w-4"/>
             </Link>
         </Button>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }

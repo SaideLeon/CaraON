@@ -5,9 +5,7 @@ import { PlusCircle, Wifi, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from './ui/sidebar';
 import { useWebSocket } from '@/contexts/WebSocketContext';
-import { CreateInstanceDialog } from '@/components/dashboard/CreateInstanceDialog';
 import { useState } from 'react';
-import type { Instance } from '@/lib/types';
 import { usePathname } from 'next/navigation';
 import { CreateAgentDialog } from './agents/CreateAgentDialog';
 import { CreateOrganizationDialog } from './organizations/CreateOrganizationDialog';
@@ -34,34 +32,22 @@ export function Header() {
   const { title, description } = pageConfig[pathname] || { title: '', description: '' };
   
   const [isInstanceDialogOpen, setIsInstanceDialogOpen] = useState(false);
-  const [isAgentDialogOpen, setIsAgentDialogOpen] = useState(false);
-  const [isOrgDialogOpen, setIsOrgDialogOpen] = useState(false);
 
-  // These would ideally come from a context or page props
+  // This would ideally come from a context or page props
   const handleActionCreated = () => {
     // This logic should be lifted to the page component
     window.location.reload(); // Simple reload to refresh the list
   };
-  const closeInstanceDialog = () => setIsInstanceDialogOpen(false);
-  const closeAgentDialog = () => setIsAgentDialogOpen(false);
-  const closeOrgDialog = () => setIsOrgDialogOpen(false);
 
   const renderActionButtons = () => {
     switch (pathname) {
       case '/dashboard':
         return (
-          <CreateInstanceDialog
-            open={isInstanceDialogOpen}
-            onOpenChange={setIsInstanceDialogOpen}
-            onInstanceCreated={handleActionCreated}
-            onDialogClose={closeInstanceDialog}
-          >
-            <Button size="sm">
+            <Button size="sm" onClick={() => setIsInstanceDialogOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">New Instance</span>
               <span className="sm:hidden">New</span>
             </Button>
-          </CreateInstanceDialog>
         );
       case '/agents':
         return (
@@ -90,7 +76,7 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
         <SidebarTrigger className="md:hidden"/>
         <div className="flex-1">
             <h1 className="text-xl sm:text-2xl font-headline font-bold">{title}</h1>
