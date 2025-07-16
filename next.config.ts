@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'http://caraonback.cognick.qzz.io/api/v1/:path*',
+        destination: 'https://caraonback.cognick.qzz.io/api/v1/:path*',
       },
     ]
   },
@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
             ...config.devServer,
             proxy: {
                 '/': {
-                    target: 'http://caraonback.cognick.qzz.io',
+                    target: 'https://caraonback.cognick.qzz.io',
                     ws: true,
                     changeOrigin: true,
                 },
