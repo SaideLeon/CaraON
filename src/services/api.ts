@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Agent } from '@/lib/types';
 
-const API_BASE_URL = '/api/v1'; // Use the Next.js proxy
+const API_BASE_URL = 'https://caraonback.cognick.qzz.io/api/v1'; // Use the production URL directly
 const TOKEN_KEY = 'caraon-token';
 
 const api = axios.create({
