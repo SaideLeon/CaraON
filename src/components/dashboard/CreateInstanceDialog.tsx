@@ -58,13 +58,12 @@ export function CreateInstanceDialog({
   
   useEffect(() => {
     if (!open) {
-        // Reset local state when dialog closes
+        // Reset local state when dialog closes, but don't call the callback
         setCreatedInstance(null);
         setLoading(false);
         form.reset();
-        onDialogClose();
     }
-  }, [open, form, onDialogClose]);
+  }, [open, form]);
 
   const onSubmit = async (data: InstanceFormValues) => {
     setLoading(true);
@@ -78,7 +77,7 @@ export function CreateInstanceDialog({
         description: 'Aguardando código QR...',
       });
       setCreatedInstance(result.instance);
-      onInstanceCreated(result.instance);
+      onInstanceCreated(result.instance); // This now signals the parent page
     } catch (error: any) {
       const message = error.response?.data?.message || 'Falha ao criar instância.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
@@ -104,6 +103,9 @@ export function CreateInstanceDialog({
   const handleOpenChange = (isOpen: boolean) => {
     if (onOpenChange) {
         onOpenChange(isOpen);
+    }
+    if (!isOpen) {
+      onDialogClose(); // Call the close callback only when dialog is explicitly closed.
     }
   }
 
