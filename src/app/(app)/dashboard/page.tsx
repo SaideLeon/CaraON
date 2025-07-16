@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
@@ -48,24 +49,30 @@ export default function DashboardPage() {
     fetchInstances();
   }, [token, toast]);
 
+  const closeDialogs = useCallback(() => {
+    setIsCreateDialogOpen(false);
+    setQrCodeData(null);
+    setReconnectingInstance(null);
+  }, []);
+
   useEffect(() => {
     if (lastMessage) {
       if (lastMessage.type === 'qr_code' && lastMessage.data) {
         setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
       }
       if (lastMessage.type === 'instance_status') {
+        let instanceName = 'uma instância';
+        const instance = instances.find(inst => inst.clientId === lastMessage.clientId);
+        if (instance) {
+          instanceName = `"${instance.name}"`;
+        }
+
         if (lastMessage.status === 'connected') {
-            const connectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
-            if(connectedInstance) {
-                toast({ title: 'Conectado!', description: `A instância "${connectedInstance.name}" está agora conectada.` });
-                closeDialogs();
-            }
+            toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
+            closeDialogs();
         }
         if (lastMessage.status === 'disconnected') {
-            const disconnectedInstance = instances.find(inst => inst.clientId === lastMessage.clientId);
-            if(disconnectedInstance) {
-                toast({ title: 'Desconectado', description: `A instância "${disconnectedInstance.name}" foi desconectada.` });
-            }
+            toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
         }
         setInstances(prev =>
           prev.map(inst =>
@@ -76,7 +83,7 @@ export default function DashboardPage() {
         );
       }
     }
-  }, [lastMessage, instances, toast]);
+  }, [lastMessage, instances, closeDialogs, toast]);
 
   const handleInstanceCreated = (newInstance: Instance) => {
     // API now returns status, so we can use it directly
@@ -84,12 +91,6 @@ export default function DashboardPage() {
     setInstances(prev => [...prev, { ...newInstance, status: initialStatus }]);
     setIsCreateDialogOpen(true);
   };
-  
-  const closeDialogs = () => {
-    setIsCreateDialogOpen(false);
-    setQrCodeData(null);
-    setReconnectingInstance(null);
-  }
 
   const handleReconnect = async (instance: Instance) => {
     setReconnectingInstance(instance);
