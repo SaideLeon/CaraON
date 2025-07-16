@@ -6,9 +6,8 @@ const getWebSocketURL = () => {
   if (typeof window === 'undefined') {
     return ''; // Return empty string for SSR
   }
-  // Use a relative URL and let the browser determine the host.
-  // The Next.js dev server proxy will handle this in development.
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  // Use a relative URL for the proxy to work.
+  const protocol = window.location.protocol === 'https' ? 'wss' : 'ws';
   const host = window.location.host;
   return `${protocol}://${host}/`;
 }
