@@ -58,12 +58,13 @@ export function CreateInstanceDialog({
   
   useEffect(() => {
     if (!open) {
-        // Reset local state when dialog closes, but don't call the callback
+        // Reset local state when dialog closes
         setCreatedInstance(null);
         setLoading(false);
         form.reset();
+        onDialogClose();
     }
-  }, [open, form]);
+  }, [open, form, onDialogClose]);
 
   const onSubmit = async (data: InstanceFormValues) => {
     setLoading(true);
@@ -103,9 +104,6 @@ export function CreateInstanceDialog({
   const handleOpenChange = (isOpen: boolean) => {
     if (onOpenChange) {
         onOpenChange(isOpen);
-    }
-    if (!isOpen) {
-      onDialogClose(); // Call the close callback only when dialog is explicitly closed.
     }
   }
 
