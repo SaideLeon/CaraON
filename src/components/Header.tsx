@@ -31,8 +31,6 @@ export function Header() {
   const pathname = usePathname();
   const { title, description } = pageConfig[pathname] || { title: '', description: '' };
   
-  const [isInstanceDialogOpen, setIsInstanceDialogOpen] = useState(false);
-
   // This would ideally come from a context or page props
   const handleActionCreated = () => {
     // This logic should be lifted to the page component
@@ -41,14 +39,6 @@ export function Header() {
 
   const renderActionButtons = () => {
     switch (pathname) {
-      case '/dashboard':
-        return (
-            <Button size="sm" onClick={() => setIsInstanceDialogOpen(true)}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Nova Instância</span>
-              <span className="sm:hidden">Nova</span>
-            </Button>
-        );
       case '/agents':
         return (
           <CreateAgentDialog onAgentCreated={handleActionCreated} >

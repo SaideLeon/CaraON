@@ -167,6 +167,12 @@ export default function DashboardPage() {
             </AlertDialogContent>
         </AlertDialog>
 
+      <div className="flex justify-end mb-6">
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Nova Instância
+        </Button>
+      </div>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
