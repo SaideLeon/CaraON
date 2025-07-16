@@ -6,10 +6,8 @@ const getWebSocketURL = () => {
   if (typeof window === 'undefined') {
     return ''; // Return empty string for SSR
   }
-  // Use a relative URL for the proxy to work.
-  const protocol = window.location.protocol === 'https' ? 'wss' : 'ws';
-  const host = window.location.host;
-  return `${protocol}://${host}/`;
+  // Connect directly to the secure WebSocket endpoint.
+  return 'wss://caraonback.cognick.qzz.io/';
 }
 
 interface WebSocketMessage {
@@ -65,7 +63,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
         socket.onerror = (error) => {
           console.error('WebSocket error:', error);
           // The 'onclose' event will be fired automatically, which handles the reconnect logic.
-          // Explicitly calling close() here can sometimes lead to duplicate or rapid-fire reconnect attempts.
         };
     }
     

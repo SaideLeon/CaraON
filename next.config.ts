@@ -24,18 +24,6 @@ const nextConfig: NextConfig = {
         source: '/api/v1/:path*',
         destination: 'https://caraonback.cognick.qzz.io/api/v1/:path*',
       },
-      // This rewrite is for WebSocket connections
-      {
-        source: '/:path*',
-        destination: 'https://caraonback.cognick.qzz.io/:path*',
-        has: [
-            {
-                type: 'header',
-                key: 'upgrade',
-                value: 'websocket',
-            },
-        ],
-      },
     ]
   },
 };
