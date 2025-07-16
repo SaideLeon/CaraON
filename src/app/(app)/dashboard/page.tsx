@@ -83,13 +83,13 @@ export default function DashboardPage() {
         );
       }
     }
-  }, [lastMessage, instances, closeDialogs, toast]);
+  }, [lastMessage, instances, toast, closeDialogs]);
 
   const handleInstanceCreated = (newInstance: Instance) => {
     // API now returns status, so we can use it directly
     const initialStatus = (newInstance.status?.toLowerCase() as any) || 'pending';
     setInstances(prev => [...prev, { ...newInstance, status: initialStatus }]);
-    setIsCreateDialogOpen(true);
+    // We don't set isCreateDialogOpen to true here anymore, the dialog handles its own QR code state
   };
 
   const handleReconnect = async (instance: Instance) => {
