@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +28,6 @@ const instanceSchema = z.object({
 type InstanceFormValues = z.infer<typeof instanceSchema>;
 
 interface CreateInstanceDialogProps {
-  children?: ReactNode;
   onInstanceCreated: (instance: Instance) => void;
   onDialogClose: () => void;
   qrCodeData?: { clientId: string, data: string } | null;
@@ -39,7 +37,6 @@ interface CreateInstanceDialogProps {
 }
 
 export function CreateInstanceDialog({
-  children,
   onInstanceCreated,
   onDialogClose,
   qrCodeData,
@@ -65,8 +62,9 @@ export function CreateInstanceDialog({
         setCreatedInstance(null);
         setLoading(false);
         form.reset();
+        onDialogClose();
     }
-  }, [open, form]);
+  }, [open, form, onDialogClose]);
 
   const onSubmit = async (data: InstanceFormValues) => {
     setLoading(true);
@@ -106,9 +104,6 @@ export function CreateInstanceDialog({
   const handleOpenChange = (isOpen: boolean) => {
     if (onOpenChange) {
         onOpenChange(isOpen);
-    }
-    if (!isOpen) {
-        onDialogClose();
     }
   }
 
@@ -156,8 +151,7 @@ export function CreateInstanceDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(!loading) {e.preventDefault()}}}>
+      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(loading) {e.preventDefault()}}}>
         <DialogHeader>
           <DialogTitle className="font-headline">
             {isReconnectMode ? 'Reconectar Instância' : (createdInstance ? 'Digitalizar Código QR' : 'Criar Nova Instância')}
