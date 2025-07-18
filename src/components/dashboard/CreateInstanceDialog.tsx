@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type ReactNode, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,99 +28,82 @@ const instanceSchema = z.object({
 
 type InstanceFormValues = z.infer<typeof instanceSchema>;
 
+type ConnectionAttemptStatus = 'idle' | 'loading' | 'awaiting_qr' | 'connected' | 'error';
+interface ConnectionAttempt {
+  instance: Instance | null;
+  status: ConnectionAttemptStatus;
+  qrCode: string | null;
+}
+
 interface CreateInstanceDialogProps {
   onInstanceCreated: (instance: Instance) => void;
-  onDialogClose: () => void;
-  qrCodeData?: { clientId: string, data: string } | null;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  reconnectingInstance?: Instance | null;
+  connectionAttempt: ConnectionAttempt;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function CreateInstanceDialog({
   onInstanceCreated,
-  onDialogClose,
-  qrCodeData,
+  connectionAttempt,
   open,
   onOpenChange,
-  reconnectingInstance
 }: CreateInstanceDialogProps) {
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [createdInstance, setCreatedInstance] = useState<Instance | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<InstanceFormValues>({
     resolver: zodResolver(instanceSchema),
     defaultValues: { name: '' },
   });
-  
-  const isReconnectMode = !!reconnectingInstance;
-  const instanceForQr = reconnectingInstance || createdInstance;
-  
-  useEffect(() => {
-    // When dialog opens for reconnect, set loading
-    if (open && isReconnectMode) {
-      setLoading(true);
-    }
-  }, [open, isReconnectMode]);
 
+  // Reset form when the dialog opens for a new instance creation
   useEffect(() => {
-    // Stop loading when QR code is received
-    if (qrCodeData && instanceForQr && qrCodeData.clientId === instanceForQr.clientId) {
-        setLoading(false);
-    }
-  }, [qrCodeData, instanceForQr]);
-  
-  const handleOpenChange = (isOpen: boolean) => {
-    if (onOpenChange) {
-      onOpenChange(isOpen);
-    }
-    if (!isOpen) {
-      // Clean up state when dialog is closed
-      setCreatedInstance(null);
-      setLoading(false);
+    if (open && !connectionAttempt.instance) {
       form.reset();
-      onDialogClose();
     }
-  };
+  }, [open, connectionAttempt.instance, form]);
   
   const onSubmit = async (data: InstanceFormValues) => {
-    setLoading(true);
-    setCreatedInstance(null);
+    setIsSubmitting(true);
     try {
       const response = await api.post('/new/instance', data);
-      const result = response.data;
+      const newInstance = response.data.instance;
       
       toast({
         title: 'Criação de Instância Iniciada',
         description: 'Aguardando código QR...',
       });
-      setCreatedInstance(result.instance);
-      onInstanceCreated(result.instance);
+      onInstanceCreated(newInstance);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Falha ao criar instância.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
-      setLoading(false); // Stop loading on error
+      onOpenChange(false); // Close dialog on error
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
-  const showQRCode = qrCodeData && instanceForQr && qrCodeData.clientId === instanceForQr.clientId;
+  const isLoading = connectionAttempt.status === 'loading';
+  const showQRCode = connectionAttempt.status === 'awaiting_qr' && connectionAttempt.qrCode;
+  const isReconnectMode = !!connectionAttempt.instance;
   
   const renderContent = () => {
-    if (isReconnectMode || createdInstance) {
+    // If it's a reconnect or a new instance waiting for QR, show loader/QR
+    if (isReconnectMode || (connectionAttempt.instance && (isLoading || showQRCode))) {
         return (
             <div className="flex justify-center items-center py-4 min-h-[250px]">
-                {loading && !showQRCode && <Loader2 className="h-16 w-16 animate-spin text-primary" />}
+                {isLoading && !showQRCode && <Loader2 className="h-16 w-16 animate-spin text-primary" />}
                 {showQRCode && (
                     <div className="flex flex-col items-center gap-4">
-                        <Image src={qrCodeData.data} alt="WhatsApp QR Code" width={250} height={250} />
-                        <p className="text-sm text-muted-foreground">Código QR para: <span className="font-bold">{instanceForQr?.name}</span></p>
+                        <Image src={connectionAttempt.qrCode!} alt="WhatsApp QR Code" width={250} height={250} />
+                        <p className="text-sm text-muted-foreground">Código QR para: <span className="font-bold">{connectionAttempt.instance?.name}</span></p>
                     </div>
                 )}
             </div>
         )
     }
 
+    // Otherwise, show the form to create a new instance
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -131,15 +114,15 @@ export function CreateInstanceDialog({
                   <FormItem>
                     <FormLabel>Nome da Instância</FormLabel>
                     <FormControl>
-                      <Input placeholder="ex: Equipa de Vendas" {...field} />
+                      <Input placeholder="ex: Equipa de Vendas" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <DialogFooter>
-                <Button type="submit" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Criar e Obter Código QR
                 </Button>
               </DialogFooter>
@@ -148,18 +131,25 @@ export function CreateInstanceDialog({
     )
   }
 
+  const getDialogTitle = () => {
+    if (isReconnectMode) return 'Reconectar Instância';
+    if (connectionAttempt.instance) return 'Digitalizar Código QR';
+    return 'Criar Nova Instância';
+  }
+
+  const getDialogDescription = () => {
+     if (isReconnectMode || connectionAttempt.instance) {
+       return `Digitalize o código com a sua aplicação WhatsApp para ligar "${connectionAttempt.instance?.name}".`
+     }
+     return "Dê um nome à sua nova instância do WhatsApp para começar.";
+  }
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(loading) {e.preventDefault()}}}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => { if(isLoading) {e.preventDefault()}}}>
         <DialogHeader>
-          <DialogTitle className="font-headline">
-            {isReconnectMode ? 'Reconectar Instância' : (createdInstance ? 'Digitalizar Código QR' : 'Criar Nova Instância')}
-          </DialogTitle>
-          <DialogDescription>
-            {isReconnectMode || createdInstance
-              ? `Digitalize o código com a sua aplicação WhatsApp para ligar "${instanceForQr?.name}".`
-              : "Dê um nome à sua nova instância do WhatsApp para começar."}
-          </DialogDescription>
+          <DialogTitle className="font-headline">{getDialogTitle()}</DialogTitle>
+          <DialogDescription>{getDialogDescription()}</DialogDescription>
         </DialogHeader>
         {renderContent()}
       </DialogContent>

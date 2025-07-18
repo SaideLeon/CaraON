@@ -14,6 +14,12 @@ import api from '@/services/api';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { InstanceCard } from '@/components/dashboard/InstanceCard';
 
+type ConnectionAttemptStatus = 'idle' | 'loading' | 'awaiting_qr' | 'connected' | 'error';
+interface ConnectionAttempt {
+  instance: Instance | null;
+  status: ConnectionAttemptStatus;
+  qrCode: string | null;
+}
 
 export default function DashboardPage() {
   const { token } = useAuth();
@@ -22,92 +28,110 @@ export default function DashboardPage() {
 
   const [instances, setInstances] = useState<Instance[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState<{ clientId: string, data: string } | null>(null);
-  const [reconnectingInstance, setReconnectingInstance] = useState<Instance | null>(null);
-
-  const [disconnectingInstance, setDisconnectingInstance] = useState<Instance | null>(null);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [disconnectingInstance, setDisconnectingInstance] = useState<Instance | null>(null);
 
+  const [connectionAttempt, setConnectionAttempt] = useState<ConnectionAttempt>({
+    instance: null,
+    status: 'idle',
+    qrCode: null,
+  });
 
-  useEffect(() => {
-    const fetchInstances = async () => {
-      if (!token) return;
-      setLoading(true);
-      try {
-        const response = await api.get('/user/instances');
-        const data: Instance[] = response.data;
-        // Convert status to lowercase as the UI components expect it that way
-        setInstances(data.map(inst => ({ ...inst, status: inst.status?.toLowerCase() as any || 'pending' })));
-      } catch (error) {
-        console.error(error);
-        toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar as suas instâncias.' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInstances();
+  const fetchInstances = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const response = await api.get('/user/instances');
+      const data: Instance[] = response.data;
+      setInstances(data.map(inst => ({ ...inst, status: inst.status?.toLowerCase() as any || 'pending' })));
+    } catch (error) {
+      console.error(error);
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar as suas instâncias.' });
+    } finally {
+      setLoading(false);
+    }
   }, [token, toast]);
 
-  const closeDialogs = useCallback(() => {
-    setQrCodeData(null);
-    setReconnectingInstance(null);
+  useEffect(() => {
+    fetchInstances();
+  }, [fetchInstances]);
+
+  const resetConnectionAttempt = useCallback(() => {
+    setConnectionAttempt({ instance: null, status: 'idle', qrCode: null });
   }, []);
 
   useEffect(() => {
-    if (lastMessage) {
-        if (lastMessage.type === 'qr_code' && lastMessage.data) {
-          setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
-        }
-        if (lastMessage.type === 'instance_status') {
-          let instanceName = 'uma instância';
-          setInstances(prevInstances => {
-              const updatedInstances = prevInstances.map(inst => {
-                  if (inst.clientId === lastMessage.clientId) {
-                      instanceName = `"${inst.name}"`;
-                      return { ...inst, status: lastMessage.status };
-                  }
-                  return inst;
-              });
+    if (!lastMessage || !connectionAttempt.instance) return;
 
-              if (lastMessage.status === 'connected') {
-                  toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
-                  setIsCreateDialogOpen(false); // Close dialog on successful connection
-                  closeDialogs();
-              }
-              if (lastMessage.status === 'disconnected') {
-                  toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
-              }
-              return updatedInstances;
-          });
-        }
+    if (lastMessage.type === 'qr_code' && lastMessage.data && lastMessage.clientId === connectionAttempt.instance.clientId) {
+        setConnectionAttempt(prev => ({ ...prev, status: 'awaiting_qr', qrCode: lastMessage.data }));
     }
-  }, [lastMessage, toast, closeDialogs]);
 
-  const handleInstanceCreated = (newInstance: Instance) => {
-    // API now returns status, so we can use it directly
-    const initialStatus = (newInstance.status?.toLowerCase() as any) || 'pending';
-    setInstances(prev => [...prev, { ...newInstance, status: initialStatus }]);
-    // The dialog now handles its own state for showing the QR code part.
+    if (lastMessage.type === 'instance_status') {
+      let instanceName = 'uma instância';
+      let isRelevantUpdate = false;
+      
+      setInstances(prevInstances => 
+        prevInstances.map(inst => {
+          if (inst.clientId === lastMessage.clientId) {
+            instanceName = `"${inst.name}"`;
+            isRelevantUpdate = true;
+            return { ...inst, status: lastMessage.status?.toLowerCase() as any };
+          }
+          return inst;
+        })
+      );
+
+      if (isRelevantUpdate) {
+        if (lastMessage.status === 'connected') {
+          toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
+          if(connectionAttempt.instance?.clientId === lastMessage.clientId) {
+            resetConnectionAttempt();
+          }
+        }
+        if (lastMessage.status === 'disconnected') {
+          toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
+        }
+      }
+    }
+  }, [lastMessage, connectionAttempt.instance, toast, resetConnectionAttempt]);
+
+  const handleCreateInstance = () => {
+    setConnectionAttempt({
+        instance: null, // This is a new instance, so no existing data
+        status: 'loading',
+        qrCode: null,
+    });
   };
 
+  const onInstanceCreated = (newInstance: Instance) => {
+    fetchInstances(); // Re-fetch all instances to get the complete and updated list
+    setConnectionAttempt(prev => ({
+        ...prev,
+        instance: newInstance,
+        status: 'loading', // Still loading while waiting for QR
+    }));
+  }
+
   const handleReconnect = async (instance: Instance) => {
-    setReconnectingInstance(instance);
-    setIsCreateDialogOpen(true);
+    setConnectionAttempt({
+      instance,
+      status: 'loading',
+      qrCode: connectionAttempt.instance?.id === instance.id ? connectionAttempt.qrCode : null,
+    });
     try {
-        await api.post(`/instances/${instance.id}/reconnect`);
-        toast({
-            title: 'Reconexão Iniciada',
-            description: `Aguardando código QR para "${instance.name}"...`
-        });
+      await api.post(`/instances/${instance.id}/reconnect`);
+      toast({
+        title: 'Reconexão Iniciada',
+        description: `Aguardando novo código QR para "${instance.name}"...`
+      });
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Erro',
-            description: 'Falha ao iniciar o processo de reconexão.'
-        });
-        setIsCreateDialogOpen(false);
-        closeDialogs();
+      toast({
+        variant: 'destructive',
+        title: 'Erro de Reconexão',
+        description: 'Falha ao iniciar o processo de reconexão.'
+      });
+      resetConnectionAttempt();
     }
   }
 
@@ -120,54 +144,54 @@ export default function DashboardPage() {
 
     setIsDisconnecting(true);
     try {
-        await api.post(`/instances/${disconnectingInstance.id}/disconnect`);
-        setInstances(prev => prev.map(inst => 
-            inst.id === disconnectingInstance.id ? { ...inst, status: 'disconnected' } : inst
-        ));
+      await api.post(`/instances/${disconnectingInstance.id}/disconnect`);
+      // Optimistic update
+      setInstances(prev => prev.map(inst => 
+          inst.id === disconnectingInstance.id ? { ...inst, status: 'disconnected' } : inst
+      ));
+      toast({ title: 'Desconectado', description: `A instância "${disconnectingInstance.name}" foi desconectada.`});
     } catch (error: any) {
-        const message = error.response?.data?.error || 'Falha ao desconectar instância.';
-        toast({
-            variant: 'destructive',
-            title: 'Erro',
-            description: message,
-        });
+      const message = error.response?.data?.error || 'Falha ao desconectar instância.';
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: message,
+      });
+      fetchInstances(); // Re-fetch to get the real state
     } finally {
-        setIsDisconnecting(false);
-        setDisconnectingInstance(null);
+      setIsDisconnecting(false);
+      setDisconnectingInstance(null);
     }
   }
 
-
   return (
     <>
-       <CreateInstanceDialog
-            open={isCreateDialogOpen}
-            onOpenChange={setIsCreateDialogOpen}
-            onInstanceCreated={handleInstanceCreated}
-            qrCodeData={qrCodeData}
-            onDialogClose={closeDialogs}
-            reconnectingInstance={reconnectingInstance}
-        />
+      <CreateInstanceDialog
+        open={connectionAttempt.status !== 'idle'}
+        onOpenChange={(isOpen) => !isOpen && resetConnectionAttempt()}
+        connectionAttempt={connectionAttempt}
+        onInstanceCreated={onInstanceCreated}
+      />
         
-        <AlertDialog open={!!disconnectingInstance} onOpenChange={() => setDisconnectingInstance(null)}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Isto irá desconectar a sessão do WhatsApp para a instância "{disconnectingInstance?.name}". Terá de digitalizar um novo código QR para se reconectar.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction onClick={confirmDisconnect} disabled={isDisconnecting}>
-                        {isDisconnecting ? 'A desconectar...' : 'Desconectar'}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+      <AlertDialog open={!!disconnectingInstance} onOpenChange={() => setDisconnectingInstance(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isto irá desconectar a sessão do WhatsApp para a instância "{disconnectingInstance?.name}". Terá de digitalizar um novo código QR para se reconectar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDisconnect} disabled={isDisconnecting}>
+              {isDisconnecting ? 'A desconectar...' : 'Desconectar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="flex justify-end mb-6">
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={handleCreateInstance}>
           <PlusCircle className="mr-2 h-4 w-4" />
           Nova Instância
         </Button>
@@ -187,7 +211,7 @@ export default function DashboardPage() {
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <h3 className="text-xl font-semibold">Nenhuma instância encontrada</h3>
           <p className="text-muted-foreground mt-2">Comece por criar a sua primeira instância do WhatsApp.</p>
-           <Button className="mt-4" onClick={() => setIsCreateDialogOpen(true)}>
+           <Button className="mt-4" onClick={handleCreateInstance}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Criar Instância
             </Button>
