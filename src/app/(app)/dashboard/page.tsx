@@ -56,14 +56,13 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (lastMessage) {
-      const handleMessage = () => {
         if (lastMessage.type === 'qr_code' && lastMessage.data) {
           setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
         }
         if (lastMessage.type === 'instance_status') {
           let instanceName = 'uma instância';
-          setInstances(prev => {
-              const updatedInstances = prev.map(inst => {
+          setInstances(prevInstances => {
+              const updatedInstances = prevInstances.map(inst => {
                   if (inst.clientId === lastMessage.clientId) {
                       instanceName = `"${inst.name}"`;
                       return { ...inst, status: lastMessage.status };
@@ -82,8 +81,6 @@ export default function DashboardPage() {
               return updatedInstances;
           });
         }
-      }
-      handleMessage();
     }
   }, [lastMessage, toast, closeDialogs]);
 
@@ -96,8 +93,7 @@ export default function DashboardPage() {
 
   const handleReconnect = async (instance: Instance) => {
     setReconnectingInstance(instance);
-    setQrCodeData(null); 
-    setIsCreateDialogOpen(true); // Just open the dialog, the dialog will show loading state
+    setIsCreateDialogOpen(true);
     try {
         await api.post(`/instances/${instance.id}/reconnect`);
         toast({
