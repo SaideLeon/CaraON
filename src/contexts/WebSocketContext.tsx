@@ -7,7 +7,7 @@ const getWebSocketURL = () => {
     return ''; // Return empty string for SSR
   }
   // Connect directly to the secure WebSocket endpoint.
-  return 'wss://caraonback.cognick.qzz.io/';
+  return 'wss://steal-shaw-fold-surfaces.trycloudflare.com/';
 }
 
 interface WebSocketMessage {

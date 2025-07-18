@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'https://caraonback.cognick.qzz.io/api/v1/:path*',
+        destination: 'https://steal-shaw-fold-surfaces.trycloudflare.com/api/v1/:path*',
       },
     ]
   },
