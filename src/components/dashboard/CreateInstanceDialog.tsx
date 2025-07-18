@@ -57,14 +57,16 @@ export function CreateInstanceDialog({
   const instanceForQr = reconnectingInstance || createdInstance;
   
   useEffect(() => {
-    if (!open) {
-        // Reset local state when dialog closes
-        setCreatedInstance(null);
-        setLoading(false);
-        form.reset();
-        onDialogClose();
+    // When in reconnect mode, we start in a loading state.
+    if(isReconnectMode && open) {
+        setLoading(true);
     }
-  }, [open, form, onDialogClose]);
+    // If we receive a QR code, stop loading.
+    if (qrCodeData && loading) {
+        setLoading(false);
+    }
+  }, [isReconnectMode, open, qrCodeData, loading])
+  
 
   const onSubmit = async (data: InstanceFormValues) => {
     setLoading(true);
@@ -78,32 +80,26 @@ export function CreateInstanceDialog({
         description: 'Aguardando código QR...',
       });
       setCreatedInstance(result.instance);
-      onInstanceCreated(result.instance); // This now signals the parent page
+      onInstanceCreated(result.instance);
     } catch (error: any) {
       const message = error.response?.data?.message || 'Falha ao criar instância.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
       setLoading(false);
     } 
-    // loading remains true until QR code is received or timeout
   };
   
   const showQRCode = qrCodeData && instanceForQr && qrCodeData.clientId === instanceForQr.clientId;
   
-  useEffect(() => {
-    // When in reconnect mode, we start in a loading state.
-    if(isReconnectMode) {
-        setLoading(true);
-    }
-    // If we receive a QR code, stop loading.
-    if (showQRCode && loading) {
-        setLoading(false);
-    }
-  }, [isReconnectMode, showQRCode, loading])
-  
-
   const handleOpenChange = (isOpen: boolean) => {
     if (onOpenChange) {
         onOpenChange(isOpen);
+    }
+    if (!isOpen) {
+        // Reset local state when dialog closes
+        setCreatedInstance(null);
+        setLoading(false);
+        form.reset();
+        onDialogClose();
     }
   }
 
