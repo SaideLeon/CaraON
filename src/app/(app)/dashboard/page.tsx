@@ -50,36 +50,40 @@ export default function DashboardPage() {
   }, [token, toast]);
 
   const closeDialogs = useCallback(() => {
-    setIsCreateDialogOpen(false);
     setQrCodeData(null);
     setReconnectingInstance(null);
   }, []);
 
   useEffect(() => {
     if (lastMessage) {
-      if (lastMessage.type === 'qr_code' && lastMessage.data) {
-        setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
-      }
-      if (lastMessage.type === 'instance_status') {
-        setInstances(prev => {
-            const instance = prev.find(inst => inst.clientId === lastMessage.clientId);
-            const instanceName = instance ? `"${instance.name}"` : 'uma instância';
+      const handleMessage = () => {
+        if (lastMessage.type === 'qr_code' && lastMessage.data) {
+          setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
+        }
+        if (lastMessage.type === 'instance_status') {
+          let instanceName = 'uma instância';
+          setInstances(prev => {
+              const updatedInstances = prev.map(inst => {
+                  if (inst.clientId === lastMessage.clientId) {
+                      instanceName = `"${inst.name}"`;
+                      return { ...inst, status: lastMessage.status };
+                  }
+                  return inst;
+              });
 
-            if (lastMessage.status === 'connected') {
-                toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
-                closeDialogs();
-            }
-            if (lastMessage.status === 'disconnected') {
-                toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
-            }
-
-            return prev.map(inst =>
-                inst.clientId === lastMessage.clientId
-                ? { ...inst, status: lastMessage.status }
-                : inst
-            )
-        });
+              if (lastMessage.status === 'connected') {
+                  toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
+                  setIsCreateDialogOpen(false); // Close dialog on successful connection
+                  closeDialogs();
+              }
+              if (lastMessage.status === 'disconnected') {
+                  toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
+              }
+              return updatedInstances;
+          });
+        }
       }
+      handleMessage();
     }
   }, [lastMessage, toast, closeDialogs]);
 
@@ -87,13 +91,13 @@ export default function DashboardPage() {
     // API now returns status, so we can use it directly
     const initialStatus = (newInstance.status?.toLowerCase() as any) || 'pending';
     setInstances(prev => [...prev, { ...newInstance, status: initialStatus }]);
-    // We don't set isCreateDialogOpen to true here anymore, the dialog handles its own QR code state
+    // The dialog now handles its own state for showing the QR code part.
   };
 
   const handleReconnect = async (instance: Instance) => {
     setReconnectingInstance(instance);
-    setIsCreateDialogOpen(true);
     setQrCodeData(null); 
+    setIsCreateDialogOpen(true); // Just open the dialog, the dialog will show loading state
     try {
         await api.post(`/instances/${instance.id}/reconnect`);
         toast({
@@ -106,6 +110,7 @@ export default function DashboardPage() {
             title: 'Erro',
             description: 'Falha ao iniciar o processo de reconexão.'
         });
+        setIsCreateDialogOpen(false);
         closeDialogs();
     }
   }

@@ -58,23 +58,32 @@ export function CreateInstanceDialog({
   const instanceForQr = reconnectingInstance || createdInstance;
   
   useEffect(() => {
-    // When in reconnect mode, we start in a loading state.
-    if(isReconnectMode && open) {
-        setLoading(true);
+    // When dialog opens for reconnect, set loading
+    if (open && isReconnectMode) {
+      setLoading(true);
     }
-    // If we receive a QR code, stop loading.
-    if (qrCodeData && loading) {
+  }, [open, isReconnectMode]);
+
+  useEffect(() => {
+    // Stop loading when QR code is received
+    if (qrCodeData && instanceForQr && qrCodeData.clientId === instanceForQr.clientId) {
         setLoading(false);
     }
-    // Reset form and state if dialog closes or reconnecting instance changes
-    if (!open) {
+  }, [qrCodeData, instanceForQr]);
+  
+  const handleOpenChange = (isOpen: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(isOpen);
+    }
+    if (!isOpen) {
+      // Clean up state when dialog is closed
       setCreatedInstance(null);
       setLoading(false);
       form.reset();
+      onDialogClose();
     }
-  }, [isReconnectMode, open, qrCodeData, loading, form])
+  };
   
-
   const onSubmit = async (data: InstanceFormValues) => {
     setLoading(true);
     setCreatedInstance(null);
@@ -91,27 +100,18 @@ export function CreateInstanceDialog({
     } catch (error: any) {
       const message = error.response?.data?.message || 'Falha ao criar instância.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
-      setLoading(false);
-    } 
+      setLoading(false); // Stop loading on error
+    }
   };
   
   const showQRCode = qrCodeData && instanceForQr && qrCodeData.clientId === instanceForQr.clientId;
   
-  const handleOpenChange = (isOpen: boolean) => {
-    if (onOpenChange) {
-        onOpenChange(isOpen);
-    }
-    if (!isOpen) {
-        onDialogClose();
-    }
-  }
-
   const renderContent = () => {
     if (isReconnectMode || createdInstance) {
         return (
             <div className="flex justify-center items-center py-4 min-h-[250px]">
-                {(loading && !showQRCode) && <Loader2 className="h-16 w-16 animate-spin text-primary" />}
-                {showQRCode && qrCodeData && (
+                {loading && !showQRCode && <Loader2 className="h-16 w-16 animate-spin text-primary" />}
+                {showQRCode && (
                     <div className="flex flex-col items-center gap-4">
                         <Image src={qrCodeData.data} alt="WhatsApp QR Code" width={250} height={250} />
                         <p className="text-sm text-muted-foreground">Código QR para: <span className="font-bold">{instanceForQr?.name}</span></p>
