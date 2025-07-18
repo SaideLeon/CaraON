@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, type ReactNode, useEffect } from 'react';
@@ -65,7 +66,13 @@ export function CreateInstanceDialog({
     if (qrCodeData && loading) {
         setLoading(false);
     }
-  }, [isReconnectMode, open, qrCodeData, loading])
+    // Reset form and state if dialog closes or reconnecting instance changes
+    if (!open) {
+      setCreatedInstance(null);
+      setLoading(false);
+      form.reset();
+    }
+  }, [isReconnectMode, open, qrCodeData, loading, form])
   
 
   const onSubmit = async (data: InstanceFormValues) => {
@@ -95,10 +102,6 @@ export function CreateInstanceDialog({
         onOpenChange(isOpen);
     }
     if (!isOpen) {
-        // Reset local state when dialog closes
-        setCreatedInstance(null);
-        setLoading(false);
-        form.reset();
         onDialogClose();
     }
   }
