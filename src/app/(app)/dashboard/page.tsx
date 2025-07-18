@@ -7,12 +7,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { Button } from '@/components/ui/button';
 import { CreateInstanceDialog } from '@/components/dashboard/CreateInstanceDialog';
-import { InstanceCard } from '@/components/dashboard/InstanceCard';
 import type { Instance } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import api from '@/services/api';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { InstanceCard } from '@/components/dashboard/InstanceCard';
 
 
 export default function DashboardPage() {
@@ -61,29 +61,27 @@ export default function DashboardPage() {
         setQrCodeData({ clientId: lastMessage.clientId, data: lastMessage.data });
       }
       if (lastMessage.type === 'instance_status') {
-        let instanceName = 'uma instância';
-        const instance = instances.find(inst => inst.clientId === lastMessage.clientId);
-        if (instance) {
-          instanceName = `"${instance.name}"`;
-        }
+        setInstances(prev => {
+            const instance = prev.find(inst => inst.clientId === lastMessage.clientId);
+            const instanceName = instance ? `"${instance.name}"` : 'uma instância';
 
-        if (lastMessage.status === 'connected') {
-            toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
-            closeDialogs();
-        }
-        if (lastMessage.status === 'disconnected') {
-            toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
-        }
-        setInstances(prev =>
-          prev.map(inst =>
-            inst.clientId === lastMessage.clientId
-              ? { ...inst, status: lastMessage.status }
-              : inst
-          )
-        );
+            if (lastMessage.status === 'connected') {
+                toast({ title: 'Conectado!', description: `A instância ${instanceName} está agora conectada.` });
+                closeDialogs();
+            }
+            if (lastMessage.status === 'disconnected') {
+                toast({ title: 'Desconectado', description: `A instância ${instanceName} foi desconectada.` });
+            }
+
+            return prev.map(inst =>
+                inst.clientId === lastMessage.clientId
+                ? { ...inst, status: lastMessage.status }
+                : inst
+            )
+        });
       }
     }
-  }, [lastMessage, instances, toast, closeDialogs]);
+  }, [lastMessage, toast, closeDialogs]);
 
   const handleInstanceCreated = (newInstance: Instance) => {
     // API now returns status, so we can use it directly
