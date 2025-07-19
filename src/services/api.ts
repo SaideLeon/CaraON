@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Agent } from '@/lib/types';
 
-const API_BASE_URL = 'https://nest-ended-workforce-tahoe.trycloudflare.com/api/v1'; // Use the production URL directly
+const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1'; // Use the production URL directly
 const TOKEN_KEY = 'caraon-token';
 
 const api = axios.create({
