@@ -103,7 +103,8 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
     try {
-      const newAgent = await createParentAgent(data.instanceId, data.organizationId, { name: data.name, persona: data.persona });
+      const orgId = data.organizationId === 'none' ? undefined : data.organizationId;
+      const newAgent = await createParentAgent(data.instanceId, orgId, { name: data.name, persona: data.persona });
       
       toast({
         title: 'Agente Pai Criado',
@@ -190,7 +191,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Organização (Opcional)</FormLabel>
-                       <Select onValueChange={field.onChange} value={field.value || ''} disabled={!selectedInstanceId || loadingOrgs}>
+                       <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={!selectedInstanceId || loadingOrgs}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={
@@ -200,7 +201,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                           <SelectItem value="">Nenhuma</SelectItem>
+                           <SelectItem value="none">Nenhuma</SelectItem>
                           {organizations.map((org) => (
                             <SelectItem key={org.id} value={org.id}>
                               {org.name}
