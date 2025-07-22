@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Agent } from '@/lib/types';
+import type { Agent, User } from '@/lib/types';
 
 const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1'; // Use the production URL directly
 const TOKEN_KEY = 'caraon-token';
@@ -49,6 +49,11 @@ export const getAgentById = async (agentId: string): Promise<Agent> => {
 
 export const updateAgentPersona = async (agentId: string, persona: string): Promise<Agent> => {
     const response = await api.patch(`/agents/${agentId}/persona`, { persona });
+    return response.data;
+}
+
+export const getMe = async (): Promise<User> => {
+    const response = await api.get('/auth/me');
     return response.data;
 }
 

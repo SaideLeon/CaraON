@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/lib/types';
@@ -29,21 +29,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem(TOKEN_KEY);
-    if (storedToken) {
-      setToken(storedToken);
-      // Here you would typically fetch the user profile with the token
-      // For now, we'll assume the token is valid and just need to navigate
-      // A proper implementation would decode the token or call a /me endpoint
-      setUser({ id: '', name: 'Utilizador', email: '' }); // Placeholder user
+    const checkUser = async () => {
+        const storedToken = localStorage.getItem(TOKEN_KEY);
+        if (storedToken) {
+            setToken(storedToken);
+            try {
+                // Fetch user profile with the stored token
+                const response = await api.get('/auth/me');
+                setUser(response.data);
+            } catch (error) {
+                // Token is invalid or expired
+                logout();
+            }
+        }
+        setLoading(false);
     }
-    setLoading(false);
+    checkUser();
   }, []);
 
-  const handleAuthSuccess = (newToken: string) => {
-    localStorage.setItem(TOKEN_KEY, newToken);
-    setToken(newToken);
-    setUser({ id: '', name: 'Utilizador', email: '' }); // Placeholder
+  const handleAuthSuccess = (token: string, user: User) => {
+    localStorage.setItem(TOKEN_KEY, token);
+    setToken(token);
+    setUser(user);
     setAuthError(null);
     router.push('/dashboard');
   };
@@ -62,7 +69,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const response = await api.post('/auth/login', data);
-      handleAuthSuccess(response.data.token);
+      const { token, user } = response.data;
+      handleAuthSuccess(token, user);
     } catch (error: any) {
       handleAuthError(error, 'Falha ao iniciar sessão.');
     } finally {
