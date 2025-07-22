@@ -21,14 +21,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { Agent, Instance, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import api from '@/services/api';
+import { createParentAgent, getUserInstances, getInstanceOrganizations } from '@/services/api';
 
 const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
-  flowId: z.string().min(1, 'O ID do fluxo é obrigatório.'),
   persona: z.string().min(10, 'A persona deve ter pelo menos 10 caracteres.'),
   instanceId: z.string({ required_error: 'Por favor, selecione uma instância.' }),
-  organizationId: z.string({ required_error: 'Por favor, selecione uma organização.' }).optional(),
+  organizationId: z.string().optional(),
 });
 
 type AgentFormValues = z.infer<typeof agentSchema>;
@@ -51,7 +50,6 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
     resolver: zodResolver(agentSchema),
     defaultValues: {
       name: '',
-      flowId: 'GREETFLOW', // Default value as per docs
       persona: '',
     },
   });
@@ -63,8 +61,8 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
       if (open) {
         setLoadingInstances(true);
         try {
-          const response = await api.get('/user/instances');
-          setInstances(response.data);
+          const fetchedInstances = await getUserInstances();
+          setInstances(fetchedInstances);
         } catch (error) {
           toast({
             variant: 'destructive',
@@ -86,8 +84,8 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
         form.setValue('organizationId', undefined); // Reset org selection
         setOrganizations([]);
         try {
-          const response = await api.get(`/instances/${selectedInstanceId}/organizations`);
-          setOrganizations(response.data);
+          const fetchedOrgs = await getInstanceOrganizations(selectedInstanceId);
+          setOrganizations(fetchedOrgs);
         } catch (error) {
            toast({
             variant: 'destructive',
@@ -105,16 +103,10 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
     try {
-      const payload: any = { ...data };
-      if (!payload.organizationId) {
-        delete payload.organizationId;
-      }
-      
-      const response = await api.post('/agents', payload);
-      const newAgent: Agent = response.data;
+      const newAgent = await createParentAgent(data.instanceId, data.organizationId, { name: data.name, persona: data.persona });
       
       toast({
-        title: 'Agente Criado',
+        title: 'Agente Pai Criado',
         description: `O agente "${newAgent.name}" foi criado com sucesso.`,
       });
       onAgentCreated(newAgent);
@@ -133,9 +125,9 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="font-headline">Criar Novo Agente de IA</DialogTitle>
+          <DialogTitle className="font-headline">Criar Novo Agente Pai</DialogTitle>
           <DialogDescription>
-            Preencha os detalhes abaixo para configurar o seu novo agente.
+            Preencha os detalhes abaixo para configurar o seu novo agente orquestrador.
           </DialogDescription>
         </DialogHeader>
 
@@ -148,7 +140,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                 <FormItem>
                   <FormLabel>Nome do Agente</FormLabel>
                   <FormControl>
-                    <Input placeholder="ex: Assistente de Vendas" {...field} />
+                    <Input placeholder="ex: Regente de Vendas" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,7 +153,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                 <FormItem>
                   <FormLabel>Persona</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Descreva a personalidade e o papel do agente. ex: Um assistente amigável e prestável..." {...field} />
+                    <Textarea placeholder="Descreva a personalidade e o papel do agente orquestrador..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -177,7 +169,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                       <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingInstances}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={loadingInstances ? 'Carregando...' : 'Selecione uma instância'} />
+                            <SelectValue placeholder={loadingInstances ? 'Carregando...' : 'Selecione'} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -197,17 +189,18 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                   name="organizationId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Organização</FormLabel>
-                       <Select onValueChange={field.onChange} value={field.value} disabled={!selectedInstanceId || loadingOrgs}>
+                      <FormLabel>Organização (Opcional)</FormLabel>
+                       <Select onValueChange={field.onChange} value={field.value || ''} disabled={!selectedInstanceId || loadingOrgs}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={
-                                !selectedInstanceId ? "Selecione a instância primeiro" :
-                                loadingOrgs ? "Carregando..." : "Selecione uma organização"
+                                !selectedInstanceId ? "Primeiro a instância" :
+                                loadingOrgs ? "Carregando..." : "Nenhuma"
                             } />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
+                           <SelectItem value="">Nenhuma</SelectItem>
                           {organizations.map((org) => (
                             <SelectItem key={org.id} value={org.id}>
                               {org.name}
@@ -220,19 +213,6 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                   )}
                 />
             </div>
-             <FormField
-                control={form.control}
-                name="flowId"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>ID do Fluxo</FormLabel>
-                    <FormControl>
-                        <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-             />
             <DialogFooter>
               <Button type="submit" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getAgentById, updateAgentPersona } from '@/services/api';
+import { getParentAgentsByInstanceId, updateAgentPersona, getUserInstances } from '@/services/api';
 import type { Agent } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -40,9 +40,26 @@ export default function EditAgentPage() {
       const fetchAgent = async () => {
         try {
           setLoading(true);
-          const fetchedAgent = await getAgentById(agentId);
-          setAgent(fetchedAgent);
-          form.reset({ persona: fetchedAgent.persona });
+          // This is inefficient, but necessary with the current API structure.
+          // We fetch all instances, then all parent agents for each instance to find the one.
+          const instances = await getUserInstances();
+          let foundAgent: Agent | null = null;
+          for (const instance of instances) {
+              const parentAgents = await getParentAgentsByInstanceId(instance.id);
+              const matchingAgent = parentAgents.find(a => a.id === agentId);
+              if (matchingAgent) {
+                  foundAgent = matchingAgent;
+                  break;
+              }
+              // You might need to search child agents too if they can be edited directly
+          }
+
+          if (!foundAgent) {
+            throw new Error("Agente não encontrado");
+          }
+
+          setAgent(foundAgent);
+          form.reset({ persona: foundAgent.persona });
         } catch (error) {
           toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
         } finally {
@@ -58,7 +75,7 @@ export default function EditAgentPage() {
     try {
       await updateAgentPersona(agentId, data.persona);
       toast({ title: 'Sucesso', description: 'A persona do agente foi atualizada.' });
-      router.refresh(); // Refreshes the page to show updated data
+      router.refresh(); 
     } catch (error) {
       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar a persona do agente.' });
     } finally {

@@ -6,7 +6,7 @@ import { PlusCircle, Loader2 } from 'lucide-react';
 import { CreateAgentDialog } from '@/components/agents/CreateAgentDialog';
 import type { Agent, Instance } from '@/lib/types';
 import { AgentCard } from '@/components/agents/AgentCard';
-import api from '@/services/api';
+import { getParentAgentsByInstanceId, getUserInstances } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,8 +23,8 @@ export default function AgentsPage() {
     const fetchInstances = async () => {
       setLoadingInstances(true);
       try {
-        const response = await api.get('/user/instances');
-        setInstances(response.data);
+        const response = await getUserInstances();
+        setInstances(response);
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -43,8 +43,8 @@ export default function AgentsPage() {
     setLoadingAgents(true);
     setAgents([]);
     try {
-      const response = await api.get(`/agents?instanceId=${instanceId}`);
-      setAgents(response.data);
+      const response = await getParentAgentsByInstanceId(instanceId);
+      setAgents(response);
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -57,22 +57,16 @@ export default function AgentsPage() {
   };
 
   const handleAgentCreated = (newAgent: Agent) => {
-    // If the new agent belongs to the currently selected instance, add it to the list
     if (newAgent.instanceId === selectedInstance) {
-        setAgents(prev => [...prev, newAgent]);
+        setAgents(prev => [...prev, { ...newAgent, childAgents: [] }]);
     } else {
-        // Otherwise, prompt the user to switch to the correct instance to see the new agent
         toast({
             title: 'Agente Criado',
-            description: `Selecione a instância ${instances.find(i => i.id === newAgent.instanceId)?.name} para ver o seu novo agente.`
+            description: `Selecione a instância correta para ver o seu novo agente.`
         })
     }
   };
   
-  const closeDialog = () => {
-    // Placeholder for closing logic if needed
-  }
-
   return (
     <div className="space-y-6">
         <Card>
@@ -103,8 +97,19 @@ export default function AgentsPage() {
         </div>
       )}
 
+      {!loadingAgents && selectedInstance && (
+        <div className="flex justify-end mb-4">
+            <CreateAgentDialog onAgentCreated={handleAgentCreated}>
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Criar Agente Pai
+                </Button>
+            </CreateAgentDialog>
+        </div>
+      )}
+
       {!loadingAgents && selectedInstance && agents.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {agents.map(agent => <AgentCard key={agent.id} agent={agent} />)}
         </div>
       )}
@@ -113,14 +118,8 @@ export default function AgentsPage() {
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <h3 className="text-xl font-semibold">Nenhum agente encontrado para esta instância</h3>
           <p className="text-muted-foreground mt-2">
-            Comece por criar o seu primeiro agente de IA.
+            Comece por criar o seu primeiro agente pai.
           </p>
-          <CreateAgentDialog onAgentCreated={handleAgentCreated}>
-             <Button className="mt-4">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Criar Agente
-              </Button>
-          </CreateAgentDialog>
         </div>
       )}
 

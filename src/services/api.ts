@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Agent, User } from '@/lib/types';
+import type { Agent, User, Instance, Organization } from '@/lib/types';
 
 const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1'; // Use the production URL directly
 const TOKEN_KEY = 'caraon-token';
@@ -24,36 +24,47 @@ api.interceptors.request.use(
   }
 );
 
-// This is a workaround since there's no direct GET /agents/{id} endpoint
-export const getAgentById = async (agentId: string): Promise<Agent> => {
-    // First, get all instances to search through them
-    const instancesResponse = await api.get('/user/instances');
-    const instances = instancesResponse.data;
+// Agents
+export const getParentAgentsByInstanceId = async (instanceId: string): Promise<Agent[]> => {
+    const response = await api.get(`/agents/instance/${instanceId}`);
+    // Attach an empty childAgents array to each parent for consistency
+    return response.data.map((agent: Agent) => ({ ...agent, childAgents: [] }));
+};
 
-    // Search for the agent in all instances
-    for (const instance of instances) {
-        try {
-            const agentsResponse = await api.get(`/agents?instanceId=${instance.id}`);
-            const agent = agentsResponse.data.find((a: Agent) => a.id === agentId);
-            if (agent) {
-                return agent;
-            }
-        } catch (error) {
-            // Ignore errors for instances where the user might not have agent access or it's empty
-            console.warn(`Could not fetch agents for instance ${instance.id}, skipping.`);
-        }
-    }
+export const getChildAgents = async (parentAgentId: string): Promise<Agent[]> => {
+    const response = await api.get(`/agents/child/${parentAgentId}`);
+    return response.data;
+};
 
-    throw new Error('Agent not found across all instances');
+export const createParentAgent = async (instanceId: string, organizationId: string | undefined, data: { name: string, persona: string }): Promise<Agent> => {
+    const url = organizationId 
+        ? `/agents/parent/${instanceId}/${organizationId}` 
+        : `/agents/parent/${instanceId}`;
+    const response = await api.post(url, data);
+    return response.data;
 };
 
 export const updateAgentPersona = async (agentId: string, persona: string): Promise<Agent> => {
     const response = await api.patch(`/agents/${agentId}/persona`, { persona });
     return response.data;
-}
+};
 
+
+// Auth
 export const getMe = async (): Promise<User> => {
     const response = await api.get('/auth/me');
+    return response.data;
+};
+
+// Instances
+export const getUserInstances = async (): Promise<Instance[]> => {
+    const response = await api.get('/user/instances');
+    return response.data;
+}
+
+// Organizations
+export const getInstanceOrganizations = async (instanceId: string): Promise<Organization[]> => {
+    const response = await api.get(`/instances/${instanceId}/organizations`);
     return response.data;
 }
 
