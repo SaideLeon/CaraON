@@ -5,10 +5,9 @@ import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { getParentAgentsByInstanceId, getUserInstances } from '@/services/api';
+import { getAgentById } from '@/services/api';
 import type { Agent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 
 export default function AgentDetailLayout({ children }: { children: ReactNode }) {
@@ -24,22 +23,8 @@ export default function AgentDetailLayout({ children }: { children: ReactNode })
       const fetchAgent = async () => {
         try {
           setLoading(true);
-          // Inefficient, but necessary with the current API structure.
-          const instances = await getUserInstances();
-          let foundAgent: Agent | null = null;
-          for (const instance of instances) {
-            const parentAgents = await getParentAgentsByInstanceId(instance.id);
-            const matchingAgent = parentAgents.find(a => a.id === agentId);
-            if (matchingAgent) {
-              foundAgent = matchingAgent;
-              break;
-            }
-          }
-          if (foundAgent) {
-            setAgent(foundAgent);
-          } else {
-            console.error('Agent not found');
-          }
+          const foundAgent = await getAgentById(agentId);
+          setAgent(foundAgent);
         } catch (error) {
           console.error('Failed to fetch agent', error);
         } finally {

@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getParentAgentsByInstanceId, updateAgentPersona, getUserInstances } from '@/services/api';
+import { getAgentById, updateAgentPersona } from '@/services/api';
 import type { Agent } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -40,19 +40,7 @@ export default function EditAgentPage() {
       const fetchAgent = async () => {
         try {
           setLoading(true);
-          // This is inefficient, but necessary with the current API structure.
-          // We fetch all instances, then all parent agents for each instance to find the one.
-          const instances = await getUserInstances();
-          let foundAgent: Agent | null = null;
-          for (const instance of instances) {
-              const parentAgents = await getParentAgentsByInstanceId(instance.id);
-              const matchingAgent = parentAgents.find(a => a.id === agentId);
-              if (matchingAgent) {
-                  foundAgent = matchingAgent;
-                  break;
-              }
-              // You might need to search child agents too if they can be edited directly
-          }
+          const foundAgent = await getAgentById(agentId);
 
           if (!foundAgent) {
             throw new Error("Agente não encontrado");

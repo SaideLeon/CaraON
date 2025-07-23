@@ -1,7 +1,9 @@
+'use client';
+
 import axios from 'axios';
 import type { Agent, User, Instance, Organization } from '@/lib/types';
 
-const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1'; // Use the production URL directly
+const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1';
 const TOKEN_KEY = 'caraon-token';
 
 const api = axios.create({
@@ -25,11 +27,16 @@ api.interceptors.request.use(
 );
 
 // Agents
-export const getParentAgentsByInstanceId = async (instanceId: string): Promise<Agent[]> => {
-    const response = await api.get(`/agents/instance/${instanceId}`);
-    // Attach an empty childAgents array to each parent for consistency
-    return response.data.map((agent: Agent) => ({ ...agent, childAgents: [] }));
+export const getUserParentAgents = async (): Promise<Agent[]> => {
+    const response = await api.get('/agents/user/parents');
+    return response.data;
 };
+
+export const getAgentById = async (agentId: string): Promise<Agent> => {
+    const response = await api.get(`/agents/${agentId}`);
+    return response.data;
+};
+
 
 export const getChildAgents = async (parentAgentId: string): Promise<Agent[]> => {
     const response = await api.get(`/agents/child/${parentAgentId}`);
