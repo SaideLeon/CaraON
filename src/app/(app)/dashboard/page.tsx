@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { CreateInstanceDialog } from '@/components/dashboard/CreateInstanceDialo
 import type { Instance } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import api from '@/services/api';
+import api, { deleteInstance } from '@/services/api';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { InstanceCard } from '@/components/dashboard/InstanceCard';
 
@@ -28,8 +28,12 @@ export default function DashboardPage() {
 
   const [instances, setInstances] = useState<Instance[]>([]);
   const [loading, setLoading] = useState(true);
+  
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [disconnectingInstance, setDisconnectingInstance] = useState<Instance | null>(null);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deletingInstance, setDeletingInstance] = useState<Instance | null>(null);
 
   const [connectionAttempt, setConnectionAttempt] = useState<ConnectionAttempt>({
     instance: null,
@@ -164,6 +168,31 @@ export default function DashboardPage() {
     }
   }
 
+  const handleDelete = (instance: Instance) => {
+    setDeletingInstance(instance);
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingInstance) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteInstance(deletingInstance.id);
+      setInstances(prev => prev.filter(inst => inst.id !== deletingInstance.id));
+      toast({ title: 'Instância Excluída', description: `A instância "${deletingInstance.name}" foi excluída permanentemente.`});
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'Falha ao excluir a instância.';
+      toast({
+        variant: 'destructive',
+        title: 'Erro de Exclusão',
+        description: message,
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeletingInstance(null);
+    }
+  }
+
   return (
     <>
       <CreateInstanceDialog
@@ -190,6 +219,23 @@ export default function DashboardPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={!!deletingInstance} onOpenChange={() => setDeletingInstance(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir permanentemente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Isto excluirá permanentemente a instância "{deletingInstance?.name}" e todos os seus dados associados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
+              {isDeleting ? 'A excluir...' : 'Excluir'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex justify-end mb-6">
         <Button onClick={handleCreateInstance}>
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -204,7 +250,7 @@ export default function DashboardPage() {
       ) : instances.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {instances.map(instance => (
-            <InstanceCard key={instance.id} instance={instance} onReconnect={handleReconnect} onDisconnect={handleDisconnect} />
+            <InstanceCard key={instance.id} instance={instance} onReconnect={handleReconnect} onDisconnect={handleDisconnect} onDelete={handleDelete} />
           ))}
         </div>
       ) : (

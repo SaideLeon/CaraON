@@ -2,15 +2,17 @@
 
 import type { Instance } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
-import { MessageSquare, Link as LinkIcon, Power, PowerOff, Loader2, RefreshCw } from 'lucide-react';
+import { MessageSquare, Link as LinkIcon, Power, PowerOff, Loader2, RefreshCw, Trash2, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from '../ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 interface InstanceCardProps {
   instance: Instance;
   onReconnect: (instance: Instance) => void;
   onDisconnect: (instance: Instance) => void;
+  onDelete: (instance: Instance) => void;
 }
 
 const statusConfig = {
@@ -41,10 +43,9 @@ const statusConfig = {
 }
 
 
-export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCardProps) {
+export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: InstanceCardProps) {
     const currentStatus = instance.status || 'pending';
     const config = statusConfig[currentStatus] || statusConfig.error;
-    const Icon = config.icon;
   
   return (
     <Card className="flex flex-col hover:border-primary transition-colors duration-300">
@@ -73,18 +74,35 @@ export function InstanceCard({ instance, onReconnect, onDisconnect }: InstanceCa
                 Reconectar
             </Button>
          )}
-         {currentStatus === 'connected' && (
-            <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => onDisconnect(instance)}>
-                <PowerOff className="mr-2 h-4 w-4"/>
-                Desconectar
-            </Button>
-         )}
         <Button asChild variant="default" size="sm">
             <Link href="#">
                 Gerir
                 <LinkIcon className="ml-2 h-4 w-4"/>
             </Link>
         </Button>
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">Mais opções</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {currentStatus === 'connected' && (
+                <>
+                    <DropdownMenuItem onClick={() => onDisconnect(instance)}>
+                        <PowerOff className="mr-2 h-4 w-4" />
+                        <span>Desconectar</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete(instance)}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>Excluir</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
       </CardFooter>
     </Card>
   );
