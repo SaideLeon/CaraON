@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { Product, Brand, Category, ProductStatus } from '@/lib/types';
+import type { Product, Brand, Category } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { createProduct, getBrands, getCategories } from '@/services/api';
 import { ScrollArea } from '../ui/scroll-area';
@@ -102,11 +102,11 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
   const onSubmit = async (data: ProductFormValues) => {
     setLoading(true);
     try {
-      const productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
+      const productData = {
         ...data,
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
       };
-      const newProduct = await createProduct(productData);
+      const newProduct = await createProduct(productData as any);
       toast({ title: 'Produto Criado', description: `O produto "${newProduct.name}" foi criado com sucesso.` });
       onProductCreated(newProduct);
       setOpen(false);
@@ -158,7 +158,6 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                 </div>
               </div>
 
-
               <div className="space-y-4 rounded-md border p-4">
                  <h4 className="font-medium text-sm">Organização</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +181,6 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                 <FormField control={form.control} name="seoTitle" render={({ field }) => ( <FormItem> <FormLabel>Título SEO</FormLabel> <FormControl> <Input placeholder="Ex: Comprar Smartphone XYZ com Desconto" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
                 <FormField control={form.control} name="seoDescription" render={({ field }) => ( <FormItem> <FormLabel>Descrição SEO</FormLabel> <FormControl> <Textarea placeholder="Descreva o produto para os motores de busca..." {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
               </div>
-
 
               <DialogFooter>
                 <Button type="submit" disabled={loading || loadingDependencies}>
