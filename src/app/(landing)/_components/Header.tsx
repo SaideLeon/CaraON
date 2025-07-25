@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { MessageCircleCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 export function Header() {
   return (
@@ -10,7 +10,7 @@ export function Header() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <MessageCircleCode className="h-6 w-6 text-primary" />
+            <CaraOnIcon className="h-6 w-6 text-primary" />
             <span className="font-bold font-headline">CaraON</span>
           </Link>
         </div>
