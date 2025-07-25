@@ -72,6 +72,9 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       trackStock: true,
       featured: false,
       stock: 0,
+      tags: '',
+      seoTitle: '',
+      seoDescription: '',
     },
   });
 
@@ -156,6 +159,14 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                  <FormField control={form.control} name="isDigital" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-2 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <FormLabel className="font-normal">Produto Digital</FormLabel> </FormItem> )} />
                  <FormField control={form.control} name="trackStock" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-2 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <FormLabel className="font-normal">Rastrear Estoque</FormLabel> </FormItem> )} />
               </div>
+              
+              <div className="space-y-4 rounded-md border p-4">
+                <h4 className="font-medium text-sm">SEO e Tags</h4>
+                 <FormField control={form.control} name="tags" render={({ field }) => ( <FormItem> <FormLabel>Tags</FormLabel> <FormControl> <Input placeholder="smartphone, android, tech (separado por vírgulas)" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
+                <FormField control={form.control} name="seoTitle" render={({ field }) => ( <FormItem> <FormLabel>Título SEO</FormLabel> <FormControl> <Input placeholder="Ex: Comprar Smartphone XYZ com Desconto" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
+                <FormField control={form.control} name="seoDescription" render={({ field }) => ( <FormItem> <FormLabel>Descrição SEO</FormLabel> <FormControl> <Textarea placeholder="Descreva o produto para os motores de busca..." {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
+              </div>
+
 
               <DialogFooter>
                 <Button type="submit" disabled={loading || loadingDependencies}>
