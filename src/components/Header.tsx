@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { CreateAgentDialog } from './agents/CreateAgentDialog';
 import { CreateOrganizationDialog } from './organizations/CreateOrganizationDialog';
+import { CreateToolDialog } from './tools/CreateToolDialog';
 
 
 const pageConfig: Record<string, { title: string; description: string }> = {
@@ -19,6 +20,10 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     '/agents': {
         title: 'Agentes',
         description: 'Crie e gira os seus agentes de IA.',
+    },
+    '/tools': {
+        title: 'Ferramentas',
+        description: 'Crie e gira ferramentas para dar novas habilidades aos seus agentes.',
     },
     '/organizations': {
         title: 'Organizações',
@@ -48,6 +53,16 @@ export function Header() {
               <span className="sm:hidden">Novo</span>
             </Button>
           </CreateAgentDialog>
+        );
+      case '/tools':
+        return (
+          <CreateToolDialog onToolCreated={handleActionCreated} >
+            <Button size="sm">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Nova Ferramenta</span>
+              <span className="sm:hidden">Nova</span>
+            </Button>
+          </CreateToolDialog>
         );
       case '/organizations':
          return (

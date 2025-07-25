@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench } from 'lucide-react';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 import {
@@ -60,6 +60,14 @@ export function SidebarNav() {
               <Link href="/agents">
                 <Bot />
                 <span>Agentes</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/tools')} tooltip="Ferramentas">
+              <Link href="/tools">
+                <Wrench />
+                <span>Ferramentas</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

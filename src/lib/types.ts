@@ -45,8 +45,14 @@ export interface Tool {
     name: string;
     description: string;
     type: string;
-    config: any;
+    config: {
+      connectionString?: string;
+      collection?: string;
+      query?: string;
+    };
     isSystem: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 

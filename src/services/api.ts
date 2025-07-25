@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization } from '@/lib/types';
+import type { Agent, User, Instance, Organization, Tool } from '@/lib/types';
 
 const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1';
 const TOKEN_KEY = 'caraon-token';
@@ -76,6 +76,17 @@ export const deleteInstance = async (instanceId: string): Promise<void> => {
 // Organizations
 export const getInstanceOrganizations = async (instanceId: string): Promise<Organization[]> => {
     const response = await api.get(`/instances/${instanceId}/organizations`);
+    return response.data;
+}
+
+// Tools
+export const getTools = async (): Promise<Tool[]> => {
+    const response = await api.get('/tools');
+    return response.data;
+}
+
+export const createTool = async (data: Omit<Tool, 'id' | 'isSystem' | 'createdAt' | 'updatedAt'>): Promise<Tool> => {
+    const response = await api.post('/tools', data);
     return response.data;
 }
 
