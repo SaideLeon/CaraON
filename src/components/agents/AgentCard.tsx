@@ -13,6 +13,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { CreateChildAgentDialog } from './CreateChildAgentDialog';
 
 
 interface AgentCardProps {
@@ -41,6 +42,10 @@ export function AgentCard({ agent }: AgentCardProps) {
       }
     }
   }
+
+  const handleChildAgentCreated = (newChildAgent: Agent) => {
+    setChildAgents(prev => [newChildAgent, ...prev]);
+  };
   
   return (
     <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 bg-card/50">
@@ -111,10 +116,12 @@ export function AgentCard({ agent }: AgentCardProps) {
             </Link>
         </Button>
         {agent.type === 'PAI' && (
-           <Button variant="default" size="sm">
-                <PlusCircle className="mr-2 h-3 w-3"/>
-                Add Filho
-            </Button>
+           <CreateChildAgentDialog parentAgentId={agent.id} onChildAgentCreated={handleChildAgentCreated}>
+             <Button variant="default" size="sm">
+                  <PlusCircle className="mr-2 h-3 w-3"/>
+                  Add Filho
+              </Button>
+           </CreateChildAgentDialog>
         )}
         <Button asChild variant="secondary" size="sm">
             <Link href={`/agents/${agent.id}/tune`}>
