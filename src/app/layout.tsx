@@ -10,9 +10,6 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 export const metadata: Metadata = {
   title: 'CaraON',
   description: 'Gira as suas instâncias do WhatsApp com agentes de IA.',
-  icons: {
-    icon: '/cara_on_icon.svg',
-  },
 };
 
 export default function RootLayout({
