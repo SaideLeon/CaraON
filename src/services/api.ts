@@ -3,7 +3,7 @@
 import axios from 'axios';
 import type { Agent, User, Instance, Organization, Tool } from '@/lib/types';
 
-const API_BASE_URL = 'https://app.caraon.qzz.io/api/v1';
+const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'caraon-token';
 
 const api = axios.create({
@@ -61,6 +61,10 @@ export const updateAgentPersona = async (agentId: string, persona: string): Prom
     return response.data;
 };
 
+export const deleteAgent = async (agentId: string): Promise<void> => {
+    await api.delete(`/agents/${agentId}`);
+}
+
 
 // Auth
 export const getMe = async (): Promise<User> => {
@@ -93,6 +97,10 @@ export const getTools = async (): Promise<Tool[]> => {
 export const createTool = async (data: Omit<Tool, 'id' | 'isSystem' | 'createdAt' | 'updatedAt'>): Promise<Tool> => {
     const response = await api.post('/tools', data);
     return response.data;
+}
+
+export const deleteTool = async (toolId: string): Promise<void> => {
+    await api.delete(`/tools/${toolId}`);
 }
 
 

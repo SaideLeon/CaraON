@@ -7,9 +7,10 @@ import { ScrollArea } from '../ui/scroll-area';
 
 interface ToolCardProps {
   tool: Tool;
+  onDelete: (tool: Tool) => void;
 }
 
-export function ToolCard({ tool }: ToolCardProps) {
+export function ToolCard({ tool, onDelete }: ToolCardProps) {
   return (
     <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 bg-card/50">
       <CardHeader>
@@ -39,12 +40,12 @@ export function ToolCard({ tool }: ToolCardProps) {
         </div>
 
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 border-t border-border/20 pt-4 mt-auto">
+      <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-auto">
          <Button variant="outline" size="sm" disabled>
             <Pencil className="mr-2 h-3 w-3"/>
             Editar
         </Button>
-        <Button variant="destructive" size="sm" disabled>
+        <Button variant="destructive" size="sm" onClick={() => onDelete(tool)}>
             <Trash2 className="mr-2 h-3 w-3"/>
             Excluir
         </Button>

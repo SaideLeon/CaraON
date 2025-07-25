@@ -1,6 +1,6 @@
 import type { Agent } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
-import { Bot, Edit, Wand2, PlusCircle, Users, Loader2 } from 'lucide-react';
+import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -18,9 +18,10 @@ import { CreateChildAgentDialog } from './CreateChildAgentDialog';
 
 interface AgentCardProps {
   agent: Agent;
+  onDelete: (agent: Agent) => void;
 }
 
-export function AgentCard({ agent }: AgentCardProps) {
+export function AgentCard({ agent, onDelete }: AgentCardProps) {
   const [childAgents, setChildAgents] = useState<Agent[]>(agent.childAgents || []);
   const [isLoadingChildren, setIsLoadingChildren] = useState(false);
   const { toast } = useToast();
@@ -61,6 +62,10 @@ export function AgentCard({ agent }: AgentCardProps) {
             <CardTitle className="font-headline text-xl truncate" title={agent.name}>{agent.name}</CardTitle>
             <CardDescription className="text-xs text-muted-foreground truncate">ID: {agent.id}</CardDescription>
           </div>
+           <Button variant="ghost" size="icon" className='h-8 w-8 text-muted-foreground hover:text-destructive' onClick={() => onDelete(agent)}>
+                <Trash2 className="h-4 w-4" />
+                <span className="sr-only">Excluir Agente</span>
+            </Button>
         </div>
       </CardHeader>
       <CardContent className="flex-grow space-y-4">
@@ -108,7 +113,7 @@ export function AgentCard({ agent }: AgentCardProps) {
          )}
 
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 border-t border-border/20 pt-4 mt-auto">
+      <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-auto">
          <Button asChild variant="outline" size="sm">
             <Link href={`/agents/${agent.id}/edit`}>
                 <Edit className="mr-2 h-3 w-3"/>
