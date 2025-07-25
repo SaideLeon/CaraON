@@ -1,0 +1,21 @@
+<svg width="100" height="50" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+  <!-- Base do switch (fundo) -->
+  <rect x="5" y="10" width="90" height="30" rx="15" ry="15" fill="#4CAF50" stroke="#45a049" stroke-width="2"/>
+  
+  <!-- Texto "ON" no lado esquerdo -->
+  <text x="25" y="30" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white" text-anchor="middle">ON</text>
+  
+  <!-- Círculo móvel (botão) -->
+  <circle cx="75" cy="25" r="18" fill="white" stroke="#ddd" stroke-width="1"/>
+  
+  <!-- Carinha sorridente -->
+  <!-- Olhos -->
+  <circle cx="70" cy="20" r="2" fill="#333"/>
+  <circle cx="80" cy="20" r="2" fill="#333"/>
+  
+  <!-- Boca sorridente -->
+  <path d="M 68 28 Q 75 32 82 28" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Sombra sutil do botão -->
+  <circle cx="75" cy="27" r="16" fill="none" stroke="#f0f0f0" stroke-width="1" opacity="0.5"/>
+</svg>
