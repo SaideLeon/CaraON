@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree } from 'lucide-react';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 import {
@@ -92,6 +92,14 @@ export function SidebarNav() {
                 <Link href="/brands">
                   <Bookmark />
                   <span>Marcas</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={isActive('/categories')} tooltip="Categorias">
+                <Link href="/categories">
+                  <FolderTree />
+                  <span>Categorias</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

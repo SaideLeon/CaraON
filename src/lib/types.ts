@@ -71,3 +71,13 @@ export interface Brand {
   website?: string | null;
   isActive: boolean;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  image?: string | null;
+  parentId?: string | null;
+  isActive: boolean;
+}
