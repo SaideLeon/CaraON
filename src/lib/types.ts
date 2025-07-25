@@ -81,3 +81,35 @@ export interface Category {
   parentId?: string | null;
   isActive: boolean;
 }
+
+export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription?: string;
+  sku: string;
+  price: number;
+  comparePrice?: number;
+  cost?: number;
+  weight?: number;
+  length?: number;
+  width?: number;
+  height?: number;
+  status: ProductStatus;
+  isDigital: boolean;
+  trackStock: boolean;
+  stock: number;
+  minStock?: number;
+  maxStock?: number;
+  featured: boolean;
+  categoryId: string;
+  brandId: string;
+  tags?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  createdAt: string;
+  updatedAt: string;
+}

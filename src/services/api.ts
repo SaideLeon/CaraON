@@ -1,7 +1,8 @@
+
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization, Tool, Brand, Category } from '@/lib/types';
+import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'caraon-token';
@@ -133,6 +134,21 @@ export const createCategory = async (data: Omit<Category, 'id' | 'isActive'>): P
 
 export const deleteCategory = async (categoryId: string): Promise<void> => {
     await api.delete(`/categories/${categoryId}`);
+};
+
+// Products
+export const getProducts = async (): Promise<Product[]> => {
+    const response = await api.get('/products');
+    return response.data.data;
+};
+
+export const createProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> => {
+    const response = await api.post('/products', data);
+    return response.data;
+};
+
+export const deleteProduct = async (productId: string): Promise<void> => {
+    await api.delete(`/products/${productId}`);
 };
 
 
