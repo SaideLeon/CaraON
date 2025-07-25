@@ -55,6 +55,7 @@ export function CreateToolDialog({ children, onToolCreated }: CreateToolDialogPr
       description: '',
       type: 'DATABASE',
       config: {
+        connectionString: '',
         collection: '',
         query: ''
       }
@@ -141,8 +142,21 @@ export function CreateToolDialog({ children, onToolCreated }: CreateToolDialogPr
               )}
             />
 
-            <div className="space-y-2 rounded-md border p-4">
+            <div className="space-y-4 rounded-md border p-4">
                  <h4 className="font-medium text-sm">Configuração do Banco de Dados</h4>
+                  <FormField
+                    control={form.control}
+                    name="config.connectionString"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Connection String (Opcional)</FormLabel>
+                        <FormControl>
+                            <Input placeholder="Deixe em branco para usar a padrão" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
                  <FormField
                     control={form.control}
                     name="config.collection"
