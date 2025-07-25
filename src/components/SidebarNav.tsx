@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark } from 'lucide-react';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 import {
@@ -14,7 +14,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-  SidebarFooter
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarSeparator
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -80,6 +83,21 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarGroupLabel>E-commerce</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={isActive('/brands')} tooltip="Marcas">
+                <Link href="/brands">
+                  <Bookmark />
+                  <span>Marcas</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
       </SidebarContent>
       <SidebarFooter>
         <DropdownMenu>

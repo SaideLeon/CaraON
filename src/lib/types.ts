@@ -61,3 +61,13 @@ export interface Organization {
   name: string;
   instanceId: string;
 }
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  logo?: string | null;
+  website?: string | null;
+  isActive: boolean;
+}

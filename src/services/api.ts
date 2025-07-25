@@ -1,7 +1,7 @@
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization, Tool } from '@/lib/types';
+import type { Agent, User, Instance, Organization, Tool, Brand } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'caraon-token';
@@ -102,6 +102,22 @@ export const createTool = async (data: Omit<Tool, 'id' | 'isSystem' | 'createdAt
 export const deleteTool = async (toolId: string): Promise<void> => {
     await api.delete(`/tools/${toolId}`);
 }
+
+// Brands
+export const getBrands = async (): Promise<Brand[]> => {
+    const response = await api.get('/brands');
+    // The API returns a paginated response, so we extract the data array.
+    return response.data.data;
+};
+
+export const createBrand = async (data: Omit<Brand, 'id' | 'isActive'>): Promise<Brand> => {
+    const response = await api.post('/brands', data);
+    return response.data;
+};
+
+export const deleteBrand = async (brandId: string): Promise<void> => {
+    await api.delete(`/brands/${brandId}`);
+};
 
 
 export default api;
