@@ -133,10 +133,8 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
               
               <div className="space-y-4 rounded-md border p-4">
                  <h4 className="font-medium text-sm">Informações Básicas</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField control={form.control} name="name" render={({ field }) => ( <FormItem> <FormLabel>Nome do Produto</FormLabel> <FormControl> <Input placeholder="Ex: Smartphone XYZ" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
-                    <FormField control={form.control} name="slug" render={({ field }) => ( <FormItem> <FormLabel>Slug</FormLabel> <FormControl> <Input placeholder="ex: smartphone-xyz" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
-                </div>
+                <FormField control={form.control} name="name" render={({ field }) => ( <FormItem> <FormLabel>Nome do Produto</FormLabel> <FormControl> <Input placeholder="Ex: Smartphone XYZ" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
+                <FormField control={form.control} name="slug" render={({ field }) => ( <FormItem> <FormLabel>Slug</FormLabel> <FormControl> <Input placeholder="ex: smartphone-xyz" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
                 <FormField control={form.control} name="description" render={({ field }) => ( <FormItem> <FormLabel>Descrição Completa</FormLabel> <FormControl> <Textarea placeholder="Descreva detalhadamente o produto..." {...field} rows={5}/> </FormControl> <FormMessage /> </FormItem> )} />
               </div>
 
@@ -169,9 +167,9 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
               <div className="space-y-4 rounded-md border p-4">
                 <h4 className="font-medium text-sm">Opções</h4>
                 <div className="flex flex-wrap gap-x-8 gap-y-4">
-                    <FormField control={form.control} name="featured" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel className="font-normal">Produto em Destaque</FormLabel></div> </FormItem> )} />
-                    <FormField control={form.control} name="isDigital" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel className="font-normal">Produto Digital</FormLabel></div> </FormItem> )} />
-                    <FormField control={form.control} name="trackStock" render={({ field }) => ( <FormItem className="flex flex-row items-center space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel className="font-normal">Rastrear Estoque</FormLabel></div> </FormItem> )} />
+                    <FormField control={form.control} name="featured" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel>Produto em Destaque</FormLabel></div> </FormItem> )} />
+                    <FormField control={form.control} name="isDigital" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel>Produto Digital</FormLabel></div> </FormItem> )} />
+                    <FormField control={form.control} name="trackStock" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel>Rastrear Estoque</FormLabel></div> </FormItem> )} />
                 </div>
               </div>
               
