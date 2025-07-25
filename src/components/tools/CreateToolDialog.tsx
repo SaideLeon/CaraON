@@ -22,6 +22,7 @@ import type { Tool } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { createTool } from '@/services/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ScrollArea } from '../ui/scroll-area';
 
 const configSchema = z.object({
   connectionString: z.string().optional(),
@@ -93,107 +94,109 @@ export function CreateToolDialog({ children, onToolCreated }: CreateToolDialogPr
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome da Ferramenta</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ex: Consultar Estoque" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Descreva o que esta ferramenta faz..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de Ferramenta</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <ScrollArea className="max-h-[70vh] p-1">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome da Ferramenta</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um tipo" />
-                      </SelectTrigger>
+                      <Input placeholder="ex: Consultar Estoque" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="DATABASE">DATABASE</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descrição</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Descreva o que esta ferramenta faz..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Ferramenta</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione um tipo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="DATABASE">DATABASE</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-4 rounded-md border p-4">
-                 <h4 className="font-medium text-sm">Configuração do Banco de Dados</h4>
+              <div className="space-y-4 rounded-md border p-4">
+                  <h4 className="font-medium text-sm">Configuração do Banco de Dados</h4>
+                    <FormField
+                      control={form.control}
+                      name="config.connectionString"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Connection String (Opcional)</FormLabel>
+                          <FormControl>
+                              <Input placeholder="Deixe em branco para usar a padrão" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
                   <FormField
-                    control={form.control}
-                    name="config.connectionString"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Connection String (Opcional)</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Deixe em branco para usar a padrão" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                 <FormField
-                    control={form.control}
-                    name="config.collection"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Collection</FormLabel>
-                        <FormControl>
-                            <Input placeholder="ex: products" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                <FormField
-                    control={form.control}
-                    name="config.query"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Query</FormLabel>
-                        <FormControl>
-                            <Textarea placeholder='ex: {"name": "{product_name}"}' {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-            </div>
+                      control={form.control}
+                      name="config.collection"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Collection</FormLabel>
+                          <FormControl>
+                              <Input placeholder="ex: products" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+                  <FormField
+                      control={form.control}
+                      name="config.query"
+                      render={({ field }) => (
+                          <FormItem>
+                          <FormLabel>Query</FormLabel>
+                          <FormControl>
+                              <Textarea placeholder='ex: {"name": "{product_name}"}' {...field} />
+                          </FormControl>
+                          <FormMessage />
+                          </FormItem>
+                      )}
+                      />
+              </div>
 
 
-            <DialogFooter>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Criar Ferramenta
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              <DialogFooter>
+                <Button type="submit" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Criar Ferramenta
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
