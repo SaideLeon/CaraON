@@ -3,7 +3,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, MessageCircleCode, User, MoreVertical } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical } from 'lucide-react';
+import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 import {
   Sidebar,
@@ -39,7 +40,7 @@ export function SidebarNav() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-           <MessageCircleCode className="h-7 w-7 text-primary" />
+           <CaraOnIcon className="h-7 w-7 text-primary" />
            <span className="text-lg font-semibold font-headline">CaraON</span>
         </div>
         <SidebarTrigger className="md:hidden" />

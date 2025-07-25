@@ -3,8 +3,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Bot, MessageCircleCode, Zap, Sparkles } from 'lucide-react';
+import { ArrowRight, Bot, Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 export default function EnhancedLandingPage() {
   return (
@@ -13,7 +14,7 @@ export default function EnhancedLandingPage() {
         <div className="container flex h-14 items-center">
           <div className="mr-4 flex items-center">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <MessageCircleCode className="h-6 w-6 text-primary" />
+              <CaraOnIcon className="h-6 w-6 text-primary" />
               <span className="font-bold font-headline">CaraON</span>
             </Link>
           </div>
@@ -38,7 +39,7 @@ export default function EnhancedLandingPage() {
         
         <div className="container relative z-10 mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 text-center md:gap-8">
           <div className="mb-4 flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:scale-110 transition-transform duration-300">
-            <MessageCircleCode className="h-8 w-8 md:h-10 md:w-10 animate-pulse" />
+            <CaraOnIcon className="h-8 w-8 md:h-10 md:w-10 animate-pulse" />
           </div>
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tighter font-headline">
@@ -145,7 +146,7 @@ export default function EnhancedLandingPage() {
                 <div className="bg-slate-200/60 dark:bg-slate-800/60 h-64 sm:h-80 md:h-96 rounded-lg flex items-center justify-center">
                   <div className="text-center p-4">
                     <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                      <MessageCircleCode className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                      <CaraOnIcon className="h-6 w-6 md:h-8 md:w-8 text-white" />
                     </div>
                     <h3 className="text-xl md:text-2xl font-bold text-slate-700 dark:text-slate-300 mb-2 font-headline">
                       Dashboard Preview

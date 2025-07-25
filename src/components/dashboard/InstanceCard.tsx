@@ -2,11 +2,12 @@
 
 import type { Instance } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
-import { MessageSquare, Link as LinkIcon, Power, PowerOff, Loader2, RefreshCw, Trash2, MoreVertical } from 'lucide-react';
+import { Link as LinkIcon, Power, PowerOff, Loader2, RefreshCw, Trash2, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { CaraOnIcon } from '../icons/CaraOnIcon';
 
 interface InstanceCardProps {
   instance: Instance;
@@ -34,6 +35,12 @@ const statusConfig = {
         color: 'bg-yellow-500',
         textColor: 'text-yellow-400'
     },
+    pending_qr: {
+        icon: Loader2,
+        label: 'Pendente QR',
+        color: 'bg-yellow-500',
+        textColor: 'text-yellow-400'
+    },
      error: {
         icon: PowerOff,
         label: 'Erro',
@@ -44,7 +51,7 @@ const statusConfig = {
 
 
 export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: InstanceCardProps) {
-    const currentStatus = instance.status || 'pending';
+    const currentStatus = instance.status?.toLowerCase() as keyof typeof statusConfig || 'pending';
     const config = statusConfig[currentStatus] || statusConfig.error;
   
   return (
@@ -52,7 +59,7 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <MessageSquare className="h-8 w-8 text-primary mb-2" />
+            <CaraOnIcon className="h-8 w-8 text-primary mb-2" />
             <CardTitle className="font-headline text-xl truncate" title={instance.name}>{instance.name}</CardTitle>
             <CardDescription className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</CardDescription>
           </div>
