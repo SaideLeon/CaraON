@@ -96,7 +96,7 @@ export default function ProductsPage() {
           <CreateProductDialog onProductCreated={handleProductCreated}>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
-                <span>Criar Produto</span>
+                Criar Produto
               </Button>
           </CreateProductDialog>
         </div>
@@ -125,7 +125,7 @@ export default function ProductsPage() {
                <CreateProductDialog onProductCreated={handleProductCreated}>
                   <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    <span>Criar Produto</span>
+                    Criar Produto
                   </Button>
               </CreateProductDialog>
              </div>
