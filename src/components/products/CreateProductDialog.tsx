@@ -21,7 +21,7 @@ import { ProductForm } from './ProductForm';
 const productSchema = z.object({
   name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres.'),
   slug: z.string().min(2, 'O slug deve ter pelo menos 2 caracteres.'),
-  description: z.string().min(10, 'A descrição deve ter pelo menos 10 caracteres.'),
+  description: z.string().optional(),
   shortDescription: z.string().optional(),
   sku: z.string().min(1, 'O SKU é obrigatório.'),
   price: z.coerce.number().min(0, 'O preço deve ser positivo.'),
@@ -33,13 +33,13 @@ const productSchema = z.object({
   height: z.coerce.number().optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'ARCHIVED']),
   isDigital: z.boolean().default(false),
-  trackStock: z.boolean().default(false),
-  stock: z.coerce.number().min(0, 'O estoque deve ser positivo.'),
-  minStock: z.coerce.number().optional(),
-  maxStock: z.coerce.number().optional(),
+  trackStock: z.boolean().default(true),
+  stock: z.coerce.number().int('O estoque deve ser um número inteiro.').default(0),
+  minStock: z.coerce.number().int('O estoque mínimo deve ser um número inteiro.').default(0),
+  maxStock: z.coerce.number().int('O estoque máximo deve ser um número inteiro.').optional(),
   featured: z.boolean().default(false),
   categoryId: z.string({ required_error: 'Selecione uma categoria.' }),
-  brandId: z.string({ required_error: 'Selecione uma marca.' }),
+  brandId: z.string().optional(),
   tags: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
@@ -74,11 +74,11 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       length: undefined,
       width: undefined,
       height: undefined,
-      status: 'ACTIVE',
+      status: 'DRAFT',
       isDigital: false,
       trackStock: true,
-      stock: undefined,
-      minStock: undefined,
+      stock: 0,
+      minStock: 0,
       maxStock: undefined,
       featured: false,
       tags: '',
@@ -111,8 +111,11 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-      // @ts-ignore
-      const payload = { ...data, tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [] };
+      const payload = { 
+        ...data, 
+        tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
+        brandId: data.brandId === 'none' ? undefined : data.brandId,
+      };
       const newProduct = await createProduct(payload as any);
 
       toast({

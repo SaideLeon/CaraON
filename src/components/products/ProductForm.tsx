@@ -31,7 +31,6 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <ScrollArea className="h-[60vh] pr-6">
           <div className="space-y-6">
-            {/* Informações Básicas */}
             <div className="space-y-4 rounded-md border p-4">
               <h3 className="text-lg font-medium">Informações Básicas</h3>
               <FormField
@@ -65,7 +64,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição Completa</FormLabel>
+                    <FormLabel>Descrição Completa (Opcional)</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Descreva os detalhes do produto..." {...field} />
                     </FormControl>
@@ -88,7 +87,6 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
               />
             </div>
             
-            {/* Organização */}
             <div className="space-y-4 rounded-md border p-4">
                <h3 className="text-lg font-medium">Organização</h3>
                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -97,14 +95,15 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     name="brandId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Marca</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingDependencies}>
+                        <FormLabel>Marca (Opcional)</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingDependencies}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione uma marca" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="none">Nenhuma</SelectItem>
                             {brands.map((brand) => (
                               <SelectItem key={brand.id} value={brand.id}>
                                 {brand.name}
@@ -140,11 +139,12 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       </FormItem>
                     )}
                   />
-                  <FormField
+                  </div>
+                   <FormField
                     control={form.control}
                     name="tags"
                     render={({ field }) => (
-                      <FormItem className="md:col-span-2">
+                      <FormItem>
                         <FormLabel>Tags (separadas por vírgula)</FormLabel>
                         <FormControl>
                           <Input placeholder="Ex: verão, casual, algodão" {...field} />
@@ -153,10 +153,8 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       </FormItem>
                     )}
                   />
-               </div>
             </div>
 
-            {/* Preços */}
             <div className="space-y-4 rounded-md border p-4">
               <h3 className="text-lg font-medium">Preços</h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -167,7 +165,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       <FormItem>
                         <FormLabel>Preço de Venda</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="99.90" {...field} />
+                          <Input type="number" step="0.01" placeholder="99.90" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -180,7 +178,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       <FormItem>
                         <FormLabel>Preço Comparativo (Opcional)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="129.90" {...field} />
+                          <Input type="number" step="0.01" placeholder="129.90" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -193,7 +191,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       <FormItem>
                         <FormLabel>Custo (Opcional)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="45.00" {...field} />
+                          <Input type="number" step="0.01" placeholder="45.00" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -202,7 +200,6 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
               </div>
             </div>
 
-            {/* Inventário */}
             <div className="space-y-4 rounded-md border p-4">
                <h3 className="text-lg font-medium">Inventário</h3>
                 <FormField
@@ -226,7 +223,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       <FormItem>
                         <FormLabel>Quantidade em Estoque</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="100" {...field} />
+                          <Input type="number" step="1" placeholder="100" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -237,9 +234,9 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     name="minStock"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Estoque Mínimo (Opcional)</FormLabel>
+                        <FormLabel>Estoque Mínimo</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="10" {...field} />
+                          <Input type="number" step="1" placeholder="10" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -252,7 +249,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                       <FormItem>
                         <FormLabel>Estoque Máximo (Opcional)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="200" {...field} />
+                          <Input type="number" step="1" placeholder="200" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -263,19 +260,19 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                   control={form.control}
                   name="trackStock"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-3">
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                       <FormControl>
                         <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
                       <div className="space-y-1 leading-none">
                         <FormLabel>Rastrear Estoque</FormLabel>
+                         <FormMessage />
                       </div>
                     </FormItem>
                   )}
                 />
             </div>
             
-            {/* Configurações Adicionais */}
              <div className="space-y-4 rounded-md border p-4">
                 <h3 className="text-lg font-medium">Configurações Adicionais</h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -292,8 +289,8 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                                <SelectItem value="ACTIVE">Ativo</SelectItem>
                                 <SelectItem value="DRAFT">Rascunho</SelectItem>
+                                <SelectItem value="ACTIVE">Ativo</SelectItem>
                                 <SelectItem value="INACTIVE">Inativo</SelectItem>
                                 <SelectItem value="ARCHIVED">Arquivado</SelectItem>
                             </SelectContent>
@@ -308,7 +305,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     control={form.control}
                     name="featured"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-3">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                         <FormControl>
                             <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
@@ -322,7 +319,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     control={form.control}
                     name="isDigital"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-3">
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
                         <FormControl>
                             <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
@@ -334,7 +331,36 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     />
                 </div>
             </div>
-
+            
+             <div className="space-y-4 rounded-md border p-4">
+                <h3 className="text-lg font-medium">SEO (Opcional)</h3>
+                 <FormField
+                    control={form.control}
+                    name="seoTitle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Título SEO</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Título para os motores de busca" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="seoDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Descrição SEO</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Descrição para os motores de busca" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+             </div>
           </div>
         </ScrollArea>
         <DialogFooter className="pt-4 border-t">
