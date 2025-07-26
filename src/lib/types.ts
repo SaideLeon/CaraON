@@ -84,6 +84,13 @@ export interface Category {
 
 export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
 
+export interface ProductImage {
+  id?: string;
+  url: string;
+  altText?: string;
+  order?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -110,6 +117,7 @@ export interface Product {
   tags: string[];
   seoTitle?: string | null;
   seoDescription?: string | null;
+  images: ProductImage[];
   createdAt: string;
   updatedAt: string;
 }

@@ -14,9 +14,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import type { Product, Brand, Category } from '@/lib/types';
+import type { Product, Brand, Category, ProductImage } from '@/lib/types';
 import { createProduct, getBrands, getCategories } from '@/services/api';
 import { ProductForm } from './ProductForm';
+
+const imageSchema = z.object({
+  url: z.string().url('URL da imagem inválida.'),
+  altText: z.string().optional(),
+});
 
 const productSchema = z.object({
   name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres.'),
@@ -43,6 +48,7 @@ const productSchema = z.object({
   tags: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
+  images: z.array(imageSchema).optional().default([]),
 });
 
 export type ProductFormValues = z.infer<typeof productSchema>;
@@ -67,23 +73,16 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       description: '',
       shortDescription: '',
       sku: '',
-      price: undefined,
-      comparePrice: undefined,
-      cost: undefined,
-      weight: undefined,
-      length: undefined,
-      width: undefined,
-      height: undefined,
       status: 'DRAFT',
       isDigital: false,
       trackStock: true,
       stock: 0,
       minStock: 0,
-      maxStock: undefined,
       featured: false,
       tags: '',
       seoTitle: '',
       seoDescription: '',
+      images: [],
     },
   });
 
@@ -125,7 +124,7 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       onProductCreated(newProduct);
       setOpen(false);
       form.reset();
-    } catch (error: any) {
+    } catch (error: any) => {
       const message = error.response?.data?.message || 'Falha ao criar o produto.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
     }

@@ -2,17 +2,20 @@
 'use client';
 
 import type { UseFormReturn } from 'react-hook-form';
+import { useFieldArray } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, Image as ImageIcon } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Brand, Category } from '@/lib/types';
 import type { ProductFormValues } from './CreateProductDialog';
 import { DialogFooter } from '../ui/dialog';
+import { useState } from 'react';
+import Image from 'next/image';
 
 interface ProductFormProps {
   form: UseFormReturn<ProductFormValues>;
@@ -23,8 +26,27 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ form, onSubmit, brands, categories, loadingDependencies }: ProductFormProps) {
-  const { formState: { isSubmitting } } = form;
+  const { control, formState: { isSubmitting } } = form;
   const loading = isSubmitting || loadingDependencies;
+  const [newImageUrl, setNewImageUrl] = useState('');
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "images",
+  });
+
+  const handleAddImage = () => {
+    if (newImageUrl && newImageUrl.trim() !== '') {
+      try {
+        // Simple URL validation
+        new URL(newImageUrl);
+        append({ url: newImageUrl, altText: form.getValues('name') });
+        setNewImageUrl('');
+      } catch (error) {
+        form.setError('images', { type: 'manual', message: 'URL da imagem inválida.' });
+      }
+    }
+  };
 
   return (
     <Form {...form}>
@@ -87,6 +109,52 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
               />
             </div>
             
+            <div className="space-y-4 rounded-md border p-4">
+              <h3 className="text-lg font-medium">Imagens do Produto</h3>
+              <div className="flex items-start gap-2">
+                <Input
+                  type="url"
+                  placeholder="Cole a URL da imagem aqui..."
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                />
+                <Button type="button" onClick={handleAddImage} variant="outline" size="icon">
+                  <PlusCircle className="h-4 w-4" />
+                </Button>
+              </div>
+              <FormMessage>{form.formState.errors.images?.message}</FormMessage>
+               {fields.length > 0 && (
+                <div className="grid grid-cols-3 gap-4">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="relative group">
+                      <Image
+                        src={field.url}
+                        alt={`Imagem do produto ${index + 1}`}
+                        width={150}
+                        height={150}
+                        className="rounded-md object-cover aspect-square"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+               {fields.length === 0 && (
+                 <div className="text-center py-8 border-2 border-dashed rounded-lg flex flex-col items-center justify-center">
+                    <ImageIcon className="mx-auto h-10 w-10 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground mt-2">Nenhuma imagem adicionada.</p>
+                 </div>
+               )}
+            </div>
+
             <div className="space-y-4 rounded-md border p-4">
                <h3 className="text-lg font-medium">Organização</h3>
                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
