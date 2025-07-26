@@ -19,7 +19,7 @@ import { createProduct, getBrands, getCategories } from '@/services/api';
 import { ProductForm } from './ProductForm';
 
 const imageSchema = z.object({
-  url: z.string().url('URL da imagem inválida.'),
+  url: z.string().min(1, 'URL da imagem não pode estar vazia.'),
   altText: z.string().optional(),
 });
 
@@ -30,21 +30,21 @@ const productSchema = z.object({
   shortDescription: z.string().optional(),
   sku: z.string().min(1, 'O SKU é obrigatório.'),
   price: z.coerce.number().min(0, 'O preço deve ser positivo.'),
-  comparePrice: z.coerce.number().optional(),
-  cost: z.coerce.number().optional(),
-  weight: z.coerce.number().optional(),
-  length: z.coerce.number().optional(),
-  width: z.coerce.number().optional(),
-  height: z.coerce.number().optional(),
+  comparePrice: z.coerce.number().optional().nullable(),
+  cost: z.coerce.number().optional().nullable(),
+  weight: z.coerce.number().optional().nullable(),
+  length: z.coerce.number().optional().nullable(),
+  width: z.coerce.number().optional().nullable(),
+  height: z.coerce.number().optional().nullable(),
   status: z.enum(['DRAFT', 'ACTIVE', 'INACTIVE', 'ARCHIVED']),
   isDigital: z.boolean().default(false),
   trackStock: z.boolean().default(true),
   stock: z.coerce.number().int('O estoque deve ser um número inteiro.').default(0),
   minStock: z.coerce.number().int('O estoque mínimo deve ser um número inteiro.').default(0),
-  maxStock: z.coerce.number().int('O estoque máximo deve ser um número inteiro.').optional(),
+  maxStock: z.coerce.number().int('O estoque máximo deve ser um número inteiro.').optional().nullable(),
   featured: z.boolean().default(false),
   categoryId: z.string({ required_error: 'Selecione uma categoria.' }),
-  brandId: z.string().optional(),
+  brandId: z.string().optional().nullable(),
   tags: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
@@ -73,11 +73,19 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       description: '',
       shortDescription: '',
       sku: '',
+      price: 0,
+      comparePrice: undefined,
+      cost: undefined,
+      weight: undefined,
+      length: undefined,
+      width: undefined,
+      height: undefined,
       status: 'DRAFT',
       isDigital: false,
       trackStock: true,
       stock: 0,
       minStock: 0,
+      maxStock: undefined,
       featured: false,
       tags: '',
       seoTitle: '',
@@ -113,8 +121,16 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       const payload = { 
         ...data, 
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-        brandId: data.brandId === 'none' ? undefined : data.brandId,
+        brandId: data.brandId || undefined,
+        comparePrice: data.comparePrice || undefined,
+        cost: data.cost || undefined,
+        weight: data.weight || undefined,
+        length: data.length || undefined,
+        width: data.width || undefined,
+        height: data.height || undefined,
+        maxStock: data.maxStock || undefined,
       };
+      
       const newProduct = await createProduct(payload as any);
 
       toast({

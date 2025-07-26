@@ -14,7 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import type { Brand, Category } from '@/lib/types';
 import type { ProductFormValues } from './CreateProductDialog';
 import { DialogFooter } from '../ui/dialog';
-import { useState } from 'react';
+import { useRef } from 'react';
 import Image from 'next/image';
 
 interface ProductFormProps {
@@ -26,27 +26,40 @@ interface ProductFormProps {
 }
 
 export function ProductForm({ form, onSubmit, brands, categories, loadingDependencies }: ProductFormProps) {
-  const { control, formState: { isSubmitting } } = form;
+  const { control, formState: { isSubmitting }, getValues, setError } = form;
   const loading = isSubmitting || loadingDependencies;
-  const [newImageUrl, setNewImageUrl] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "images",
   });
 
-  const handleAddImage = () => {
-    if (newImageUrl && newImageUrl.trim() !== '') {
-      try {
-        // Simple URL validation
-        new URL(newImageUrl);
-        append({ url: newImageUrl, altText: form.getValues('name') });
-        setNewImageUrl('');
-      } catch (error) {
-        form.setError('images', { type: 'manual', message: 'URL da imagem inválida.' });
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 4 * 1024 * 1024) { // 4MB limit
+        setError('images', { type: 'manual', message: 'O arquivo de imagem não pode exceder 4MB.' });
+        return;
       }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (typeof result === 'string') {
+          append({ url: result, altText: getValues('name') });
+        }
+      };
+      reader.onerror = () => {
+         setError('images', { type: 'manual', message: 'Falha ao ler o arquivo.' });
+      }
+      reader.readAsDataURL(file);
+    }
+     // Reset file input to allow selecting the same file again
+    if(fileInputRef.current) {
+        fileInputRef.current.value = '';
     }
   };
+
 
   return (
     <Form {...form}>
@@ -56,7 +69,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
             <div className="space-y-4 rounded-md border p-4">
               <h3 className="text-lg font-medium">Informações Básicas</h3>
               <FormField
-                control={form.control}
+                control={control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -69,7 +82,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 )}
               />
               <FormField
-                control={form.control}
+                control={control}
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
@@ -82,7 +95,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 )}
               />
               <FormField
-                control={form.control}
+                control={control}
                 name="description"
                 render={({ field }) => (
                   <FormItem>
@@ -95,7 +108,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 )}
               />
                <FormField
-                control={form.control}
+                control={control}
                 name="shortDescription"
                 render={({ field }) => (
                   <FormItem>
@@ -112,15 +125,17 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
             <div className="space-y-4 rounded-md border p-4">
               <h3 className="text-lg font-medium">Imagens do Produto</h3>
               <div className="flex items-start gap-2">
-                <Input
-                  type="url"
-                  placeholder="Cole a URL da imagem aqui..."
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                />
-                <Button type="button" onClick={handleAddImage} variant="outline" size="icon">
-                  <PlusCircle className="h-4 w-4" />
+                 <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Carregar Imagem
                 </Button>
+                <Input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    accept="image/png, image/jpeg, image/gif, image/webp"
+                    onChange={handleFileSelect}
+                />
               </div>
               <FormMessage>{form.formState.errors.images?.message}</FormMessage>
                {fields.length > 0 && (
@@ -159,19 +174,19 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                <h3 className="text-lg font-medium">Organização</h3>
                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                  <FormField
-                    control={form.control}
+                    control={control}
                     name="brandId"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Marca (Opcional)</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingDependencies}>
+                        <Select onValueChange={field.onChange} value={field.value || ''} disabled={loadingDependencies}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione uma marca" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="none">Nenhuma</SelectItem>
+                            <SelectItem value="">Nenhuma</SelectItem>
                             {brands.map((brand) => (
                               <SelectItem key={brand.id} value={brand.id}>
                                 {brand.name}
@@ -184,7 +199,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                   />
                   <FormField
-                    control={form.control}
+                    control={control}
                     name="categoryId"
                     render={({ field }) => (
                       <FormItem>
@@ -209,7 +224,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                   />
                   </div>
                    <FormField
-                    control={form.control}
+                    control={control}
                     name="tags"
                     render={({ field }) => (
                       <FormItem>
@@ -227,7 +242,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
               <h3 className="text-lg font-medium">Preços</h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                  <FormField
-                    control={form.control}
+                    control={control}
                     name="price"
                     render={({ field }) => (
                       <FormItem>
@@ -240,7 +255,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                   />
                   <FormField
-                    control={form.control}
+                    control={control}
                     name="comparePrice"
                     render={({ field }) => (
                       <FormItem>
@@ -253,7 +268,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                   />
                   <FormField
-                    control={form.control}
+                    control={control}
                     name="cost"
                     render={({ field }) => (
                       <FormItem>
@@ -271,7 +286,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
             <div className="space-y-4 rounded-md border p-4">
                <h3 className="text-lg font-medium">Inventário</h3>
                 <FormField
-                    control={form.control}
+                    control={control}
                     name="sku"
                     render={({ field }) => (
                         <FormItem>
@@ -285,7 +300,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 />
                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormField
-                    control={form.control}
+                    control={control}
                     name="stock"
                     render={({ field }) => (
                       <FormItem>
@@ -298,7 +313,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                   />
                    <FormField
-                    control={form.control}
+                    control={control}
                     name="minStock"
                     render={({ field }) => (
                       <FormItem>
@@ -311,7 +326,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                   />
                    <FormField
-                    control={form.control}
+                    control={control}
                     name="maxStock"
                     render={({ field }) => (
                       <FormItem>
@@ -325,7 +340,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                   />
                </div>
                <FormField
-                  control={form.control}
+                  control={control}
                   name="trackStock"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
@@ -345,7 +360,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 <h3 className="text-lg font-medium">Configurações Adicionais</h3>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
-                        control={form.control}
+                        control={control}
                         name="status"
                         render={({ field }) => (
                         <FormItem>
@@ -370,7 +385,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                 </div>
                  <div className="flex flex-col space-y-4">
                     <FormField
-                    control={form.control}
+                    control={control}
                     name="featured"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
@@ -384,7 +399,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                     />
                     <FormField
-                    control={form.control}
+                    control={control}
                     name="isDigital"
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3">
@@ -403,7 +418,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
              <div className="space-y-4 rounded-md border p-4">
                 <h3 className="text-lg font-medium">SEO (Opcional)</h3>
                  <FormField
-                    control={form.control}
+                    control={control}
                     name="seoTitle"
                     render={({ field }) => (
                       <FormItem>
@@ -416,7 +431,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     )}
                   />
                   <FormField
-                    control={form.control}
+                    control={control}
                     name="seoDescription"
                     render={({ field }) => (
                       <FormItem>
