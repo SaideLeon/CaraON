@@ -52,67 +52,79 @@ export function ProductForm({ form, onSubmit, brands, categories, loading, loadi
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField control={form.control} name="sku" render={({ field }) => ( <FormItem> <FormLabel>SKU</FormLabel> <FormControl> <Input placeholder="PROD-001" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
                 <FormField control={form.control} name="stock" render={({ field }) => ( <FormItem> <FormLabel>Estoque</FormLabel> <FormControl> <Input type="number" placeholder="100" {...field} /> </FormControl> <FormMessage /> </FormItem> )} />
-                <FormField control={form.control} name="status" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="ACTIVE">Ativo</SelectItem>
-                        <SelectItem value="DRAFT">Rascunho</SelectItem>
-                        <SelectItem value="INACTIVE">Inativo</SelectItem>
-                        <SelectItem value="ARCHIVED">Arquivado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Status</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">Ativo</SelectItem>
+                          <SelectItem value="DRAFT">Rascunho</SelectItem>
+                          <SelectItem value="INACTIVE">Inativo</SelectItem>
+                          <SelectItem value="ARCHIVED">Arquivado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
 
             <div className="space-y-4 rounded-md border p-4">
                 <h4 className="font-medium text-sm mb-4">Organização</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField control={form.control} name="brandId" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Marca</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value} disabled={loadingDependencies}>
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder={loadingDependencies ? 'Carregando...' : 'Selecione uma marca'} />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            {brands.map((brand) => (
-                            <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                    )} />
-                    <FormField control={form.control} name="categoryId" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Categoria</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value} disabled={loadingDependencies}>
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder={loadingDependencies ? 'Carregando...' : 'Selecione uma categoria'} />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                    )} />
+                    <FormField
+                      control={form.control}
+                      name="brandId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Marca</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={loadingDependencies}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={loadingDependencies ? 'Carregando...' : 'Selecione uma marca'} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {brands.map((brand) => (
+                                <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="categoryId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Categoria</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={loadingDependencies}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder={loadingDependencies ? 'Carregando...' : 'Selecione uma categoria'} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                 </div>
             </div>
 
@@ -124,7 +136,9 @@ export function ProductForm({ form, onSubmit, brands, categories, loading, loadi
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal">Produto em Destaque</FormLabel>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="font-normal">Produto em Destaque</FormLabel>
+                    </div>
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="isDigital" render={({ field }) => (
@@ -132,7 +146,9 @@ export function ProductForm({ form, onSubmit, brands, categories, loading, loadi
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal">Produto Digital</FormLabel>
+                     <div className="space-y-1 leading-none">
+                      <FormLabel className="font-normal">Produto Digital</FormLabel>
+                    </div>
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="trackStock" render={({ field }) => (
@@ -140,7 +156,9 @@ export function ProductForm({ form, onSubmit, brands, categories, loading, loadi
                     <FormControl>
                       <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
-                    <FormLabel className="font-normal">Rastrear Estoque</FormLabel>
+                     <div className="space-y-1 leading-none">
+                        <FormLabel className="font-normal">Rastrear Estoque</FormLabel>
+                     </div>
                   </FormItem>
                 )} />
               </div>
