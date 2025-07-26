@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -33,7 +33,7 @@ const categorySchema = z.object({
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CreateCategoryDialogProps {
-  children: ReactNode;
+  children: ReactElement;
   onCategoryCreated: (category: Category) => void;
 }
 

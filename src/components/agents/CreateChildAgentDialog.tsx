@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -34,7 +35,7 @@ const childAgentSchema = z.object({
 type ChildAgentFormValues = z.infer<typeof childAgentSchema>;
 
 interface CreateChildAgentDialogProps {
-  children: ReactNode;
+  children: ReactElement;
   parentAgentId: string;
   onChildAgentCreated: (agent: Agent) => void;
 }

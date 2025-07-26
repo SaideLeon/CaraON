@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -33,7 +33,7 @@ const brandSchema = z.object({
 type BrandFormValues = z.infer<typeof brandSchema>;
 
 interface CreateBrandDialogProps {
-  children: ReactNode;
+  children: ReactElement;
   onBrandCreated: (brand: Brand) => void;
 }
 

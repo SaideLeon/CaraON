@@ -95,8 +95,8 @@ export default function CategoriesPage() {
           </div>
           <CreateCategoryDialog onCategoryCreated={handleCategoryCreated}>
               <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Criar Categoria
+                <PlusCircle className="mr-2 h-4 w-4" />
+                <span>Criar Categoria</span>
               </Button>
           </CreateCategoryDialog>
         </div>
@@ -124,8 +124,8 @@ export default function CategoriesPage() {
              <div className="mt-6">
                <CreateCategoryDialog onCategoryCreated={handleCategoryCreated}>
                   <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Criar Categoria
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <span>Criar Categoria</span>
                   </Button>
               </CreateCategoryDialog>
              </div>

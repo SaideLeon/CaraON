@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,7 +31,7 @@ const organizationSchema = z.object({
 type OrganizationFormValues = z.infer<typeof organizationSchema>;
 
 interface CreateOrganizationDialogProps {
-  children: ReactNode;
+  children: ReactElement;
   onOrganizationCreated: (organization: Organization) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;

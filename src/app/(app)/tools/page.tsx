@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -94,8 +95,8 @@ export default function ToolsPage() {
           </div>
           <CreateToolDialog onToolCreated={handleToolCreated}>
               <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Criar Ferramenta
+                <PlusCircle className="mr-2 h-4 w-4" />
+                <span>Criar Ferramenta</span>
               </Button>
           </CreateToolDialog>
         </div>
@@ -123,8 +124,8 @@ export default function ToolsPage() {
              <div className="mt-6">
                <CreateToolDialog onToolCreated={handleToolCreated}>
                   <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Criar Ferramenta
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <span>Criar Ferramenta</span>
                   </Button>
               </CreateToolDialog>
              </div>

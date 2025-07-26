@@ -95,8 +95,8 @@ export default function BrandsPage() {
           </div>
           <CreateBrandDialog onBrandCreated={handleBrandCreated}>
               <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Criar Marca
+                <PlusCircle className="mr-2 h-4 w-4" />
+                <span>Criar Marca</span>
               </Button>
           </CreateBrandDialog>
         </div>
@@ -124,8 +124,8 @@ export default function BrandsPage() {
              <div className="mt-6">
                <CreateBrandDialog onBrandCreated={handleBrandCreated}>
                   <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Criar Marca
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <span>Criar Marca</span>
                   </Button>
               </CreateBrandDialog>
              </div>

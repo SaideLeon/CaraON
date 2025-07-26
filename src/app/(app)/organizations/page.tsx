@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -112,7 +113,7 @@ export default function OrganizationsPage() {
           <CreateOrganizationDialog onOrganizationCreated={handleOrganizationCreated}>
              <Button className="mt-4">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Criar Organização
+                <span>Criar Organização</span>
               </Button>
           </CreateOrganizationDialog>
         </div>

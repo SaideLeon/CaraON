@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,7 +48,7 @@ const productSchema = z.object({
 type ProductFormValues = z.infer<typeof productSchema>;
 
 interface CreateProductDialogProps {
-  children: ReactNode;
+  children: ReactElement;
   onProductCreated: (product: Product) => void;
 }
 
@@ -236,18 +236,16 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                           control={form.control}
                           name="featured"
                           render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                                   <FormControl>
                                       <Checkbox
                                           checked={field.value}
                                           onCheckedChange={field.onChange}
                                       />
                                   </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                      <FormLabel>
-                                          Produto em Destaque
-                                      </FormLabel>
-                                  </div>
+                                  <FormLabel className="font-normal">
+                                      Produto em Destaque
+                                  </FormLabel>
                               </FormItem>
                           )}
                       />
@@ -255,18 +253,16 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                           control={form.control}
                           name="isDigital"
                           render={({ field }) => (
-                              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                                   <FormControl>
                                       <Checkbox
                                           checked={field.value}
                                           onCheckedChange={field.onChange}
                                       />
                                   </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                      <FormLabel>
-                                          Produto Digital
-                                      </FormLabel>
-                                  </div>
+                                  <FormLabel className="font-normal">
+                                      Produto Digital
+                                  </FormLabel>
                               </FormItem>
                           )}
                       />
@@ -274,18 +270,16 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                           control={form.control}
                           name="trackStock"
                           render={({ field }) => (
-                               <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                                   <FormControl>
                                       <Checkbox
                                           checked={field.value}
                                           onCheckedChange={field.onChange}
                                       />
                                   </FormControl>
-                                  <div className="space-y-1 leading-none">
-                                      <FormLabel>
-                                          Rastrear Estoque
-                                      </FormLabel>
-                                  </div>
+                                  <FormLabel className="font-normal">
+                                      Rastrear Estoque
+                                  </FormLabel>
                               </FormItem>
                           )}
                       />

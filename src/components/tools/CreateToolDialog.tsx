@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -40,7 +41,7 @@ const toolSchema = z.object({
 type ToolFormValues = z.infer<typeof toolSchema>;
 
 interface CreateToolDialogProps {
-  children: ReactNode;
+  children: ReactElement;
   onToolCreated: (tool: Tool) => void;
 }
 
