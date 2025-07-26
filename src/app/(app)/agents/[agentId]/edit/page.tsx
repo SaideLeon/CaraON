@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { getAgentById, updateAgentPersona } from '@/services/api';
+import { updateAgent, getAgentById } from '@/services/api';
 import type { Agent } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -14,12 +15,14 @@ import { Button } from '@/components/ui/button';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 
-const personaSchema = z.object({
+const agentUpdateSchema = z.object({
   persona: z.string().min(10, { message: 'A persona deve ter pelo menos 10 caracteres.' }),
+  priority: z.coerce.number().int().min(0, 'A prioridade deve ser um número positivo.'),
 });
 
-type PersonaFormValues = z.infer<typeof personaSchema>;
+type AgentUpdateFormValues = z.infer<typeof agentUpdateSchema>;
 
 export default function EditAgentPage() {
   const params = useParams();
@@ -31,8 +34,8 @@ export default function EditAgentPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const form = useForm<PersonaFormValues>({
-    resolver: zodResolver(personaSchema),
+  const form = useForm<AgentUpdateFormValues>({
+    resolver: zodResolver(agentUpdateSchema),
   });
 
   useEffect(() => {
@@ -47,7 +50,10 @@ export default function EditAgentPage() {
           }
 
           setAgent(foundAgent);
-          form.reset({ persona: foundAgent.persona });
+          form.reset({ 
+            persona: foundAgent.persona,
+            priority: foundAgent.priority || 0 
+          });
         } catch (error) {
           toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
         } finally {
@@ -58,14 +64,14 @@ export default function EditAgentPage() {
     }
   }, [agentId, form, toast]);
 
-  const onSubmit = async (data: PersonaFormValues) => {
+  const onSubmit = async (data: AgentUpdateFormValues) => {
     setSaving(true);
     try {
-      await updateAgentPersona(agentId, data.persona);
-      toast({ title: 'Sucesso', description: 'A persona do agente foi atualizada.' });
+      await updateAgent(agentId, { persona: data.persona, priority: data.priority });
+      toast({ title: 'Sucesso', description: 'O agente foi atualizado.' });
       router.refresh(); 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar a persona do agente.' });
+      toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível atualizar o agente.' });
     } finally {
       setSaving(false);
     }
@@ -79,7 +85,10 @@ export default function EditAgentPage() {
                 <Skeleton className="h-4 w-3/4" />
             </CardHeader>
             <CardContent>
-                <Skeleton className="h-32 w-full" />
+                <div className="space-y-4">
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-10 w-1/4" />
+                </div>
             </CardContent>
             <CardFooter className="flex justify-end">
                 <Skeleton className="h-10 w-24" />
@@ -92,10 +101,10 @@ export default function EditAgentPage() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardHeader>
-          <CardTitle>Editar Persona do Agente</CardTitle>
-          <CardDescription>Modifique a personalidade e as instruções do seu agente. Esta é a principal diretriz que ele seguirá.</CardDescription>
+          <CardTitle>Editar Agente</CardTitle>
+          <CardDescription>Modifique a personalidade, prioridade e outras instruções do seu agente.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <FormField
             control={form.control}
             name="persona"
@@ -106,6 +115,23 @@ export default function EditAgentPage() {
                   <Textarea
                     placeholder="Descreva a personalidade e o papel do agente..."
                     className="min-h-[200px]"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Prioridade</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0"
                     {...field}
                   />
                 </FormControl>

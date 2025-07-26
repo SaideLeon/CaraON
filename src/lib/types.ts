@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -21,6 +22,7 @@ export interface Agent {
   name: string;
   type: AgentType;
   persona: string;
+  priority: number;
   instanceId: string;
   organizationId?: string | null;
   parentAgentId?: string | null;

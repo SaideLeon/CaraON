@@ -1,12 +1,12 @@
 
 import type { Agent } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
-import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2 } from 'lucide-react';
+import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2, Wrench, Code } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { useEffect, useState } from 'react';
-import { getChildAgents } from '@/services/api';
+import { getChildAgents, getAgentById } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -22,10 +22,28 @@ interface AgentCardProps {
   onDelete: (agent: Agent) => void;
 }
 
-export function AgentCard({ agent, onDelete }: AgentCardProps) {
-  const [childAgents, setChildAgents] = useState<Agent[]>(agent.childAgents || []);
+export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
+  const [agent, setAgent] = useState<Agent>(initialAgent);
+  const [childAgents, setChildAgents] = useState<Agent[]>(initialAgent.childAgents || []);
   const [isLoadingChildren, setIsLoadingChildren] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Fetch full agent data to get tools, as it might not be in the initial list
+    const fetchFullAgent = async () => {
+        try {
+            const fullAgentData = await getAgentById(initialAgent.id);
+            setAgent(fullAgentData);
+        } catch (error) {
+             toast({
+                variant: 'destructive',
+                title: 'Erro',
+                description: 'Não foi possível carregar os detalhes do agente.'
+            });
+        }
+    }
+    fetchFullAgent();
+  }, [initialAgent.id, toast])
 
   const fetchChildren = async () => {
     if (agent.type === 'PAI') {
@@ -75,43 +93,66 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
             {agent.persona}
          </p>
 
-         {agent.type === 'PAI' && (
-           <Accordion type="single" collapsible onValueChange={() => fetchChildren()}>
-            <AccordionItem value="item-1">
-              <AccordionTrigger className='text-sm'>
-                <div className='flex items-center gap-2'>
-                  <Users className='h-4 w-4'/>
-                  Agentes Filhos ({childAgents.length})
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                {isLoadingChildren ? (
-                  <div className='flex items-center justify-center p-4'>
-                    <Loader2 className='h-5 w-5 animate-spin' />
-                  </div>
-                ) : childAgents.length > 0 ? (
-                  <div className='space-y-2 p-2 max-h-48 overflow-y-auto'>
-                    {childAgents.map(child => (
-                      <div key={child.id} className='flex items-center justify-between p-2 rounded-md bg-muted/50'>
-                         <div>
-                          <p className='text-sm font-medium'>{child.name}</p>
-                          <p className='text-xs text-muted-foreground line-clamp-1'>{child.persona}</p>
+         <Accordion type="single" collapsible>
+            {agent.type === 'PAI' && (
+                <AccordionItem value="child-agents">
+                <AccordionTrigger className='text-sm' onClick={() => fetchChildren()}>
+                    <div className='flex items-center gap-2'>
+                    <Users className='h-4 w-4'/>
+                    Agentes Filhos ({childAgents.length})
+                    </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                    {isLoadingChildren ? (
+                    <div className='flex items-center justify-center p-4'>
+                        <Loader2 className='h-5 w-5 animate-spin' />
+                    </div>
+                    ) : childAgents.length > 0 ? (
+                    <div className='space-y-2 p-2 max-h-48 overflow-y-auto'>
+                        {childAgents.map(child => (
+                        <div key={child.id} className='flex items-center justify-between p-2 rounded-md bg-muted/50'>
+                            <div>
+                            <p className='text-sm font-medium'>{child.name}</p>
+                            <p className='text-xs text-muted-foreground line-clamp-1'>{child.persona}</p>
+                            </div>
+                            <Button asChild variant="ghost" size="sm">
+                                <Link href={`/agents/${child.id}/edit`}>
+                                    <Edit className="h-3 w-3"/>
+                                </Link>
+                            </Button>
                         </div>
-                         <Button asChild variant="ghost" size="sm">
-                            <Link href={`/agents/${child.id}/edit`}>
-                                <Edit className="h-3 w-3"/>
-                            </Link>
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className='text-xs text-muted-foreground text-center p-4'>Nenhum agente filho encontrado.</p>
-                )}
-              </AccordionContent>
-            </AccordionItem>
+                        ))}
+                    </div>
+                    ) : (
+                    <p className='text-xs text-muted-foreground text-center p-4'>Nenhum agente filho encontrado.</p>
+                    )}
+                </AccordionContent>
+                </AccordionItem>
+            )}
+             {agent.tools && agent.tools.length > 0 && (
+                <AccordionItem value="tools">
+                    <AccordionTrigger className='text-sm'>
+                        <div className='flex items-center gap-2'>
+                        <Wrench className='h-4 w-4'/>
+                        Ferramentas ({agent.tools.length})
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                         <div className='space-y-2 p-2 max-h-48 overflow-y-auto'>
+                            {agent.tools.map(tool => (
+                                <div key={tool.id} className='flex items-center gap-2 p-2 rounded-md bg-muted/50'>
+                                    <Code className='h-4 w-4 shrink-0' />
+                                    <div>
+                                        <p className='text-sm font-medium'>{tool.name}</p>
+                                        <p className='text-xs text-muted-foreground line-clamp-1'>{tool.description}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+             )}
           </Accordion>
-         )}
 
       </CardContent>
       <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-auto">

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { improveAgentPersona, type ImproveAgentPersonaOutput } from '@/ai/flows/improve-agent-persona';
-import { getAgentById, updateAgentPersona } from '@/services/api';
+import { getAgentById, updateAgent } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import type { Agent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -68,7 +68,7 @@ export default function TuneAgentPage() {
 
     setIsSaving(true);
     try {
-      await updateAgentPersona(agent.id, suggestion.suggestedPersona);
+      await updateAgent(agent.id, { persona: suggestion.suggestedPersona });
       toast({ title: 'Sucesso!', description: 'A persona do agente foi atualizada com a sugestão da IA.' });
       router.push(`/agents/${agent.id}/edit`); // Navigate to edit page to see the change
       router.refresh(); // Refresh server components
@@ -160,4 +160,3 @@ export default function TuneAgentPage() {
     </>
   );
 }
-

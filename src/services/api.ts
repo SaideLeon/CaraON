@@ -57,8 +57,8 @@ export const createCustomChildAgent = async (parentAgentId: string, data: { name
     return response.data;
 };
 
-export const updateAgentPersona = async (agentId: string, persona: string): Promise<Agent> => {
-    const response = await api.patch(`/agents/${agentId}/persona`, { persona });
+export const updateAgent = async (agentId: string, data: { persona?: string, priority?: number }): Promise<Agent> => {
+    const response = await api.patch(`/agents/${agentId}`, data);
     return response.data;
 };
 
