@@ -124,7 +124,7 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       onProductCreated(newProduct);
       setOpen(false);
       form.reset();
-    } catch (error: any) => {
+    } catch (error: any) {
       const message = error.response?.data?.message || 'Falha ao criar o produto.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
     }
