@@ -188,7 +188,7 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Marca</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingDependencies}>
+                           <Select onValueChange={field.onChange} value={field.value} disabled={loadingDependencies}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder={loadingDependencies ? 'Carregando...' : 'Selecione uma marca'} />
@@ -210,7 +210,7 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Categoria</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingDependencies}>
+                           <Select onValueChange={field.onChange} value={field.value} disabled={loadingDependencies}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder={loadingDependencies ? 'Carregando...' : 'Selecione uma categoria'} />
@@ -243,9 +243,11 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                                           onCheckedChange={field.onChange}
                                       />
                                   </FormControl>
-                                  <FormLabel className="font-normal">
-                                      Produto em Destaque
-                                  </FormLabel>
+                                  <div className="space-y-1 leading-none">
+                                    <FormLabel className="font-normal">
+                                        Produto em Destaque
+                                    </FormLabel>
+                                  </div>
                               </FormItem>
                           )}
                       />
@@ -260,9 +262,11 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                                           onCheckedChange={field.onChange}
                                       />
                                   </FormControl>
-                                  <FormLabel className="font-normal">
-                                      Produto Digital
-                                  </FormLabel>
+                                  <div className="space-y-1 leading-none">
+                                    <FormLabel className="font-normal">
+                                        Produto Digital
+                                    </FormLabel>
+                                  </div>
                               </FormItem>
                           )}
                       />
@@ -277,9 +281,11 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                                           onCheckedChange={field.onChange}
                                       />
                                   </FormControl>
-                                  <FormLabel className="font-normal">
-                                      Rastrear Estoque
-                                  </FormLabel>
+                                  <div className="space-y-1 leading-none">
+                                    <FormLabel className="font-normal">
+                                        Rastrear Estoque
+                                    </FormLabel>
+                                  </div>
                               </FormItem>
                           )}
                       />
@@ -306,3 +312,5 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
     </Dialog>
   );
 }
+
+    
