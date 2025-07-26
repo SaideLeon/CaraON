@@ -51,9 +51,10 @@ function useSidebar() {
 
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> & {
+  React.HTMLAttributes<HTMLDivElement> & {
     defaultOpen?: boolean
     open?: boolean
+    children: React.ReactNode
     onOpenChange?: (open: boolean) => void
   }
 >(
