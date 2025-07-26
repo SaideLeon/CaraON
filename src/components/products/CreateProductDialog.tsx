@@ -166,12 +166,60 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
                 </div>
                 
                 <div className="space-y-4 rounded-md border p-4">
-                  <h4 className="font-medium text-sm">Opções</h4>
-                  <div className="flex flex-wrap gap-x-8 gap-y-4">
-                      <FormField control={form.control} name="featured" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel>Produto em Destaque</FormLabel></div> </FormItem> )} />
-                      <FormField control={form.control} name="isDigital" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel>Produto Digital</FormLabel></div> </FormItem> )} />
-                      <FormField control={form.control} name="trackStock" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0"> <FormControl> <Checkbox checked={field.value} onCheckedChange={field.onChange} /> </FormControl> <div className="space-y-1 leading-none"><FormLabel>Rastrear Estoque</FormLabel></div> </FormItem> )} />
-                  </div>
+                    <h4 className="font-medium text-sm">Opções</h4>
+                    <div className="flex flex-wrap gap-x-8 gap-y-4">
+                        <FormField
+                            control={form.control}
+                            name="featured"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                        Produto em Destaque
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="isDigital"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                        Produto Digital
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="trackStock"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                        />
+                                    </FormControl>
+                                    <FormLabel className="font-normal">
+                                        Rastrear Estoque
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </div>
                 
                 <div className="space-y-4 rounded-md border p-4">
@@ -194,5 +242,3 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
     </Dialog>
   );
 }
-
-    
