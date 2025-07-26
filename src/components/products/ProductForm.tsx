@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { Brand, Category } from '@/lib/types';
 import type { ProductFormValues } from './CreateProductDialog';
+import { DialogFooter } from '../ui/dialog';
 
 interface ProductFormProps {
   form: UseFormReturn<ProductFormValues>;
