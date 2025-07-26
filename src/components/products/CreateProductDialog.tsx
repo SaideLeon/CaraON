@@ -5,11 +5,9 @@ import { useState, useEffect, type ReactElement } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import type { Product, Brand, Category } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
 import { createProduct, getBrands, getCategories } from '@/services/api';
 import { ProductForm } from './ProductForm';
 
