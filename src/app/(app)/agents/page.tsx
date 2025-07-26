@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -94,8 +95,8 @@ export default function AgentsPage() {
               </div>
               <CreateAgentDialog onAgentCreated={handleAgentCreated}>
                   <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Criar Agente Pai
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <span>Criar Agente Pai</span>
                   </Button>
               </CreateAgentDialog>
           </div>
@@ -123,8 +124,8 @@ export default function AgentsPage() {
              <div className="mt-6">
                <CreateAgentDialog onAgentCreated={handleAgentCreated}>
                   <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Criar Agente Pai
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    <span>Criar Agente Pai</span>
                   </Button>
               </CreateAgentDialog>
              </div>

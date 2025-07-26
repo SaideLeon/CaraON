@@ -1,3 +1,4 @@
+
 import type { Agent } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2 } from 'lucide-react';
@@ -116,22 +117,22 @@ export function AgentCard({ agent, onDelete }: AgentCardProps) {
       <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-auto">
          <Button asChild variant="outline" size="sm">
             <Link href={`/agents/${agent.id}/edit`}>
-                <Edit className="mr-2 h-3 w-3"/>
-                Editar
+              <Edit className="mr-2 h-3 w-3"/>
+              <span>Editar</span>
             </Link>
         </Button>
         {agent.type === 'PAI' && (
            <CreateChildAgentDialog parentAgentId={agent.id} onChildAgentCreated={handleChildAgentCreated}>
              <Button variant="default" size="sm">
-                  <PlusCircle className="mr-2 h-3 w-3"/>
-                  Add Filho
+                <PlusCircle className="mr-2 h-3 w-3"/>
+                <span>Add Filho</span>
               </Button>
            </CreateChildAgentDialog>
         )}
         <Button asChild variant="secondary" size="sm">
             <Link href={`/agents/${agent.id}/tune`}>
-                <Wand2 className="mr-2 h-3 w-3"/>
-                Afinar
+              <Wand2 className="mr-2 h-3 w-3"/>
+              <span>Afinar</span>
             </Link>
         </Button>
       </CardFooter>
