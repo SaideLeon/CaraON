@@ -17,6 +17,10 @@ const pageConfig: Record<string, { title: string; description: string }> = {
         title: 'Instâncias',
         description: 'Gira as suas ligações WhatsApp.',
     },
+    '/playground': {
+        title: 'Playground',
+        description: 'Teste a orquestração dos seus agentes em tempo real.',
+    },
     '/agents': {
         title: 'Agentes',
         description: 'Crie e gira os seus agentes de IA.',
@@ -28,6 +32,18 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     '/organizations': {
         title: 'Organizações',
         description: 'Gira as suas organizações e equipas.',
+    },
+    '/products': {
+        title: 'Produtos',
+        description: 'Crie e gira os produtos da sua loja.',
+    },
+     '/brands': {
+        title: 'Marcas',
+        description: 'Crie e gira as marcas dos produtos da sua loja.',
+    },
+    '/categories': {
+        title: 'Categorias',
+        description: 'Crie e gira as categorias dos produtos da sua loja.',
     }
 }
 

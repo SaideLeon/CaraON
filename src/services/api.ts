@@ -66,6 +66,12 @@ export const deleteAgent = async (agentId: string): Promise<void> => {
     await api.delete(`/agents/${agentId}`);
 }
 
+// Agent Chat
+export const callAgentChat = async (agentId: string, data: { message: string, history: any[] }): Promise<string> => {
+    const response = await api.post(`/agents/${agentId}/chat`, data);
+    return response.data; // Assuming the backend returns the string response directly
+};
+
 
 // Auth
 export const getMe = async (): Promise<User> => {
