@@ -32,18 +32,14 @@ const prompt = ai.definePrompt({
   name: 'improveAgentPersonaPrompt',
   input: {schema: ImproveAgentPersonaInputSchema},
   output: {schema: ImproveAgentPersonaOutputSchema},
-  prompt: `You are an expert in crafting effective agent personas. Given the current persona of an agent, provide a suggested new persona and reasoning for the change.
+  prompt: `Você é um especialista em criar personas de agentes eficazes. Dada a persona atual de um agente, forneça uma nova persona sugerida e uma justificativa para a mudança.
+
+**IMPORTANTE: A sua resposta (persona sugerida e justificativa) deve ser sempre em Português do Brasil.**
 
 Agent ID: {{{agentId}}}
-Current Persona: {{{currentPersona}}}
+Persona Atual: {{{currentPersona}}}
 
-Suggest a new persona that would improve the agent's helpfulness and effectiveness. Provide a clear and concise reasoning for why the suggested persona is better.
-
-New Persona: 
-{{suggestedPersona}}
-
-Reasoning:
-{{reasoning}}`,
+Sugira uma nova persona que melhoraria a utilidade e eficácia do agente. Forneça uma justificativa clara e concisa do motivo pelo qual a persona sugerida é melhor.`,
 });
 
 const improveAgentPersonaFlow = ai.defineFlow(
