@@ -26,9 +26,9 @@ interface ProductFormProps {
 export function ProductForm({ form, onSubmit, brands, categories, loading, loadingDependencies }: ProductFormProps) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <ScrollArea className="max-h-[60vh] w-full pr-6">
-          <div className="space-y-6">
+          <div className="space-y-6 p-1">
 
             <div className="space-y-4 rounded-md border p-4">
               <h4 className="font-medium text-sm mb-4">Informações Básicas</h4>
@@ -173,8 +173,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loading, loadi
 
           </div>
         </ScrollArea>
-
-        <DialogFooter className="pt-4 border-t">
+        <DialogFooter className="pt-4 mt-4 border-t">
           <Button type="submit" disabled={loading || loadingDependencies}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Criar Produto
