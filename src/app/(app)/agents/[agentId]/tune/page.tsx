@@ -1,38 +1,114 @@
+
 'use client';
 
-import { useState } from 'react';
-import { Wand2, Loader2, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Wand2, Loader2, Sparkles, Save } from 'lucide-react';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { improveAgentPersona, type ImproveAgentPersonaOutput } from '@/ai/flows/improve-agent-persona';
+import { getAgentById, updateAgentPersona } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
+import type { Agent } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function TuneAgentPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [suggestion, setSuggestion] = useState('');
-  const [usefulnessScore, setUsefulnessScore] = useState(78); // Example score
+  const params = useParams();
+  const agentId = params.agentId as string;
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const [agent, setAgent] = useState<Agent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [suggestion, setSuggestion] = useState<ImproveAgentPersonaOutput | null>(null);
+  const [usefulnessScore, setUsefulnessScore] = useState(78); // Example score, can be replaced with real data later
+
+  useEffect(() => {
+    if (agentId) {
+      const fetchAgent = async () => {
+        try {
+          setLoading(true);
+          const foundAgent = await getAgentById(agentId);
+          setAgent(foundAgent);
+        } catch (error) {
+          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchAgent();
+    }
+  }, [agentId, toast]);
 
   const handleGetSuggestion = async () => {
-    setIsLoading(true);
-    // Simulate AI suggestion fetch
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setSuggestion('Para aumentar o engajamento, tente adotar um tom mais proativo. Em vez de apenas responder, sugira próximos passos ou produtos relacionados. Por exemplo: "Posso te ajudar com mais alguma coisa ou talvez queira ver nossas promoções da semana?"');
-    setIsLoading(false);
+    if (!agent) return;
+
+    setIsSuggesting(true);
+    setSuggestion(null);
+    try {
+      const result = await improveAgentPersona({
+        agentId: agent.id,
+        currentPersona: agent.persona,
+      });
+      setSuggestion(result);
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro da IA', description: 'Não foi possível gerar uma sugestão.' });
+    } finally {
+      setIsSuggesting(false);
+    }
   };
+
+  const handleApplySuggestion = async () => {
+    if (!suggestion || !agent) return;
+
+    setIsSaving(true);
+    try {
+      await updateAgentPersona(agent.id, suggestion.suggestedPersona);
+      toast({ title: 'Sucesso!', description: 'A persona do agente foi atualizada com a sugestão da IA.' });
+      router.push(`/agents/${agent.id}/edit`); // Navigate to edit page to see the change
+      router.refresh(); // Refresh server components
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro ao Salvar', description: 'Não foi possível aplicar a sugestão.' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  
+  if (loading) {
+    return (
+        <>
+            <CardHeader>
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-32 w-full" />
+            </CardContent>
+            <CardFooter className="flex justify-end">
+                <Skeleton className="h-10 w-24" />
+            </CardFooter>
+        </>
+    )
+  }
 
   return (
     <>
       <CardHeader>
         <CardTitle>Afinar Persona com IA</CardTitle>
         <CardDescription>
-          Use a nossa IA para obter sugestões sobre como melhorar a persona do seu agente com base nas interações e no desempenho.
+          Use a nossa IA para obter sugestões sobre como melhorar a persona do agente <span className="font-bold text-foreground">{agent?.name}</span> com base no desempenho e nas interações.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
           <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg font-medium">Pontuação de Utilidade</h3>
+            <h3 className="text-lg font-medium">Pontuação de Utilidade (Exemplo)</h3>
             <Badge variant={usefulnessScore > 80 ? 'default' : 'secondary'} className={usefulnessScore > 80 ? 'bg-green-500' : ''}>
                 {usefulnessScore}%
             </Badge>
@@ -43,30 +119,45 @@ export default function TuneAgentPage() {
           <Progress value={usefulnessScore} />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-4">
           <h3 className="text-lg font-medium">Sugestão da IA</h3>
-           <Button onClick={handleGetSuggestion} disabled={isLoading} size="sm">
-            {isLoading ? (
+           <Button onClick={handleGetSuggestion} disabled={isSuggesting} size="sm">
+            {isSuggesting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Wand2 className="mr-2 h-4 w-4" />
             )}
-            Obter Sugestão
+            {suggestion ? 'Gerar Outra Sugestão' : 'Obter Sugestão'}
           </Button>
-          {isLoading && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando as interações...</p>}
+          {isSuggesting && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando as interações...</p>}
+          
           {suggestion && (
-            <div className="p-4 border rounded-md bg-accent/20">
-                <p className="text-sm text-foreground flex gap-2">
-                    <Sparkles className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-                    <span>{suggestion}</span>
-                </p>
+            <div className="space-y-4 pt-4">
+                <div className="p-4 border rounded-md bg-accent/20 space-y-2">
+                    <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-accent shrink-0" /> Nova Persona Sugerida</h4>
+                    <Textarea 
+                        readOnly 
+                        value={suggestion.suggestedPersona}
+                        className="bg-background/50 h-32"
+                    />
+                </div>
+                 <div className="p-4 border rounded-md bg-accent/20 space-y-2">
+                    <h4 className="font-semibold">Justificativa</h4>
+                    <p className="text-sm text-foreground">
+                        {suggestion.reasoning}
+                    </p>
+                </div>
             </div>
           )}
         </div>
       </CardContent>
        <CardFooter className="flex justify-end">
-          <Button disabled>Aplicar Sugestão</Button>
+          <Button onClick={handleApplySuggestion} disabled={!suggestion || isSaving || isSuggesting}>
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Aplicar Sugestão
+          </Button>
        </CardFooter>
     </>
   );
 }
+
