@@ -11,8 +11,8 @@ import { Loader2, Send, Bot, User, BrainCircuit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getUserParentAgents } from '@/services/api';
 import type { Agent } from '@/lib/types';
-import { agentChat } from '@/ai/flows/agent-chat-flow';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useWebSocket } from '@/contexts/WebSocketContext';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -28,6 +28,7 @@ export default function PlaygroundPage() {
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
+  const { lastMessage, sendMessage } = useWebSocket();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,35 +59,43 @@ export default function PlaygroundPage() {
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (lastMessage) {
+        if (lastMessage.type === 'playground_response' && isSending) {
+            const agentMessage: Message = { sender: 'agent', text: lastMessage.message || 'O agente respondeu.' };
+            setMessages((prev) => [...prev, agentMessage]);
+            setIsSending(false);
+        } else if (lastMessage.type === 'playground_error' && isSending) {
+            toast({
+                variant: 'destructive',
+                title: 'Erro do Agente',
+                description: lastMessage.message || 'Ocorreu um erro no backend.',
+            });
+            setIsSending(false);
+            setMessages(prev => prev.slice(0, prev.length -1)); // Remove user message on error
+        }
+    }
+  }, [lastMessage, toast, isSending]);
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !selectedAgentId || isSending) return;
+    const selectedAgent = agents.find(a => a.id === selectedAgentId);
+    if (!input.trim() || !selectedAgent || isSending) return;
 
     const userMessage: Message = { sender: 'user', text: input };
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    
     setIsSending(true);
+    
+    sendMessage({
+        type: 'playground_test',
+        instanceId: selectedAgent.instanceId,
+        organizationId: selectedAgent.organizationId,
+        messageContent: input,
+        userPhone: 'playground_user'
+    });
 
-    try {
-      const response = await agentChat({
-        agentId: selectedAgentId,
-        message: input,
-        history: messages,
-      });
-
-      const agentMessage: Message = { sender: 'agent', text: response.reply };
-      setMessages((prev) => [...prev, agentMessage]);
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro na comunicação',
-        description: 'Não foi possível obter uma resposta do agente.',
-      });
-      // Optionally remove the user message if the agent call fails
-      setMessages(prev => prev.slice(0, prev.length -1));
-    } finally {
-      setIsSending(false);
-    }
+    setInput('');
   };
 
   const selectedAgent = agents.find(a => a.id === selectedAgentId);
@@ -206,4 +215,3 @@ export default function PlaygroundPage() {
     </div>
   );
 }
-
