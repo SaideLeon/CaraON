@@ -29,8 +29,8 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <ScrollArea className="max-h-[65vh] p-1">
-          <div className="space-y-6 pr-4">
+        <ScrollArea className="h-[60vh] pr-6">
+          <div className="space-y-6">
             {/* Informações Básicas */}
             <div className="space-y-4 rounded-md border p-4">
               <h3 className="text-lg font-medium">Informações Básicas</h3>
@@ -144,7 +144,7 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     control={form.control}
                     name="tags"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="md:col-span-2">
                         <FormLabel>Tags (separadas por vírgula)</FormLabel>
                         <FormControl>
                           <Input placeholder="Ex: verão, casual, algodão" {...field} />
