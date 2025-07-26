@@ -121,7 +121,7 @@ export function CreateProductDialog({ children, onProductCreated }: CreateProduc
       const payload = { 
         ...data, 
         tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
-        brandId: data.brandId || undefined,
+        brandId: data.brandId === 'none' ? undefined : data.brandId,
         comparePrice: data.comparePrice || undefined,
         cost: data.cost || undefined,
         weight: data.weight || undefined,

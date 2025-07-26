@@ -179,14 +179,14 @@ export function ProductForm({ form, onSubmit, brands, categories, loadingDepende
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Marca (Opcional)</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || ''} disabled={loadingDependencies}>
+                        <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingDependencies}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Selecione uma marca" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">Nenhuma</SelectItem>
+                            <SelectItem value="none">Nenhuma</SelectItem>
                             {brands.map((brand) => (
                               <SelectItem key={brand.id} value={brand.id}>
                                 {brand.name}
