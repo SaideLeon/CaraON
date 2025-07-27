@@ -1,31 +1,66 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Bot, Zap, Sparkles, GitBranch, ShoppingCart, Wrench } from 'lucide-react';
+import { ArrowRight, Bot, Zap, Sparkles, GitBranch, ShoppingCart, Wrench, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 import Image from 'next/image';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export default function EnhancedLandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navLinks = [
+    { href: '/about', label: 'Sobre' },
+    { href: '/login', label: 'Entrar', variant: 'ghost' as const },
+    { href: '/register', label: 'Comece Agora', variant: 'default' as const },
+  ];
+
   return (
     <div className="bg-background text-foreground">
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 flex items-center">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
+        <div className="container flex h-14 items-center justify-between">
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2">
               <CaraOnIcon className="h-6 w-6 text-primary" />
               <span className="font-bold font-headline">CaraON</span>
             </Link>
           </div>
-          <div className="flex flex-1 items-center justify-end space-x-2">
+          
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center space-x-2">
+            <Button asChild variant="ghost">
+              <Link href="/about">Sobre</Link>
+            </Button>
             <Button asChild variant="ghost">
               <Link href="/login">Entrar</Link>
             </Button>
             <Button asChild>
               <Link href="/register">Comece Agora</Link>
             </Button>
+          </nav>
+          
+          {/* Mobile Nav */}
+          <div className="md:hidden">
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Abrir menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[240px]">
+                <div className="flex flex-col space-y-4 pt-10">
+                  {navLinks.map((link) => (
+                    <Button key={link.href} asChild variant={link.variant} onClick={() => setIsMenuOpen(false)}>
+                      <Link href={link.href}>{link.label}</Link>
+                    </Button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>

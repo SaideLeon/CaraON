@@ -20,7 +20,7 @@ export default function AboutPage() {
     );
     
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 py-10 px-4">
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-3xl">Sobre o Sistema CaraON</CardTitle>

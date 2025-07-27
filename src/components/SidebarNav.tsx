@@ -36,8 +36,16 @@ export function SidebarNav() {
   const { user, logout } = useAuth();
 
   const isActive = (path: string) => {
+    // Exact match for dashboard, startsWith for others
+    if (path === '/dashboard') {
+        return pathname === path;
+    }
     return pathname.startsWith(path);
   };
+
+  const isAboutActive = () => {
+    return pathname === '/about';
+  }
 
   return (
     <Sidebar>
@@ -172,13 +180,13 @@ export function SidebarNav() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="/about">
+                     <Link href="/about">
                         <Info className="mr-2 h-4 w-4" />
                         <span>Sobre</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>Configurações</DropdownMenuItem>
-                <DropdownMenuItem>Suporte</DropdownMenuItem>
+                <DropdownMenuItem disabled>Configurações</DropdownMenuItem>
+                <DropdownMenuItem disabled>Suporte</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4"/>
