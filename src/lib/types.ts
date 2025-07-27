@@ -1,4 +1,5 @@
 
+
 export interface User {
   id: string;
   name: string;
@@ -122,4 +123,27 @@ export interface Product {
   images: ProductImage[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Contact {
+  id: string;
+  phone: string;
+  name?: string | null;
+  isBlocked: boolean;
+  isOptOut: boolean;
+  instanceId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaginatedContacts {
+  data: Contact[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ContactSummary {
+    totalContacts: number;
+    phones: string[];
 }

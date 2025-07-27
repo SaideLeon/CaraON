@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product } from '@/lib/types';
+import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'caraon-token';
@@ -156,6 +157,17 @@ export const createProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'up
 export const deleteProduct = async (productId: string): Promise<void> => {
     await api.delete(`/products/${productId}`);
 };
+
+// Contacts
+export const getInstanceContacts = async (instanceId: string, page = 1, limit = 10): Promise<PaginatedContacts> => {
+    const response = await api.get(`/instances/${instanceId}/contacts`, { params: { page, limit } });
+    return response.data;
+};
+
+export const getInstanceContactsSummary = async (instanceId: string): Promise<ContactSummary> => {
+    const response = await api.get(`/instances/${instanceId}/contacts/summary`);
+    return response.data;
+}
 
 
 export default api;

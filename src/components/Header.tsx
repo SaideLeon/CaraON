@@ -21,6 +21,10 @@ const pageConfig: Record<string, { title: string; description: string }> = {
         title: 'Playground',
         description: 'Teste a orquestração dos seus agentes em tempo real.',
     },
+    '/contacts': {
+        title: 'Contatos',
+        description: 'Visualize e gerencie os contatos de suas instâncias.',
+    },
     '/agents': {
         title: 'Agentes',
         description: 'Crie e gira os seus agentes de IA.',
