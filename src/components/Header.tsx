@@ -52,6 +52,10 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     '/categories': {
         title: 'Categorias',
         description: 'Crie e gira as categorias dos produtos da sua loja.',
+    },
+    '/about': {
+        title: 'Sobre o Sistema',
+        description: 'Entenda como a orquestração de agentes do CaraON funciona.',
     }
 }
 

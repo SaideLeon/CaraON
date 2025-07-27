@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree, ShoppingCart, FlaskConical, Users2, MessageSquare } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree, ShoppingCart, FlaskConical, Users2, MessageSquare, Info } from 'lucide-react';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 import {
@@ -171,6 +171,12 @@ export function SidebarNav() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href="/about">
+                        <Info className="mr-2 h-4 w-4" />
+                        <span>Sobre</span>
+                    </Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>Configurações</DropdownMenuItem>
                 <DropdownMenuItem>Suporte</DropdownMenuItem>
                 <DropdownMenuSeparator />

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Bot, Zap, Sparkles, ShoppingCart, Wrench, GitBranch } from 'lucide-react';
+import { ArrowRight, Bot, Zap, Sparkles, GitBranch, ShoppingCart, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 import Image from 'next/image';
@@ -45,12 +45,12 @@ export default function EnhancedLandingPage() {
             <span className="block mb-2">Atendimento Inteligente e</span>
             <span className="block mb-2">Vendas no WhatsApp com</span>
             <span className="block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse">
-              Agentes de IA
+              Equipes de IA
             </span>
           </h1>
           
           <p className="max-w-3xl text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed">
-            Crie, treine e orquestre agentes virtuais que vendem produtos, dão suporte e gerenciam tarefas 24/7,
+            Crie, treine e orquestre equipes de agentes virtuais que vendem produtos, dão suporte e gerenciam tarefas 24/7,
             direto do seu número de WhatsApp. Sem complicações.
           </p>
           
@@ -80,18 +80,18 @@ export default function EnhancedLandingPage() {
               Uma Plataforma Completa para Automação
             </h2>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-              Tudo que você precisa para criar uma experiência de atendimento e vendas excepcional.
+              Tudo que você precisa para criar uma experiência de atendimento e vendas excepcional, imitando a estrutura de uma empresa real.
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
              {[
-                { icon: GitBranch, title: 'Hierarquia de Agentes', description: 'Crie agentes "Pais" para orquestrar e delegar tarefas para agentes "Filhos" especializados, criando um time virtual completo.' },
-                { icon: Bot, title: 'Agentes Personalizáveis', description: 'Defina a persona, o tom de voz e as instruções específicas para cada agente se alinhar perfeitamente à sua marca.' },
-                { icon: Wrench, title: 'Ferramentas Extensíveis', description: 'Dê superpoderes aos seus agentes. Conecte-os a bancos de dados para consultar estoque, preços e muito mais.' },
-                { icon: ShoppingCart, title: 'Gestão de E-commerce', description: 'Gerencie produtos, marcas e categorias. Seus agentes podem se tornar vendedores virtuais e acessar todo o seu catálogo.' },
-                { icon: Zap, title: 'Conexão Instantânea', description: 'Conecte seu número de WhatsApp em segundos com um simples QR Code, sem precisar de múltiplos aplicativos.' },
-                { icon: Sparkles, title: 'IA Inteligente', description: 'Nossa IA sugere melhorias para a persona dos seus agentes com base no desempenho e nas interações reais com clientes.' },
+                { icon: GitBranch, title: 'Hierarquia de Agentes', description: 'Crie agentes "Roteadores" para delegar tarefas a "Departamentos" (Agentes Pais), que por sua vez acionam "Especialistas" (Agentes Filhos).' },
+                { icon: Bot, title: 'Agentes Especializados', description: 'Defina a persona, o tom de voz e as instruções para cada agente, seja ele um gerente de departamento ou um especialista em produtos.' },
+                { icon: Wrench, title: 'Ferramentas Inteligentes', description: 'Dê superpoderes aos seus agentes. Conecte-os a bancos de dados para consultar estoque, preços, APIs externas e muito mais.' },
+                { icon: ShoppingCart, title: 'Gestão de E-commerce', description: 'Gerencie produtos, marcas e categorias. Seus agentes podem se tornar vendedores virtuais e acessar todo o seu catálogo em tempo real.' },
+                { icon: Zap, title: 'Conexão Instantânea', description: 'Conecte seu número de WhatsApp em segundos com um simples QR Code. O sistema cria automaticamente seu primeiro agente "Roteador".' },
+                { icon: Sparkles, title: 'Otimização com IA', description: 'Nossa IA sugere melhorias para a persona dos seus agentes com base no desempenho e nas interações reais com clientes.' },
              ].map((feature, index) => (
                 <div key={index} className="group relative overflow-hidden rounded-2xl bg-card p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-border/50">
                     <div className="relative z-10">
@@ -158,9 +158,9 @@ export default function EnhancedLandingPage() {
             <div className="relative grid md:grid-cols-4 gap-8">
                 {[
                     { number: 1, title: 'Conecte', description: 'Crie uma instância e conecte seu WhatsApp com um QR Code.' },
-                    { number: 2, title: 'Crie', description: 'Construa seu primeiro agente pai e defina sua persona principal.' },
-                    { number: 3, title: 'Treine', description: 'Adicione agentes filhos, ferramentas e um catálogo de produtos.' },
-                    { number: 4, title: 'Automatize', description: 'Deixe seus agentes trabalharem 24/7, vendendo e atendendo por você.' },
+                    { number: 2, title: 'Estruture', description: 'Crie departamentos (Organizações) e gerentes (Agentes Pais).' },
+                    { number: 3, title: 'Especialize', description: 'Adicione especialistas (Agentes Filhos) com ferramentas e catálogo.' },
+                    { number: 4, title: 'Automatize', description: 'Deixe sua equipe de IA trabalhar 24/7, vendendo e atendendo por você.' },
                 ].map((step) => (
                      <div key={step.number} className="relative flex flex-col items-center text-center p-4">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-background border-2 border-primary rounded-full flex items-center justify-center text-primary font-bold text-lg z-10">
