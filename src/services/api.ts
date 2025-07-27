@@ -3,7 +3,7 @@
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary } from '@/lib/types';
+import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary, Message, PaginatedMessages } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'caraon-token';
@@ -167,6 +167,16 @@ export const getInstanceContacts = async (instanceId: string, page = 1, limit = 
 export const getInstanceContactsSummary = async (instanceId: string): Promise<ContactSummary> => {
     const response = await api.get(`/instances/${instanceId}/contacts/summary`);
     return response.data;
+}
+
+// Messages
+export const getMessages = async (instanceId: string, contactId: string, page = 1, limit = 20): Promise<PaginatedMessages> => {
+    const response = await api.get(`/instances/${instanceId}/messages`, { params: { contactId, page, limit } });
+    return response.data;
+}
+
+export const deleteMessage = async (messageId: string): Promise<void> => {
+    await api.delete(`/messages/${messageId}`);
 }
 
 

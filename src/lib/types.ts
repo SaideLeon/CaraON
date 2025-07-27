@@ -147,3 +147,23 @@ export interface ContactSummary {
     totalContacts: number;
     phones: string[];
 }
+
+export type MessageStatus = 'sent' | 'delivered' | 'read' | 'error';
+
+export interface Message {
+    id: string;
+    instanceId: string;
+    contactId: string;
+    fromMe: boolean;
+    content: string;
+    status: MessageStatus;
+    timestamp: string;
+    contact?: Contact;
+}
+
+export interface PaginatedMessages {
+    data: Message[];
+    total: number;
+    page: number;
+    limit: number;
+}

@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree, ShoppingCart, FlaskConical, Users2 } from 'lucide-react';
+import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree, ShoppingCart, FlaskConical, Users2, MessageSquare } from 'lucide-react';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 
 import {
@@ -73,6 +73,14 @@ export function SidebarNav() {
               <Link href="/contacts">
                 <Users2 />
                 <span>Contatos</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/messages')} tooltip="Mensagens">
+              <Link href="/messages">
+                <MessageSquare />
+                <span>Mensagens</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
