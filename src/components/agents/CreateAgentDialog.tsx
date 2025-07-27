@@ -52,6 +52,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
     defaultValues: {
       name: '',
       persona: '',
+      organizationId: 'none',
     },
   });
 
@@ -82,7 +83,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
     const fetchOrganizations = async () => {
       if (selectedInstanceId) {
         setLoadingOrgs(true);
-        form.setValue('organizationId', undefined); // Reset org selection
+        form.setValue('organizationId', 'none'); // Reset org selection
         setOrganizations([]);
         try {
           const fetchedOrgs = await getInstanceOrganizations(selectedInstanceId);
