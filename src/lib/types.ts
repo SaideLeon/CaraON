@@ -27,7 +27,7 @@ export interface Agent {
   instanceId: string;
   organizationId?: string | null;
   parentAgentId?: string | null;
-  routerAgentId?: string | null; // Added field
+  routerAgentId?: string | null;
   childAgents?: Agent[]; // Para aninhar agentes filhos
   config?: any; // Pode ser tipado de forma mais estrita se a estrutura for conhecida
   tools?: Tool[];
@@ -128,10 +128,10 @@ export interface Product {
 
 export interface Contact {
   id: string;
-  phone: string;
+  phoneNumber: string; // Corrected from 'phone'
   name?: string | null;
+  pushName?: string | null; // Added field
   isBlocked: boolean;
-  isOptOut: boolean;
   instanceId: string;
   createdAt: string;
   updatedAt: string;
@@ -139,9 +139,12 @@ export interface Contact {
 
 export interface PaginatedContacts {
   data: Contact[];
-  total: number;
-  page: number;
-  limit: number;
+  pagination: { // Corrected structure
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }
 }
 
 export interface ContactSummary {

@@ -170,7 +170,7 @@ export const getInstanceContactsSummary = async (instanceId: string): Promise<Co
 }
 
 // Messages
-export const getMessages = async (instanceId: string, contactId: string, page = 1, limit = 20): Promise<PaginatedMessages> => {
+export const getMessages = async (instanceId: string, contactId: string, page = 1, limit = 50): Promise<PaginatedMessages> => {
     const response = await api.get(`/instances/${instanceId}/messages`, { params: { contactId, page, limit } });
     return response.data;
 }

@@ -47,7 +47,8 @@ export function ConversationsList({ instanceId, selectedContact, onSelectContact
 
   const filteredContacts = contacts.filter(contact => 
     (contact.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (contact.phone.includes(searchTerm))
+    (contact.pushName?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (contact.phoneNumber.includes(searchTerm))
   );
 
   return (
@@ -83,7 +84,7 @@ export function ConversationsList({ instanceId, selectedContact, onSelectContact
                     <AvatarFallback><User /></AvatarFallback>
                   </Avatar>
                   <div className='flex-1 min-w-0'>
-                    <p className="font-semibold truncate">{contact.name || contact.phone}</p>
+                    <p className="font-semibold truncate">{contact.name || contact.pushName || contact.phoneNumber}</p>
                     <p className="text-xs text-muted-foreground truncate">Clique para ver a conversa...</p>
                   </div>
                 </button>

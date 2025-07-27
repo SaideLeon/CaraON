@@ -131,8 +131,8 @@ export function MessageHistory({ instanceId, contact }: MessageHistoryProps) {
             <AvatarFallback><User /></AvatarFallback>
         </Avatar>
         <div>
-            <CardTitle className="text-xl">{contact.name || contact.phone}</CardTitle>
-            <p className="text-sm text-muted-foreground">{contact.phone}</p>
+            <CardTitle className="text-xl">{contact.name || contact.pushName || contact.phoneNumber}</CardTitle>
+            <p className="text-sm text-muted-foreground">{contact.phoneNumber.split('@')[0]}</p>
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-0 flex flex-col min-h-0">

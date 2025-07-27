@@ -34,7 +34,9 @@ interface ContactsTableProps {
 
 export function ContactsTable({ instanceId }: ContactsTableProps) {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -44,30 +46,30 @@ export function ContactsTable({ instanceId }: ContactsTableProps) {
       try {
         const data: PaginatedContacts = await getInstanceContacts(
           instanceId,
-          pagination.page,
-          pagination.limit
+          page,
+          limit
         );
-        setContacts(data.data || []); // Fallback to empty array if data is not present
-        setPagination((prev) => ({ ...prev, total: data.total || 0 }));
+        setContacts(data.data || []);
+        setTotal(data.pagination.total || 0);
       } catch (error) {
         toast({
           variant: 'destructive',
           title: 'Erro ao buscar contatos',
           description: 'Não foi possível carregar a lista de contatos. O backend pode estar indisponível.',
         });
-        setContacts([]); // Clear contacts on error
-        setPagination((prev) => ({...prev, total: 0}));
+        setContacts([]);
+        setTotal(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchContacts();
-  }, [instanceId, pagination.page, pagination.limit, toast]);
+  }, [instanceId, page, limit, toast]);
 
   const totalPages = useMemo(() => {
-    return Math.ceil(pagination.total / pagination.limit);
-  }, [pagination.total, pagination.limit]);
+    return Math.ceil(total / limit);
+  }, [total, limit]);
 
   return (
     <Card>
@@ -110,13 +112,11 @@ export function ContactsTable({ instanceId }: ContactsTableProps) {
                     <TableCell>
                       <Checkbox disabled />
                     </TableCell>
-                    <TableCell className="font-medium">{contact.name || 'N/A'}</TableCell>
-                    <TableCell>{contact.phone}</TableCell>
+                    <TableCell className="font-medium">{contact.name || contact.pushName || 'N/A'}</TableCell>
+                    <TableCell>{contact.phoneNumber.split('@')[0]}</TableCell>
                     <TableCell>
                       {contact.isBlocked ? (
                         <Badge variant="destructive">Bloqueado</Badge>
-                      ) : contact.isOptOut ? (
-                        <Badge variant="secondary">Opt-out</Badge>
                       ) : (
                         <Badge variant="default" className='bg-green-500'>Ativo</Badge>
                       )}
@@ -153,22 +153,22 @@ export function ContactsTable({ instanceId }: ContactsTableProps) {
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            {contacts.length} de {pagination.total} contato(s).
+            {contacts.length} de {total} contato(s).
           </div>
           <div className="space-x-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
-              disabled={pagination.page <= 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page <= 1}
             >
               Anterior
             </Button>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
-              disabled={pagination.page >= totalPages}
+              onClick={() => setPage(p => p + 1)}
+              disabled={page >= totalPages}
             >
               Próxima
             </Button>
