@@ -14,9 +14,15 @@ const getWebSocketURL = () => {
 export interface WebSocketMessage {
   type: 'qr_code' | 'instance_status' | 'playground_response' | 'playground_error';
   clientId?: string; // For instance updates
-  data?: any; // For qr_code or other data
+  data?: any; // For qr_code
   status?: 'connected' | 'disconnected'; // For instance_status
-  message?: string; // For text-based messages
+  // For playground_response
+  response?: {
+    finalResponse: string;
+    executionId: string;
+  };
+  // For playground_error
+  error?: string;
 }
 
 interface WebSocketContextType {

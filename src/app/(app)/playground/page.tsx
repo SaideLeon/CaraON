@@ -7,10 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Send, Bot, User, BrainCircuit } from 'lucide-react';
+import { Loader2, Send, Bot, User, BrainCircuit, Server } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getUserParentAgents } from '@/services/api';
-import type { Agent } from '@/lib/types';
+import { getUserInstances } from '@/services/api';
+import type { Instance } from '@/lib/types';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -21,9 +21,9 @@ interface Message {
 }
 
 export default function PlaygroundPage() {
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
-  const [loadingAgents, setLoadingAgents] = useState(true);
+  const [instances, setInstances] = useState<Instance[]>([]);
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+  const [loadingInstances, setLoadingInstances] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -32,22 +32,22 @@ export default function PlaygroundPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchAgents = async () => {
-      setLoadingAgents(true);
+    const fetchInstances = async () => {
+      setLoadingInstances(true);
       try {
-        const parentAgents = await getUserParentAgents();
-        setAgents(parentAgents);
+        const userInstances = await getUserInstances();
+        setInstances(userInstances);
       } catch (error) {
         toast({
           variant: 'destructive',
           title: 'Erro',
-          description: 'Não foi possível carregar os agentes.',
+          description: 'Não foi possível carregar as suas instâncias.',
         });
       } finally {
-        setLoadingAgents(false);
+        setLoadingInstances(false);
       }
     };
-    fetchAgents();
+    fetchInstances();
   }, [toast]);
   
   useEffect(() => {
@@ -61,15 +61,15 @@ export default function PlaygroundPage() {
 
   useEffect(() => {
     if (lastMessage && isSending) {
-        if (lastMessage.type === 'playground_response') {
-            const agentMessage: Message = { sender: 'agent', text: lastMessage.message || 'O agente respondeu.' };
+        if (lastMessage.type === 'playground_response' && lastMessage.response) {
+            const agentMessage: Message = { sender: 'agent', text: lastMessage.response.finalResponse || 'O agente respondeu.' };
             setMessages((prev) => [...prev, agentMessage]);
             setIsSending(false);
-        } else if (lastMessage.type === 'playground_error') {
+        } else if (lastMessage.type === 'playground_error' && lastMessage.error) {
             toast({
                 variant: 'destructive',
                 title: 'Erro do Agente',
-                description: lastMessage.message || 'Ocorreu um erro no backend.',
+                description: lastMessage.error || 'Ocorreu um erro no backend.',
             });
             setIsSending(false);
             setMessages(prev => prev.slice(0, prev.length -1)); // Remove user message on error
@@ -79,8 +79,7 @@ export default function PlaygroundPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    const selectedAgent = agents.find(a => a.id === selectedAgentId);
-    if (!input.trim() || !selectedAgent || isSending) return;
+    if (!input.trim() || !selectedInstanceId || isSending) return;
 
     const userMessage: Message = { sender: 'user', text: input };
     setMessages((prev) => [...prev, userMessage]);
@@ -89,9 +88,7 @@ export default function PlaygroundPage() {
     
     sendMessage({
         type: 'playground_test',
-        routerAgentId: selectedAgent.id,
-        instanceId: selectedAgent.instanceId,
-        organizationId: selectedAgent.organizationId,
+        instanceId: selectedInstanceId,
         messageContent: input,
         userPhone: 'playground_user'
     });
@@ -99,7 +96,7 @@ export default function PlaygroundPage() {
     setInput('');
   };
 
-  const selectedAgent = agents.find(a => a.id === selectedAgentId);
+  const selectedInstance = instances.find(i => i.id === selectedInstanceId);
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col gap-6">
@@ -110,18 +107,18 @@ export default function PlaygroundPage() {
             <span>Playground do Agente</span>
           </CardTitle>
           <CardDescription>
-            Selecione um agente pai e inicie uma conversa para testar a orquestração e as ferramentas.
+            Selecione uma instância e inicie uma conversa para testar o fluxo de orquestração completo.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Select onValueChange={setSelectedAgentId} disabled={loadingAgents || agents.length === 0}>
+          <Select onValueChange={setSelectedInstanceId} disabled={loadingInstances || instances.length === 0}>
             <SelectTrigger className="w-full md:w-1/3">
-              <SelectValue placeholder={loadingAgents ? 'Carregando agentes...' : 'Selecione um Agente Pai'} />
+              <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma Instância'} />
             </SelectTrigger>
             <SelectContent>
-              {agents.map((agent) => (
-                <SelectItem key={agent.id} value={agent.id}>
-                  {agent.name}
+              {instances.map((instance) => (
+                <SelectItem key={instance.id} value={instance.id}>
+                  {instance.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -130,16 +127,16 @@ export default function PlaygroundPage() {
       </Card>
       
       <Card className="flex flex-1 flex-col">
-        {selectedAgentId ? (
+        {selectedInstanceId ? (
             <>
                 <CardHeader className="border-b">
                     <div className="flex items-center gap-3">
                         <Avatar>
-                            <AvatarFallback><Bot /></AvatarFallback>
+                            <AvatarFallback><Server /></AvatarFallback>
                         </Avatar>
                         <div>
-                            <CardTitle className="text-xl">{selectedAgent?.name}</CardTitle>
-                            <CardDescription className="text-xs line-clamp-1">{selectedAgent?.persona}</CardDescription>
+                            <CardTitle className="text-xl">{selectedInstance?.name}</CardTitle>
+                            <CardDescription className="text-xs line-clamp-1">Testando a instância: {selectedInstance?.clientId}</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
@@ -208,7 +205,7 @@ export default function PlaygroundPage() {
             <div className="flex flex-1 items-center justify-center">
                 <div className="text-center text-muted-foreground">
                     <BrainCircuit className="mx-auto h-12 w-12" />
-                    <p className="mt-4">Por favor, selecione um agente para começar.</p>
+                    <p className="mt-4">Por favor, selecione uma instância para começar.</p>
                 </div>
           </div>
         )}
