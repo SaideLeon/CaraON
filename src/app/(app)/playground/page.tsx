@@ -60,12 +60,12 @@ export default function PlaygroundPage() {
   }, [messages]);
 
   useEffect(() => {
-    if (lastMessage) {
-        if (lastMessage.type === 'playground_response' && isSending) {
+    if (lastMessage && isSending) {
+        if (lastMessage.type === 'playground_response') {
             const agentMessage: Message = { sender: 'agent', text: lastMessage.message || 'O agente respondeu.' };
             setMessages((prev) => [...prev, agentMessage]);
             setIsSending(false);
-        } else if (lastMessage.type === 'playground_error' && isSending) {
+        } else if (lastMessage.type === 'playground_error') {
             toast({
                 variant: 'destructive',
                 title: 'Erro do Agente',
@@ -142,7 +142,7 @@ export default function PlaygroundPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="flex-1 p-0 flex flex-col">
+                <CardContent className="p-0 flex flex-col">
                     <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                          <div className="space-y-4">
                             {messages.map((message, index) => (
@@ -215,3 +215,5 @@ export default function PlaygroundPage() {
     </div>
   );
 }
+
+    
