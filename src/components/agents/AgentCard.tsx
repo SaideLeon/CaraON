@@ -46,7 +46,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
   }, [initialAgent.id, toast])
 
   const fetchChildren = async () => {
-    if (agent.type === 'PAI') {
+    if (agent.type === 'ROUTER' || agent.type === 'PARENT') {
       setIsLoadingChildren(true);
       try {
         const children = await getChildAgents(agent.id);
@@ -67,6 +67,15 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
     setChildAgents(prev => [newChildAgent, ...prev]);
   };
   
+  const getBadgeVariant = (type: Agent['type']) => {
+    switch(type) {
+      case 'ROUTER': return 'default';
+      case 'PARENT': return 'secondary';
+      case 'CHILD': return 'outline';
+      default: return 'secondary';
+    }
+  }
+
   return (
     <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 bg-card/50">
       <CardHeader>
@@ -74,7 +83,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
           <div className="flex-1 min-w-0">
             <div className='flex items-center gap-2 mb-2'>
               <Bot className="h-8 w-8 text-primary" />
-              <Badge variant={agent.type === 'PAI' ? 'default' : 'secondary'}>
+              <Badge variant={getBadgeVariant(agent.type)}>
                 {agent.type}
               </Badge>
             </div>
@@ -101,7 +110,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
          )}
 
          <Accordion type="single" collapsible>
-            {agent.type === 'PAI' && (
+            {(agent.type === 'ROUTER' || agent.type === 'PARENT') && (
                 <AccordionItem value="child-agents">
                 <AccordionTrigger className='text-sm' onClick={() => fetchChildren()}>
                     <div className='flex items-center gap-2'>
@@ -169,7 +178,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
               <span>Editar</span>
             </Link>
         </Button>
-        {agent.type === 'PAI' && (
+        {(agent.type === 'ROUTER' || agent.type === 'PARENT') && (
            <CreateChildAgentDialog parentAgentId={agent.id} onChildAgentCreated={handleChildAgentCreated}>
              <Button variant="default" size="sm">
                 <PlusCircle className="mr-2 h-3 w-3"/>

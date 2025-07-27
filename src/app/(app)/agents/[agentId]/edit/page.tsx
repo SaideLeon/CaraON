@@ -154,7 +154,7 @@ export default function EditAgentPage() {
               </FormItem>
             )}
           />
-          {agent?.type === 'PAI' && (
+          {agent?.type === 'PARENT' && (
             <FormField
               control={form.control}
               name="routerAgentId"

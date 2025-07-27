@@ -16,7 +16,7 @@ export interface Instance {
   status: InstanceStatus;
 }
 
-export type AgentType = 'PAI' | 'FILHO';
+export type AgentType = 'ROUTER' | 'PARENT' | 'CHILD';
 
 export interface Agent {
   id: string;
