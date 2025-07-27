@@ -58,7 +58,7 @@ export const createCustomChildAgent = async (parentAgentId: string, data: { name
 };
 
 export const updateAgent = async (agentId: string, data: { persona?: string, priority?: number }): Promise<Agent> => {
-    const response = await api.patch(`/agents/${agentId}`, data);
+    const response = await api.put(`/agents/${agentId}`, data);
     return response.data;
 };
 
@@ -148,7 +148,7 @@ export const getProducts = async (): Promise<Product[]> => {
     return response.data.data;
 };
 
-export const createProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> => {
+export const createProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'images'> & { images: { url: string; altText?: string }[] }): Promise<Product> => {
     const response = await api.post('/products', data);
     return response.data;
 };
