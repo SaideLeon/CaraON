@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { updateAgent, getAgentById } from '@/services/api';
+import { updateAgent, getAgentById, getUserParentAgents } from '@/services/api';
 import type { Agent } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -16,10 +16,12 @@ import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from 
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const agentUpdateSchema = z.object({
   persona: z.string().min(10, { message: 'A persona deve ter pelo menos 10 caracteres.' }),
   priority: z.coerce.number().int().min(0, 'A prioridade deve ser um número positivo.'),
+  routerAgentId: z.string().optional().nullable(),
 });
 
 type AgentUpdateFormValues = z.infer<typeof agentUpdateSchema>;
@@ -31,6 +33,7 @@ export default function EditAgentPage() {
   const router = useRouter();
 
   const [agent, setAgent] = useState<Agent | null>(null);
+  const [parentAgents, setParentAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -40,19 +43,26 @@ export default function EditAgentPage() {
 
   useEffect(() => {
     if (agentId) {
-      const fetchAgent = async () => {
+      const fetchAgentData = async () => {
         try {
           setLoading(true);
-          const foundAgent = await getAgentById(agentId);
+          const [foundAgent, allParentAgents] = await Promise.all([
+            getAgentById(agentId),
+            getUserParentAgents()
+          ]);
 
           if (!foundAgent) {
             throw new Error("Agente não encontrado");
           }
 
           setAgent(foundAgent);
+          // Filter out the current agent from the list of possible router agents
+          setParentAgents(allParentAgents.filter(p => p.id !== agentId));
+
           form.reset({ 
             persona: foundAgent.persona,
-            priority: foundAgent.priority || 0 
+            priority: foundAgent.priority || 0,
+            routerAgentId: foundAgent.routerAgentId
           });
         } catch (error) {
           toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
@@ -60,14 +70,18 @@ export default function EditAgentPage() {
           setLoading(false);
         }
       };
-      fetchAgent();
+      fetchAgentData();
     }
   }, [agentId, form, toast]);
 
   const onSubmit = async (data: AgentUpdateFormValues) => {
     setSaving(true);
     try {
-      await updateAgent(agentId, { persona: data.persona, priority: data.priority });
+      const payload = {
+        ...data,
+        routerAgentId: data.routerAgentId === 'none' ? null : data.routerAgentId,
+      };
+      await updateAgent(agentId, payload);
       toast({ title: 'Sucesso', description: 'O agente foi atualizado.' });
       router.refresh(); 
     } catch (error) {
@@ -88,6 +102,7 @@ export default function EditAgentPage() {
                 <div className="space-y-4">
                     <Skeleton className="h-32 w-full" />
                     <Skeleton className="h-10 w-1/4" />
+                    <Skeleton className="h-10 w-1/2" />
                 </div>
             </CardContent>
             <CardFooter className="flex justify-end">
@@ -139,6 +154,33 @@ export default function EditAgentPage() {
               </FormItem>
             )}
           />
+          {agent?.type === 'PAI' && (
+            <FormField
+              control={form.control}
+              name="routerAgentId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Agente Roteador (Opcional)</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || 'none'}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um agente para rotear"/>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhum</SelectItem>
+                      {parentAgents.map((pAgent) => (
+                        <SelectItem key={pAgent.id} value={pAgent.id}>
+                          {pAgent.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={saving}>

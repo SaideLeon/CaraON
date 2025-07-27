@@ -58,7 +58,7 @@ export const createCustomChildAgent = async (parentAgentId: string, data: { name
     return response.data;
 };
 
-export const updateAgent = async (agentId: string, data: { persona?: string, priority?: number }): Promise<Agent> => {
+export const updateAgent = async (agentId: string, data: { persona?: string, priority?: number, routerAgentId?: string | null }): Promise<Agent> => {
     const response = await api.put(`/agents/${agentId}`, data);
     return response.data;
 };

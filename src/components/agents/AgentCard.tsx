@@ -1,7 +1,7 @@
 
 import type { Agent } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
-import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2, Wrench, Code } from 'lucide-react';
+import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2, Wrench, Code, Route } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -92,6 +92,13 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
             <span className="font-semibold text-foreground">Persona: </span> 
             {agent.persona}
          </p>
+
+         {agent.routerAgentId && (
+            <div className="text-xs text-muted-foreground p-2 bg-muted rounded-md flex items-center gap-2">
+                <Route className="h-4 w-4 shrink-0" />
+                <div>Roteia para o ID: <span className="font-mono text-foreground">{agent.routerAgentId}</span></div>
+            </div>
+         )}
 
          <Accordion type="single" collapsible>
             {agent.type === 'PAI' && (

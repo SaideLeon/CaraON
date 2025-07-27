@@ -27,6 +27,7 @@ export interface Agent {
   instanceId: string;
   organizationId?: string | null;
   parentAgentId?: string | null;
+  routerAgentId?: string | null; // Added field
   childAgents?: Agent[]; // Para aninhar agentes filhos
   config?: any; // Pode ser tipado de forma mais estrita se a estrutura for conhecida
   tools?: Tool[];
