@@ -17,7 +17,8 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarSeparator
+  SidebarSeparator,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -34,6 +35,13 @@ import { Button } from './ui/button';
 export function SidebarNav() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   const isActive = (path: string) => {
     // Exact match for dashboard, startsWith for others
@@ -59,7 +67,7 @@ export function SidebarNav() {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/dashboard')} tooltip="Instâncias">
+            <SidebarMenuButton asChild isActive={isActive('/dashboard')} tooltip="Instâncias" onClick={handleLinkClick}>
               <Link href="/dashboard">
                 <LayoutGrid />
                 <span>Instâncias</span>
@@ -67,7 +75,7 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/playground')} tooltip="Playground">
+            <SidebarMenuButton asChild isActive={isActive('/playground')} tooltip="Playground" onClick={handleLinkClick}>
               <Link href="/playground">
                 <FlaskConical />
                 <span>Playground</span>
@@ -77,7 +85,7 @@ export function SidebarNav() {
           <SidebarSeparator />
           <SidebarGroupLabel>CRM</SidebarGroupLabel>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/contacts')} tooltip="Contatos">
+            <SidebarMenuButton asChild isActive={isActive('/contacts')} tooltip="Contatos" onClick={handleLinkClick}>
               <Link href="/contacts">
                 <Users2 />
                 <span>Contatos</span>
@@ -85,7 +93,7 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/messages')} tooltip="Mensagens">
+            <SidebarMenuButton asChild isActive={isActive('/messages')} tooltip="Mensagens" onClick={handleLinkClick}>
               <Link href="/messages">
                 <MessageSquare />
                 <span>Mensagens</span>
@@ -95,7 +103,7 @@ export function SidebarNav() {
           <SidebarSeparator />
           <SidebarGroupLabel>Agentes</SidebarGroupLabel>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/agents')} tooltip="Agentes">
+            <SidebarMenuButton asChild isActive={isActive('/agents')} tooltip="Agentes" onClick={handleLinkClick}>
               <Link href="/agents">
                 <Bot />
                 <span>Agentes</span>
@@ -103,7 +111,7 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/tools')} tooltip="Ferramentas">
+            <SidebarMenuButton asChild isActive={isActive('/tools')} tooltip="Ferramentas" onClick={handleLinkClick}>
               <Link href="/tools">
                 <Wrench />
                 <span>Ferramentas</span>
@@ -111,7 +119,7 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/organizations')} tooltip="Organizações">
+            <SidebarMenuButton asChild isActive={isActive('/organizations')} tooltip="Organizações" onClick={handleLinkClick}>
               <Link href="/organizations">
                 <Briefcase />
                 <span>Organizações</span>
@@ -124,7 +132,7 @@ export function SidebarNav() {
           <SidebarGroupLabel>E-commerce</SidebarGroupLabel>
           <SidebarMenu>
              <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive('/products')} tooltip="Produtos">
+              <SidebarMenuButton asChild isActive={isActive('/products')} tooltip="Produtos" onClick={handleLinkClick}>
                 <Link href="/products">
                   <ShoppingCart />
                   <span>Produtos</span>
@@ -132,7 +140,7 @@ export function SidebarNav() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive('/brands')} tooltip="Marcas">
+              <SidebarMenuButton asChild isActive={isActive('/brands')} tooltip="Marcas" onClick={handleLinkClick}>
                 <Link href="/brands">
                   <Bookmark />
                   <span>Marcas</span>
@@ -140,7 +148,7 @@ export function SidebarNav() {
               </SidebarMenuButton>
             </SidebarMenuItem>
              <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive('/categories')} tooltip="Categorias">
+              <SidebarMenuButton asChild isActive={isActive('/categories')} tooltip="Categorias" onClick={handleLinkClick}>
                 <Link href="/categories">
                   <FolderTree />
                   <span>Categorias</span>
@@ -180,7 +188,7 @@ export function SidebarNav() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                     <Link href="/about">
+                     <Link href="/about" onClick={handleLinkClick}>
                         <Info className="mr-2 h-4 w-4" />
                         <span>Sobre</span>
                     </Link>
@@ -188,7 +196,10 @@ export function SidebarNav() {
                 <DropdownMenuItem disabled>Configurações</DropdownMenuItem>
                 <DropdownMenuItem disabled>Suporte</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={() => {
+                  handleLinkClick();
+                  logout();
+                }}>
                     <LogOut className="mr-2 h-4 w-4"/>
                     <span>Sair</span>
                 </DropdownMenuItem>
