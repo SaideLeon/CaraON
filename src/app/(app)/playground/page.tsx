@@ -89,7 +89,7 @@ export default function PlaygroundPage() {
     
     sendMessage({
         type: 'playground_test',
-        instanceId: selectedAgent.instanceId,
+        routerAgentId: selectedAgent.id,
         organizationId: selectedAgent.organizationId,
         messageContent: input,
         userPhone: 'playground_user'
@@ -215,5 +215,3 @@ export default function PlaygroundPage() {
     </div>
   );
 }
-
-    
