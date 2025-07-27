@@ -90,6 +90,7 @@ export default function PlaygroundPage() {
     sendMessage({
         type: 'playground_test',
         routerAgentId: selectedAgent.id,
+        instanceId: selectedAgent.instanceId,
         organizationId: selectedAgent.organizationId,
         messageContent: input,
         userPhone: 'playground_user'
