@@ -61,22 +61,15 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
                 <CardDescription className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</CardDescription>
             </div>
           </div>
-          <div className={cn("flex shrink-0 items-center gap-2 text-sm font-medium", config.textColor)}>
-            <div className={cn("h-2 w-2 rounded-full", config.color)}></div>
-            <span>{config.label}</span>
-          </div>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        {/* Content can be added here in the future */}
+         <div className={cn("flex shrink-0 items-center gap-2 text-sm font-medium", config.textColor)}>
+            <div className={cn("h-2 w-2 rounded-full", config.color)}></div>
+            <span>{config.label}</span>
+          </div>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-         {(currentStatus === 'disconnected' || currentStatus === 'error') && (
-            <Button variant="outline" size="sm" onClick={() => onReconnect(instance)}>
-                <RefreshCw className="mr-2 h-4 w-4"/>
-                Reconectar
-            </Button>
-         )}
+      <CardFooter className="flex justify-end gap-2 border-t pt-4">
         <Button asChild variant="default" size="sm">
             <Link href="#">
                 Gerir
@@ -91,15 +84,19 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {currentStatus === 'connected' && (
-                <>
-                    <DropdownMenuItem onClick={() => onDisconnect(instance)}>
-                        <PowerOff className="mr-2 h-4 w-4" />
-                        <span>Desconectar</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                </>
+              {(currentStatus === 'disconnected' || currentStatus === 'error') && (
+                 <DropdownMenuItem onClick={() => onReconnect(instance)}>
+                    <RefreshCw className="mr-2 h-4 w-4"/>
+                    <span>Reconectar</span>
+                </DropdownMenuItem>
               )}
+              {currentStatus === 'connected' && (
+                <DropdownMenuItem onClick={() => onDisconnect(instance)}>
+                    <PowerOff className="mr-2 h-4 w-4" />
+                    <span>Desconectar</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete(instance)}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 <span>Excluir</span>
