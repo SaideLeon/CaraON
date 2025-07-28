@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { useEffect, useState } from 'react';
-import { getChildAgents, getAgentById } from '@/services/api';
+import { getChildAgents, getAgentById, getInstanceParentAgents } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import {
   Accordion,
@@ -38,7 +38,9 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
             const fullAgentData = await getAgentById(initialAgent.id);
             setAgent(fullAgentData);
              if (fullAgentData.type === 'ROUTER') {
-                setChildOrParentAgents(fullAgentData.parentAgents || []);
+                // For a router, the "children" are all the parent agents in the instance
+                const allParentAgentsInInstance = await getInstanceParentAgents(fullAgentData.instanceId);
+                setChildOrParentAgents(allParentAgentsInInstance.filter(p => p.type === 'PARENT')); // Ensure we only list PARENT types
             } else {
                 setChildOrParentAgents(fullAgentData.childAgents || []);
             }
@@ -53,24 +55,28 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
     fetchFullAgent();
   }, [initialAgent.id, toast])
 
-  const fetchChildren = async () => {
-    // This function can now fetch both child and parent agents depending on the type
-    if (agent.type === 'ROUTER' || agent.type === 'PARENT') {
-      setIsLoadingChildren(true);
-      try {
-        const agents = await getChildAgents(agent.id); // API needs to handle returning parents for a router
-        setChildOrParentAgents(agents);
-      } catch (error) {
+  const fetchSubAgents = async () => {
+    setIsLoadingChildren(true);
+    try {
+        let agents;
+        if (agent.type === 'ROUTER') {
+            agents = await getInstanceParentAgents(agent.instanceId);
+             setChildOrParentAgents(agents.filter(p => p.type === 'PARENT'));
+        } else if (agent.type === 'PARENT') {
+            agents = await getChildAgents(agent.id);
+            setChildOrParentAgents(agents);
+        }
+    } catch (error) {
         toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: `Não foi possível carregar os agentes subordinados.`
+            variant: 'destructive',
+            title: 'Erro',
+            description: `Não foi possível carregar os agentes subordinados.`
         })
-      } finally {
+    } finally {
         setIsLoadingChildren(false);
-      }
     }
   }
+
 
   const handleAgentCreated = (newAgent: Agent) => {
     setChildOrParentAgents(prev => [newAgent, ...prev]);
@@ -123,7 +129,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
          <Accordion type="single" collapsible>
             {(agent.type === 'ROUTER' || agent.type === 'PARENT') && (
                 <AccordionItem value="child-agents">
-                <AccordionTrigger className='text-sm' onClick={() => fetchChildren()}>
+                <AccordionTrigger className='text-sm' onClick={() => fetchSubAgents()}>
                     <div className='flex items-center gap-2'>
                     <Users className='h-4 w-4'/>
                     {accordionLabel} ({childOrParentAgents.length})
