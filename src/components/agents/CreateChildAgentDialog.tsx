@@ -21,7 +21,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import type { Agent, Tool } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { getTools, createCustomChildAgent } from '@/services/api';
+import { getTools, createAgent } from '@/services/api';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 
@@ -81,7 +81,16 @@ export function CreateChildAgentDialog({ children, parentAgentId, onChildAgentCr
   const onSubmit = async (data: ChildAgentFormValues) => {
     setLoading(true);
     try {
-      const newAgent = await createCustomChildAgent(parentAgentId, data);
+      const payload: Partial<Agent> = {
+        name: data.name,
+        persona: data.persona,
+        parentAgentId: parentAgentId,
+        type: 'CHILD',
+        config: data.flow ? JSON.parse(data.flow) : undefined,
+        tools: data.toolIds?.map(id => ({ id })) // Send only IDs
+      };
+
+      const newAgent = await createAgent(payload);
       
       toast({
         title: 'Agente Filho Criado',
@@ -91,8 +100,12 @@ export function CreateChildAgentDialog({ children, parentAgentId, onChildAgentCr
       setOpen(false);
       form.reset();
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Falha ao criar o agente.';
-      toast({ variant: 'destructive', title: 'Erro', description: message });
+      if (error instanceof SyntaxError) {
+         toast({ variant: 'destructive', title: 'Erro de JSON', description: 'O formato do Flow é inválido.' });
+      } else {
+        const message = error.response?.data?.message || 'Falha ao criar o agente.';
+        toast({ variant: 'destructive', title: 'Erro', description: message });
+      }
     } finally {
       setLoading(false);
     }

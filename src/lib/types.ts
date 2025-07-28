@@ -18,20 +18,35 @@ export interface Instance {
 
 export type AgentType = 'ROUTER' | 'PARENT' | 'CHILD';
 
+export interface AgentConfig {
+    id: string;
+    agentId: string;
+    maxTokens: number;
+    temperature: number;
+    model: string;
+    systemPrompt: string;
+    fallbackMessage: string;
+    timeoutSeconds: number;
+    maxRetries: number;
+}
+
 export interface Agent {
   id: string;
   name: string;
   type: AgentType;
   persona: string;
-  priority: number;
   instanceId: string;
   organizationId?: string | null;
   parentAgentId?: string | null;
   routerAgentId?: string | null;
-  childAgents?: Agent[]; // Para aninhar agentes filhos
-  config?: any; // Pode ser tipado de forma mais estrita se a estrutura for conhecida
+  isActive: boolean;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+  config?: AgentConfig | any;
   tools?: Tool[];
   templateId?: string | null;
+  childAgents?: Agent[];
 }
 
 export interface Template {

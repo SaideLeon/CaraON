@@ -45,16 +45,8 @@ export const getChildAgents = async (parentAgentId: string): Promise<Agent[]> =>
     return response.data;
 };
 
-export const createParentAgent = async (instanceId: string, organizationId: string | undefined, data: { name: string, persona: string }): Promise<Agent> => {
-    const url = organizationId 
-        ? `/agents/parent/${instanceId}/${organizationId}` 
-        : `/agents/parent/${instanceId}`;
-    const response = await api.post(url, data);
-    return response.data;
-};
-
-export const createCustomChildAgent = async (parentAgentId: string, data: { name: string; persona: string; flow?: string; toolIds?: string[] }): Promise<Agent> => {
-    const response = await api.post(`/agents/child/custom/${parentAgentId}`, data);
+export const createAgent = async (data: Partial<Agent>): Promise<Agent> => {
+    const response = await api.post('/agents', data);
     return response.data;
 };
 

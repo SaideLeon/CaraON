@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { Agent, Instance, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { createParentAgent, getUserInstances, getInstanceOrganizations } from '@/services/api';
+import { createAgent, getUserInstances, getInstanceOrganizations } from '@/services/api';
 
 const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
@@ -105,11 +105,23 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
     try {
-      const orgId = data.organizationId === 'none' ? undefined : data.organizationId;
-      const newAgent = await createParentAgent(data.instanceId, orgId, { name: data.name, persona: data.persona });
+      const payload: Partial<Agent> = {
+        name: data.name,
+        persona: data.persona,
+        instanceId: data.instanceId,
+        type: 'PARENT', // This dialog creates PARENT agents
+        organizationId: data.organizationId === 'none' ? undefined : data.organizationId,
+      };
+
+      // If no organization is selected, it's a ROUTER agent
+      if (!payload.organizationId) {
+        payload.type = 'ROUTER';
+      }
+
+      const newAgent = await createAgent(payload);
       
       toast({
-        title: 'Agente Pai Criado',
+        title: `Agente ${payload.type} Criado`,
         description: `O agente "${newAgent.name}" foi criado com sucesso.`,
       });
       onAgentCreated(newAgent);
@@ -203,7 +215,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                           <SelectItem value="none">Nenhuma</SelectItem>
+                           <SelectItem value="none">Nenhuma (Será um Roteador)</SelectItem>
                           {organizations.map((org) => (
                             <SelectItem key={org.id} value={org.id}>
                               {org.name}
