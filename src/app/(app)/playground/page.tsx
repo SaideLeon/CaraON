@@ -85,29 +85,26 @@ export default function PlaygroundPage() {
 
   useEffect(() => {
     if (lastMessage) {
-        // Create a unique ID for each message to avoid processing it multiple times
-        const messageId = `${lastMessage.type}-${lastMessage.executionId || new Date().getTime()}`;
+      const messageId = `${lastMessage.type}-${lastMessage.executionId || new Date().getTime()}`;
+      if (lastProcessedMessageId.current === messageId) {
+        return; 
+      }
 
-        if (lastProcessedMessageId.current === messageId) {
-            return; // Already processed this message
-        }
-
-        if (lastMessage.type === 'playground_response' && lastMessage.response) {
-            const agentMessage: Message = { sender: 'agent', text: lastMessage.response.finalResponse || 'O agente respondeu.' };
-            setMessages((prev) => [...prev, agentMessage]);
-            setIsSending(false);
-            lastProcessedMessageId.current = messageId;
-        } else if (lastMessage.type === 'playground_error' && lastMessage.error) {
-            toast({
-                variant: 'destructive',
-                title: 'Erro do Agente',
-                description: lastMessage.error || 'Ocorreu um erro no backend.',
-            });
-            setIsSending(false);
-            // Remove the user's message that was optimistically added
-            setMessages(prev => prev.slice(0, prev.length -1)); 
-            lastProcessedMessageId.current = messageId;
-        }
+      if (lastMessage.type === 'playground_response' && lastMessage.response) {
+        const agentMessage: Message = { sender: 'agent', text: lastMessage.response.finalResponse || 'O agente respondeu.' };
+        setMessages((prev) => [...prev, agentMessage]);
+        setIsSending(false);
+        lastProcessedMessageId.current = messageId;
+      } else if (lastMessage.type === 'playground_error' && lastMessage.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro do Agente',
+          description: lastMessage.error || 'Ocorreu um erro no backend.',
+        });
+        setIsSending(false);
+        setMessages(prev => prev.slice(0, prev.length - 1));
+        lastProcessedMessageId.current = messageId;
+      }
     }
   }, [lastMessage, toast]);
 
@@ -186,7 +183,7 @@ export default function PlaygroundPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0 flex flex-col">
+                <CardContent className="p-0 flex flex-col max-h-[85vh]">
                     <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                          <div className="space-y-4">
                             {messages.map((message, index) => (
@@ -231,7 +228,7 @@ export default function PlaygroundPage() {
                             )}
                         </div>
                     </ScrollArea>
-                    <div className="border-t p-4">
+                    <div className="border-t p-4 mt-auto">
                         <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                         <Input
                             value={input}
@@ -259,5 +256,3 @@ export default function PlaygroundPage() {
     </div>
   );
 }
-
-    
