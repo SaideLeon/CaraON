@@ -72,7 +72,7 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
       <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-auto">
         <div className="flex-1"></div>
         <Button asChild variant="default" size="sm">
-            <Link href="#">
+            <Link href={`/contacts?instanceId=${instance.id}`}>
                 Gerir
                 <LinkIcon className="ml-2 h-4 w-4"/>
             </Link>

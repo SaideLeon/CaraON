@@ -1,16 +1,18 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { getUserInstances } from '@/services/api';
 import type { Instance } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User, Users } from 'lucide-react';
 import { ContactSummaryCard } from '@/components/contacts/ContactSummaryCard';
 import { ContactsTable } from '@/components/contacts/ContactsTable';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const statusConfig = {
     connected: { bgColor: 'bg-green-500' },
@@ -20,9 +22,12 @@ const statusConfig = {
     error: { bgColor: 'bg-destructive' },
 };
 
-export default function ContactsPage() {
+function ContactsPageContent() {
+  const searchParams = useSearchParams();
+  const instanceIdFromQuery = searchParams.get('instanceId');
+
   const [instances, setInstances] = useState<Instance[]>([]);
-  const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
+  const [selectedInstance, setSelectedInstance] = useState<string | null>(instanceIdFromQuery);
   const [loadingInstances, setLoadingInstances] = useState(true);
   const { toast } = useToast();
 
@@ -31,6 +36,9 @@ export default function ContactsPage() {
     try {
       const fetchedInstances = await getUserInstances();
       setInstances(fetchedInstances);
+       if (instanceIdFromQuery && fetchedInstances.some(i => i.id === instanceIdFromQuery)) {
+        setSelectedInstance(instanceIdFromQuery);
+      }
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -40,7 +48,7 @@ export default function ContactsPage() {
     } finally {
       setLoadingInstances(false);
     }
-  }, [toast]);
+  }, [toast, instanceIdFromQuery]);
 
   useEffect(() => {
     fetchInstances();
@@ -56,7 +64,11 @@ export default function ContactsPage() {
               Escolha uma instância para visualizar seus contatos e estatísticas.
             </p>
           </div>
-          <Select onValueChange={setSelectedInstance} disabled={loadingInstances || instances.length === 0}>
+          <Select 
+            value={selectedInstance ?? undefined}
+            onValueChange={setSelectedInstance} 
+            disabled={loadingInstances || instances.length === 0}
+          >
             <SelectTrigger className="w-full md:w-[280px]">
               <SelectValue
                 placeholder={
@@ -86,14 +98,28 @@ export default function ContactsPage() {
         </CardContent>
       </Card>
 
-      {selectedInstance ? (
+      {loadingInstances && !selectedInstance ? (
         <div className="space-y-6">
-          <ContactSummaryCard instanceId={selectedInstance} />
-          <ContactsTable key={selectedInstance} instanceId={selectedInstance} />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+                <Skeleton className="h-28" />
+            </div>
+            <Card>
+                <CardContent className="p-6">
+                    <Skeleton className="h-64 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+      ) : selectedInstance ? (
+        <div className="space-y-6">
+          <ContactSummaryCard key={`summary-${selectedInstance}`} instanceId={selectedInstance} />
+          <ContactsTable key={`table-${selectedInstance}`} instanceId={selectedInstance} />
         </div>
       ) : (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
-          <h3 className="text-xl font-semibold">Por favor, selecione uma instância</h3>
+          <Users className="mx-auto h-12 w-12 text-muted-foreground" />
+          <h3 className="mt-4 text-xl font-semibold">Por favor, selecione uma instância</h3>
           <p className="text-muted-foreground mt-2">
             Selecione uma instância na lista acima para visualizar os contatos.
           </p>
@@ -101,4 +127,13 @@ export default function ContactsPage() {
       )}
     </div>
   );
+}
+
+
+export default function ContactsPage() {
+    return (
+        <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+            <ContactsPageContent />
+        </Suspense>
+    )
 }
