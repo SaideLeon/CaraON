@@ -62,12 +62,12 @@ export function ContactSummaryCard({ instanceId }: ContactSummaryCardProps) {
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Novos Contatos (Últimos 7 dias)</CardTitle>
+          <CardTitle className="text-sm font-medium">Contatos Ativos</CardTitle>
           <Phone className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">+120</div>
-          <p className="text-xs text-muted-foreground">+15% do que na semana passada</p>
+          <div className="text-2xl font-bold">{summary?.totalContacts ?? 'N/A'}</div>
+           <p className="text-xs text-muted-foreground">Contatos que não bloquearam</p>
         </CardContent>
       </Card>
        <Card>
@@ -77,7 +77,7 @@ export function ContactSummaryCard({ instanceId }: ContactSummaryCardProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">72.8%</div>
-          <p className="text-xs text-muted-foreground">Média de interações por contato</p>
+          <p className="text-xs text-muted-foreground">Média de interações por contato (Exemplo)</p>
         </CardContent>
       </Card>
     </div>
