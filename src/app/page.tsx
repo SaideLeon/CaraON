@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
-import dashboardPreviewImage from './caraon-piture.jpeg';
+import dashboardPreviewImage from './dashboardPreviewImage.jpeg';
 
 export default function EnhancedLandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
