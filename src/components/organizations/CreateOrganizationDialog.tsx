@@ -31,7 +31,7 @@ const organizationSchema = z.object({
 type OrganizationFormValues = z.infer<typeof organizationSchema>;
 
 interface CreateOrganizationDialogProps {
-  children: ReactElement;
+  children?: ReactElement;
   onOrganizationCreated: (organization: Organization) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -106,7 +106,7 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="font-headline">Criar Nova Organização</DialogTitle>

@@ -197,9 +197,7 @@ export default function AgentsPage() {
             open={isCreateOrgDialogOpen}
             onOpenChange={setCreateOrgDialogOpen}
             defaultInstanceId={selectedInstance}
-         >
-            <></>
-         </CreateOrganizationDialog>
+         />
       )}
 
 
