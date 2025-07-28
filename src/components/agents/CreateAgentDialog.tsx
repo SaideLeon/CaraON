@@ -36,9 +36,10 @@ interface CreateAgentDialogProps {
   children: ReactElement;
   instanceId: string;
   onAgentCreated: (agent: Agent) => void;
+  onRequestCreateOrg: () => void;
 }
 
-export function CreateAgentDialog({ children, instanceId, onAgentCreated }: CreateAgentDialogProps) {
+export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequestCreateOrg }: CreateAgentDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -88,14 +89,25 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated }: Crea
     try {
       const isCreatingRouter = data.organizationId === 'none';
       const routerExists = parentAgents.some(agent => agent.type === 'ROUTER');
+      const hasNoOrganizations = organizations.length === 0;
 
       if (isCreatingRouter && routerExists) {
-        toast({
-          variant: 'destructive',
-          title: 'Erro de Validação',
-          description: 'Esta instância já possui um Agente Roteador. Um agente pai deve ser associado a uma organização.',
-        });
-        return;
+        if (hasNoOrganizations) {
+            toast({
+                title: 'Ação Necessária',
+                description: 'Crie uma organização primeiro para associar novos agentes.',
+            });
+            setOpen(false); // Close this dialog
+            onRequestCreateOrg(); // Request parent to open the other dialog
+            return; 
+        } else {
+             toast({
+                variant: 'destructive',
+                title: 'Erro de Validação',
+                description: 'Esta instância já possui um Agente Roteador. Um agente pai deve ser associado a uma organização.',
+            });
+            return;
+        }
       }
 
       const payload: Partial<Agent> = {

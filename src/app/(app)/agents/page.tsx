@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { CreateOrganizationDialog } from '@/components/organizations/CreateOrganizationDialog';
 
 const statusConfig = {
     connected: { bgColor: 'bg-green-500' },
@@ -30,6 +31,8 @@ export default function AgentsPage() {
   const [loadingAgents, setLoadingAgents] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [agentToDelete, setAgentToDelete] = useState<Agent | null>(null);
+  const [isCreateOrgDialogOpen, setCreateOrgDialogOpen] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -85,6 +88,14 @@ export default function AgentsPage() {
     }
   };
 
+  const handleOrgCreated = () => {
+     // For now, just show a toast. A better implementation might open the agent dialog again.
+     toast({
+        title: "Organização Criada!",
+        description: "Agora você pode criar um agente e associá-lo à nova organização."
+     })
+  }
+
   const handleDeleteClick = (agent: Agent) => {
     setAgentToDelete(agent);
   }
@@ -139,7 +150,7 @@ export default function AgentsPage() {
             Comece por criar o seu primeiro agente pai para orquestrar as tarefas.
           </p>
           <div className="mt-6">
-            <CreateAgentDialog instanceId={selectedInstance} onAgentCreated={handleAgentCreated}>
+            <CreateAgentDialog instanceId={selectedInstance} onAgentCreated={handleAgentCreated} onRequestCreateOrg={() => setCreateOrgDialogOpen(true)}>
               <Button>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 <span>Criar Agente Pai</span>
@@ -179,6 +190,18 @@ export default function AgentsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {selectedInstance && (
+         <CreateOrganizationDialog 
+            onOrganizationCreated={handleOrgCreated}
+            open={isCreateOrgDialogOpen}
+            onOpenChange={setCreateOrgDialogOpen}
+            defaultInstanceId={selectedInstance}
+         >
+            <></>
+         </CreateOrganizationDialog>
+      )}
+
 
       <div className="space-y-6">
           <Card>
@@ -215,7 +238,7 @@ export default function AgentsPage() {
                   <p className="text-muted-foreground">Gerencie seus agentes orquestradores. Eles contêm agentes filhos para tarefas específicas.</p>
               </div>
               {selectedInstance && (
-                <CreateAgentDialog instanceId={selectedInstance} onAgentCreated={handleAgentCreated}>
+                <CreateAgentDialog instanceId={selectedInstance} onAgentCreated={handleAgentCreated} onRequestCreateOrg={() => setCreateOrgDialogOpen(true)}>
                     <Button>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         <span>Criar Agente Pai</span>

@@ -35,9 +35,10 @@ interface CreateOrganizationDialogProps {
   onOrganizationCreated: (organization: Organization) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  defaultInstanceId?: string;
 }
 
-export function CreateOrganizationDialog({ children, onOrganizationCreated, open, onOpenChange }: CreateOrganizationDialogProps) {
+export function CreateOrganizationDialog({ children, onOrganizationCreated, open, onOpenChange, defaultInstanceId }: CreateOrganizationDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -48,11 +49,18 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
     resolver: zodResolver(organizationSchema),
     defaultValues: {
       name: '',
+      instanceId: defaultInstanceId || undefined
     },
   });
 
   const dialogOpen = open ?? isDialogOpen;
   const setDialogOpen = onOpenChange ?? setIsDialogOpen;
+  
+  useEffect(() => {
+    if (defaultInstanceId) {
+        form.setValue('instanceId', defaultInstanceId);
+    }
+  }, [defaultInstanceId, form]);
 
   useEffect(() => {
     const fetchInstances = async () => {
@@ -128,7 +136,7 @@ export function CreateOrganizationDialog({ children, onOrganizationCreated, open
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Instância</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingInstances}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={loadingInstances}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder={loadingInstances ? 'Carregando...' : 'Selecione uma instância'} />
