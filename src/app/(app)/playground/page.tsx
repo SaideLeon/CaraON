@@ -133,7 +133,7 @@ export default function PlaygroundPage() {
 
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col gap-6">
+    <div className="flex h-full flex-col gap-6">
       <Card className="shrink-0">
         <CardHeader>
           <CardTitle className="font-headline text-2xl flex items-center gap-2">
@@ -167,10 +167,10 @@ export default function PlaygroundPage() {
         </CardContent>
       </Card>
       
-      <Card className="flex flex-1 flex-col">
+      <Card className="flex flex-1 flex-col overflow-hidden">
         {selectedInstanceId ? (
             <>
-                <CardHeader className="border-b">
+                <CardHeader className="border-b shrink-0">
                     <div className="flex items-center gap-3">
                         <Avatar>
                             <AvatarFallback>
@@ -183,7 +183,7 @@ export default function PlaygroundPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent className="p-0 flex flex-col max-h-[85vh]">
+                <CardContent className="p-0 flex-1 flex flex-col min-h-0">
                     <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                          <div className="space-y-4">
                             {messages.map((message, index) => (
@@ -228,7 +228,7 @@ export default function PlaygroundPage() {
                             )}
                         </div>
                     </ScrollArea>
-                    <div className="border-t p-4 mt-auto">
+                    <div className="border-t p-4 mt-auto shrink-0">
                         <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                         <Input
                             value={input}
@@ -256,3 +256,5 @@ export default function PlaygroundPage() {
     </div>
   );
 }
+
+    
