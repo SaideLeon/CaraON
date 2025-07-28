@@ -53,6 +53,7 @@ export default function PlaygroundPage() {
   const { toast } = useToast();
   const { lastMessage, sendMessage } = useWebSocket();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastProcessedMessageId = useRef<string | null>(null);
 
   useEffect(() => {
     const fetchInstances = async () => {
@@ -83,11 +84,19 @@ export default function PlaygroundPage() {
   }, [messages]);
 
   useEffect(() => {
-    if (lastMessage && isSending) {
+    if (lastMessage) {
+        // Create a unique ID for each message to avoid processing it multiple times
+        const messageId = `${lastMessage.type}-${lastMessage.executionId || new Date().getTime()}`;
+
+        if (lastProcessedMessageId.current === messageId) {
+            return; // Already processed this message
+        }
+
         if (lastMessage.type === 'playground_response' && lastMessage.response) {
             const agentMessage: Message = { sender: 'agent', text: lastMessage.response.finalResponse || 'O agente respondeu.' };
             setMessages((prev) => [...prev, agentMessage]);
             setIsSending(false);
+            lastProcessedMessageId.current = messageId;
         } else if (lastMessage.type === 'playground_error' && lastMessage.error) {
             toast({
                 variant: 'destructive',
@@ -97,9 +106,10 @@ export default function PlaygroundPage() {
             setIsSending(false);
             // Remove the user's message that was optimistically added
             setMessages(prev => prev.slice(0, prev.length -1)); 
+            lastProcessedMessageId.current = messageId;
         }
     }
-  }, [lastMessage, toast, isSending]);
+  }, [lastMessage, toast]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -249,3 +259,5 @@ export default function PlaygroundPage() {
     </div>
   );
 }
+
+    
