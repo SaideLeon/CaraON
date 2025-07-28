@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { Agent, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { createAgent, getInstanceOrganizations } from '@/services/api';
+import { createAgent, getInstanceOrganizations, getInstanceParentAgents } from '@/services/api';
 
 const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
@@ -43,7 +43,8 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated }: Crea
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [loadingOrgs, setLoadingOrgs] = useState(false);
+  const [parentAgents, setParentAgents] = useState<Agent[]>([]);
+  const [loadingDeps, setLoadingDeps] = useState(false);
 
   const form = useForm<AgentFormValues>({
     resolver: zodResolver(agentSchema),
@@ -55,37 +56,54 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated }: Crea
   });
 
   useEffect(() => {
-    const fetchOrganizations = async () => {
+    const fetchDependencies = async () => {
       if (open && instanceId) {
-        setLoadingOrgs(true);
-        form.setValue('organizationId', 'none'); // Reset org selection
+        setLoadingDeps(true);
+        form.setValue('organizationId', 'none');
         setOrganizations([]);
+        setParentAgents([]);
         try {
-          const fetchedOrgs = await getInstanceOrganizations(instanceId);
+          const [fetchedOrgs, fetchedAgents] = await Promise.all([
+            getInstanceOrganizations(instanceId),
+            getInstanceParentAgents(instanceId)
+          ]);
           setOrganizations(fetchedOrgs);
+          setParentAgents(fetchedAgents);
         } catch (error) {
            toast({
             variant: 'destructive',
             title: 'Erro',
-            description: 'Não foi possível carregar as organizações para esta instância.',
+            description: 'Não foi possível carregar as dependências.',
           });
         } finally {
-          setLoadingOrgs(false);
+          setLoadingDeps(false);
         }
       }
     }
-    fetchOrganizations();
+    fetchDependencies();
   }, [open, instanceId, form, toast]);
 
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
     try {
+      const isCreatingRouter = data.organizationId === 'none';
+      const routerExists = parentAgents.some(agent => agent.type === 'ROUTER');
+
+      if (isCreatingRouter && routerExists) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro de Validação',
+          description: 'Esta instância já possui um Agente Roteador. Um agente pai deve ser associado a uma organização.',
+        });
+        return;
+      }
+
       const payload: Partial<Agent> = {
         name: data.name,
         persona: data.persona,
         instanceId: instanceId,
-        type: data.organizationId === 'none' ? 'ROUTER' : 'PARENT',
-        organizationId: data.organizationId === 'none' ? undefined : data.organizationId,
+        type: isCreatingRouter ? 'ROUTER' : 'PARENT',
+        organizationId: isCreatingRouter ? undefined : data.organizationId,
       };
 
       const newAgent = await createAgent(payload);
@@ -150,10 +168,10 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated }: Crea
                 render={({ field }) => (
                 <FormItem>
                     <FormLabel>Organização (Opcional)</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingOrgs}>
+                    <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingDeps}>
                     <FormControl>
                         <SelectTrigger>
-                        <SelectValue placeholder={loadingOrgs ? "Carregando..." : "Nenhuma"} />
+                        <SelectValue placeholder={loadingDeps ? "Carregando..." : "Nenhuma"} />
                         </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -170,8 +188,8 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated }: Crea
                 )}
             />
             <DialogFooter>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={loading || loadingDeps}>
+                {(loading || loadingDeps) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Criar Agente
               </Button>
             </DialogFooter>
