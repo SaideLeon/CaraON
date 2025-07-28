@@ -12,6 +12,15 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
+
+const statusConfig = {
+    connected: { bgColor: 'bg-green-500' },
+    disconnected: { bgColor: 'bg-red-500' },
+    pending: { bgColor: 'bg-yellow-500' },
+    pending_qr: { bgColor: 'bg-yellow-500' },
+    error: { bgColor: 'bg-destructive' },
+};
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -183,11 +192,18 @@ export default function AgentsPage() {
                       <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma instância'} />
                   </SelectTrigger>
                   <SelectContent>
-                  {instances.map((instance) => (
-                      <SelectItem key={instance.id} value={instance.id}>
-                      {instance.name}
-                      </SelectItem>
-                  ))}
+                  {instances.map((instance) => {
+                    const status = instance.status?.toLowerCase() as keyof typeof statusConfig | undefined;
+                    const colorClass = status ? statusConfig[status]?.bgColor : 'bg-muted-foreground';
+                    return (
+                        <SelectItem key={instance.id} value={instance.id}>
+                            <div className="flex items-center gap-2">
+                                <div className={cn('h-2 w-2 rounded-full', colorClass)} />
+                                <span>{instance.name}</span>
+                            </div>
+                        </SelectItem>
+                    )
+                  })}
                   </SelectContent>
               </Select>
             </CardContent>

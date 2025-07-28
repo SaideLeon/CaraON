@@ -10,6 +10,15 @@ import type { Instance } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { ContactSummaryCard } from '@/components/contacts/ContactSummaryCard';
 import { ContactsTable } from '@/components/contacts/ContactsTable';
+import { cn } from '@/lib/utils';
+
+const statusConfig = {
+    connected: { bgColor: 'bg-green-500' },
+    disconnected: { bgColor: 'bg-red-500' },
+    pending: { bgColor: 'bg-yellow-500' },
+    pending_qr: { bgColor: 'bg-yellow-500' },
+    error: { bgColor: 'bg-destructive' },
+};
 
 export default function ContactsPage() {
   const [instances, setInstances] = useState<Instance[]>([]);
@@ -60,11 +69,18 @@ export default function ContactsPage() {
               />
             </SelectTrigger>
             <SelectContent>
-              {instances.map((instance) => (
-                <SelectItem key={instance.id} value={instance.id}>
-                  {instance.name}
-                </SelectItem>
-              ))}
+              {instances.map((instance) => {
+                 const status = instance.status?.toLowerCase() as keyof typeof statusConfig | undefined;
+                 const colorClass = status ? statusConfig[status]?.bgColor : 'bg-muted-foreground';
+                 return (
+                    <SelectItem key={instance.id} value={instance.id}>
+                        <div className="flex items-center gap-2">
+                            <div className={cn('h-2 w-2 rounded-full', colorClass)} />
+                            <span>{instance.name}</span>
+                        </div>
+                    </SelectItem>
+                 )
+              })}
             </SelectContent>
           </Select>
         </CardContent>
