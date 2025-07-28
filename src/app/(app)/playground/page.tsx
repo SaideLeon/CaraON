@@ -22,19 +22,24 @@ interface Message {
 
 const statusConfig = {
     connected: {
-        textColor: 'text-green-500'
+        textColor: 'text-green-500',
+        bgColor: 'bg-green-500',
     },
     disconnected: {
-        textColor: 'text-red-500'
+        textColor: 'text-red-500',
+        bgColor: 'bg-red-500',
     },
     pending: {
-        textColor: 'text-yellow-500'
+        textColor: 'text-yellow-500',
+        bgColor: 'bg-yellow-500',
     },
     pending_qr: {
-        textColor: 'text-yellow-500'
+        textColor: 'text-yellow-500',
+        bgColor: 'bg-yellow-500',
     },
      error: {
-        textColor: 'text-destructive'
+        textColor: 'text-destructive',
+        bgColor: 'bg-destructive',
     }
 }
 
@@ -138,11 +143,18 @@ export default function PlaygroundPage() {
               <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma Instância'} />
             </SelectTrigger>
             <SelectContent>
-              {instances.map((instance) => (
-                <SelectItem key={instance.id} value={instance.id}>
-                  {instance.name}
-                </SelectItem>
-              ))}
+              {instances.map((instance) => {
+                const status = instance.status?.toLowerCase() as keyof typeof statusConfig | undefined;
+                const colorClass = status ? statusConfig[status]?.bgColor : 'bg-muted-foreground';
+                return (
+                    <SelectItem key={instance.id} value={instance.id}>
+                        <div className="flex items-center gap-2">
+                            <div className={cn('h-2 w-2 rounded-full', colorClass)} />
+                            <span>{instance.name}</span>
+                        </div>
+                    </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
         </CardContent>
