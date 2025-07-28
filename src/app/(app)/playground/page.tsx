@@ -72,7 +72,8 @@ export default function PlaygroundPage() {
                 description: lastMessage.error || 'Ocorreu um erro no backend.',
             });
             setIsSending(false);
-            setMessages(prev => prev.slice(0, prev.length -1)); // Remove user message on error
+            // Remove the user's message that was optimistically added
+            setMessages(prev => prev.slice(0, prev.length -1)); 
         }
     }
   }, [lastMessage, toast, isSending]);

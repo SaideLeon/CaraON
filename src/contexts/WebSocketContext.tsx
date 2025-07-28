@@ -23,6 +23,7 @@ export interface WebSocketMessage {
   };
   // For playground_error
   error?: string;
+  executionId?: string;
 }
 
 interface WebSocketContextType {
