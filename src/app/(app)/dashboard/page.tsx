@@ -47,7 +47,8 @@ export default function DashboardPage() {
     try {
       const response = await api.get('/user/instances');
       const data: Instance[] = response.data;
-      setInstances(data.map(inst => ({ ...inst, status: inst.status?.toLowerCase() as any || 'pending' })));
+      const sortedData = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setInstances(sortedData.map(inst => ({ ...inst, status: inst.status?.toLowerCase() as any || 'pending' })));
     } catch (error) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar as suas instâncias.' });

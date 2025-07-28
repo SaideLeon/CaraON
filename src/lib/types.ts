@@ -14,6 +14,7 @@ export interface Instance {
   clientId: string;
   userId: string;
   status: InstanceStatus;
+  createdAt: string;
 }
 
 export type AgentType = 'ROUTER' | 'PARENT' | 'CHILD';
