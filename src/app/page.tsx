@@ -7,7 +7,7 @@ import { ArrowRight, Bot, Zap, Sparkles, GitBranch, ShoppingCart, Wrench, Menu, 
 import { Button } from '@/components/ui/button';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 import Image from 'next/image';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 
 export default function EnhancedLandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,8 +53,8 @@ export default function EnhancedLandingPage() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[240px]">
                 <SheetHeader className="sr-only">
-                  <SheetTitle>Menu Principal</SheetTitle>
-                  <SheetDescription>Navegação principal para o site.</SheetDescription>
+                  <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription>Navegação principal</SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-col space-y-4 pt-10">
                   {navLinks.map((link) => (
