@@ -3,11 +3,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Bot, Zap, Sparkles, GitBranch, ShoppingCart, Wrench, Menu, X } from 'lucide-react';
+import { ArrowRight, Bot, Zap, Sparkles, GitBranch, ShoppingCart, Wrench, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
+import dashboardPreviewImage from './caraon-piture.jpeg';
 
 export default function EnhancedLandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -166,12 +167,12 @@ export default function EnhancedLandingPage() {
                 <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition duration-1000 animate-pulse"></div>
                 <div className="relative bg-background/80 backdrop-blur-sm rounded-2xl p-2 shadow-2xl hover:shadow-3xl transition-shadow duration-500 border border-border">
                     <Image 
-                        src="https://placehold.co/1200x700.png"
+                        src={dashboardPreviewImage}
                         alt="Dashboard Preview"
                         width={1200}
                         height={700}
                         className="rounded-lg"
-                        data-ai-hint="dashboard interface"
+                        placeholder="blur"
                     />
                 </div>
                 </div>
@@ -236,5 +237,3 @@ export default function EnhancedLandingPage() {
     </div>
   );
 }
-
-    
