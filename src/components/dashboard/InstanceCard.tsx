@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Instance } from '@/lib/types';
@@ -18,31 +19,26 @@ interface InstanceCardProps {
 
 const statusConfig = {
     connected: {
-        icon: Power,
         label: 'Conectado',
         color: 'bg-green-500',
         textColor: 'text-green-400'
     },
     disconnected: {
-        icon: PowerOff,
         label: 'Desconectado',
         color: 'bg-red-500',
         textColor: 'text-red-400'
     },
     pending: {
-        icon: Loader2,
         label: 'Pendente',
         color: 'bg-yellow-500',
         textColor: 'text-yellow-400'
     },
     pending_qr: {
-        icon: Loader2,
         label: 'Pendente QR',
         color: 'bg-yellow-500',
         textColor: 'text-yellow-400'
     },
      error: {
-        icon: PowerOff,
         label: 'Erro',
         color: 'bg-destructive',
         textColor: 'text-destructive'
@@ -64,11 +60,8 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
             <CardDescription className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</CardDescription>
           </div>
           <div className={cn("flex shrink-0 items-center gap-2 text-sm font-medium", config.textColor)}>
-              <span className="relative flex h-3 w-3">
-                  <span className={cn("absolute inline-flex h-full w-full rounded-full opacity-75", config.color, {'animate-ping': currentStatus === 'pending' || currentStatus === 'connected' })}></span>
-                  <span className={cn("relative inline-flex h-3 w-3 rounded-full", config.color)}></span>
-              </span>
-              <span className="hidden sm:inline">{config.label}</span>
+            <div className={cn("h-2 w-2 rounded-full", config.color)}></div>
+            <span>{config.label}</span>
           </div>
         </div>
       </CardHeader>
