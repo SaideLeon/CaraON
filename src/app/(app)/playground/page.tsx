@@ -20,6 +20,24 @@ interface Message {
   text: string;
 }
 
+const statusConfig = {
+    connected: {
+        textColor: 'text-green-500'
+    },
+    disconnected: {
+        textColor: 'text-red-500'
+    },
+    pending: {
+        textColor: 'text-yellow-500'
+    },
+    pending_qr: {
+        textColor: 'text-yellow-500'
+    },
+     error: {
+        textColor: 'text-destructive'
+    }
+}
+
 export default function PlaygroundPage() {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
@@ -98,6 +116,9 @@ export default function PlaygroundPage() {
   };
 
   const selectedInstance = instances.find(i => i.id === selectedInstanceId);
+  const currentStatus = selectedInstance?.status?.toLowerCase() as keyof typeof statusConfig | undefined;
+  const statusColorClass = currentStatus ? statusConfig[currentStatus]?.textColor : 'text-muted-foreground';
+
 
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col gap-6">
@@ -133,7 +154,9 @@ export default function PlaygroundPage() {
                 <CardHeader className="border-b">
                     <div className="flex items-center gap-3">
                         <Avatar>
-                            <AvatarFallback><Server /></AvatarFallback>
+                            <AvatarFallback>
+                                <Server className={cn("h-5 w-5", statusColorClass)} />
+                            </AvatarFallback>
                         </Avatar>
                         <div>
                             <CardTitle className="text-xl">{selectedInstance?.name}</CardTitle>
