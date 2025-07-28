@@ -54,8 +54,8 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
     <Card className="flex flex-col hover:border-primary transition-colors duration-300">
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
-           <div className="flex items-center gap-3">
-             <CaraOnIcon className="h-8 w-8 text-primary" />
+           <div className="flex items-center gap-3 min-w-0">
+             <CaraOnIcon className="h-8 w-8 text-primary shrink-0" />
              <div className="flex-1 min-w-0">
                 <CardTitle className="font-headline text-xl truncate" title={instance.name}>{instance.name}</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</CardDescription>
@@ -63,13 +63,14 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow">
+      <CardContent>
          <div className={cn("flex shrink-0 items-center gap-2 text-sm font-medium", config.textColor)}>
             <div className={cn("h-2 w-2 rounded-full", config.color)}></div>
             <span>{config.label}</span>
           </div>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 border-t pt-4">
+      <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-auto">
+        <div className="flex-1"></div>
         <Button asChild variant="default" size="sm">
             <Link href="#">
                 Gerir
