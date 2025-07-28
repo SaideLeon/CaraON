@@ -20,14 +20,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { Agent, Instance, Organization } from '@/lib/types';
+import type { Agent, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { createAgent, getUserInstances, getInstanceOrganizations } from '@/services/api';
+import { createAgent, getInstanceOrganizations } from '@/services/api';
 
 const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   persona: z.string().min(10, 'A persona deve ter pelo menos 10 caracteres.'),
-  instanceId: z.string({ required_error: 'Por favor, selecione uma instância.' }),
   organizationId: z.string().optional(),
 });
 
@@ -35,16 +34,15 @@ type AgentFormValues = z.infer<typeof agentSchema>;
 
 interface CreateAgentDialogProps {
   children: ReactElement;
+  instanceId: string;
   onAgentCreated: (agent: Agent) => void;
 }
 
-export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialogProps) {
+export function CreateAgentDialog({ children, instanceId, onAgentCreated }: CreateAgentDialogProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const [instances, setInstances] = useState<Instance[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [loadingInstances, setLoadingInstances] = useState(false);
   const [loadingOrgs, setLoadingOrgs] = useState(false);
 
   const form = useForm<AgentFormValues>({
@@ -56,37 +54,14 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
     },
   });
 
-  const selectedInstanceId = form.watch('instanceId');
-
-  useEffect(() => {
-    const fetchInstances = async () => {
-      if (open) {
-        setLoadingInstances(true);
-        try {
-          const fetchedInstances = await getUserInstances();
-          setInstances(fetchedInstances);
-        } catch (error) {
-          toast({
-            variant: 'destructive',
-            title: 'Erro',
-            description: 'Não foi possível carregar as suas instâncias.',
-          });
-        } finally {
-          setLoadingInstances(false);
-        }
-      }
-    };
-    fetchInstances();
-  }, [open, toast]);
-
   useEffect(() => {
     const fetchOrganizations = async () => {
-      if (selectedInstanceId) {
+      if (open && instanceId) {
         setLoadingOrgs(true);
         form.setValue('organizationId', 'none'); // Reset org selection
         setOrganizations([]);
         try {
-          const fetchedOrgs = await getInstanceOrganizations(selectedInstanceId);
+          const fetchedOrgs = await getInstanceOrganizations(instanceId);
           setOrganizations(fetchedOrgs);
         } catch (error) {
            toast({
@@ -100,7 +75,7 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
       }
     }
     fetchOrganizations();
-  }, [selectedInstanceId, form, toast]);
+  }, [open, instanceId, form, toast]);
 
   const onSubmit = async (data: AgentFormValues) => {
     setLoading(true);
@@ -108,15 +83,10 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
       const payload: Partial<Agent> = {
         name: data.name,
         persona: data.persona,
-        instanceId: data.instanceId,
-        type: 'PARENT', // This dialog creates PARENT agents
+        instanceId: instanceId,
+        type: data.organizationId === 'none' ? 'ROUTER' : 'PARENT',
         organizationId: data.organizationId === 'none' ? undefined : data.organizationId,
       };
-
-      // If no organization is selected, it's a ROUTER agent
-      if (!payload.organizationId) {
-        payload.type = 'ROUTER';
-      }
 
       const newAgent = await createAgent(payload);
       
@@ -174,60 +144,31 @@ export function CreateAgentDialog({ children, onAgentCreated }: CreateAgentDialo
                 </FormItem>
               )}
             />
-             <div className="grid grid-cols-2 gap-4">
-               <FormField
-                  control={form.control}
-                  name="instanceId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instância</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={loadingInstances}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={loadingInstances ? 'Carregando...' : 'Selecione'} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {instances.map((instance) => (
-                            <SelectItem key={instance.id} value={instance.id}>
-                              {instance.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="organizationId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Organização (Opcional)</FormLabel>
-                       <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={!selectedInstanceId || loadingOrgs}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={
-                                !selectedInstanceId ? "Primeiro a instância" :
-                                loadingOrgs ? "Carregando..." : "Nenhuma"
-                            } />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                           <SelectItem value="none">Nenhuma (Será um Roteador)</SelectItem>
-                          {organizations.map((org) => (
-                            <SelectItem key={org.id} value={org.id}>
-                              {org.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
+             <FormField
+                control={form.control}
+                name="organizationId"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Organização (Opcional)</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingOrgs}>
+                    <FormControl>
+                        <SelectTrigger>
+                        <SelectValue placeholder={loadingOrgs ? "Carregando..." : "Nenhuma"} />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="none">Nenhuma (Será um Roteador)</SelectItem>
+                        {organizations.map((org) => (
+                        <SelectItem key={org.id} value={org.id}>
+                            {org.name}
+                        </SelectItem>
+                        ))}
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
             <DialogFooter>
               <Button type="submit" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import axios from 'axios';
@@ -29,6 +28,11 @@ api.interceptors.request.use(
 );
 
 // Agents
+export const getInstanceParentAgents = async (instanceId: string): Promise<Agent[]> => {
+    const response = await api.get(`/agents/parents/${instanceId}`);
+    return response.data;
+};
+
 export const getUserParentAgents = async (): Promise<Agent[]> => {
     const response = await api.get('/agents/user/parents');
     return response.data;
