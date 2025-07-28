@@ -32,11 +32,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     <WebSocketProvider>
       <SidebarProvider>
         <SidebarNav />
-        <SidebarInset>
-            <div className="flex flex-col h-screen">
-                <Header />
-                <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-muted/40 min-h-0">{children}</main>
-            </div>
+        <SidebarInset className="flex flex-col h-screen overflow-hidden">
+            <Header />
+            <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-muted/40">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </WebSocketProvider>
