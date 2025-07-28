@@ -48,6 +48,7 @@ export interface Agent {
   tools?: Tool[];
   templateId?: string | null;
   childAgents?: Agent[];
+  parentAgents?: Agent[];
 }
 
 export interface Template {

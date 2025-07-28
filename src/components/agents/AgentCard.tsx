@@ -1,4 +1,6 @@
 
+'use client';
+
 import type { Agent } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Bot, Edit, Wand2, PlusCircle, Users, Loader2, Trash2, Wrench, Code, Route } from 'lucide-react';
@@ -15,6 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { CreateChildAgentDialog } from './CreateChildAgentDialog';
+import { CreateParentAgentDialog } from './CreateParentAgentDialog';
 
 
 interface AgentCardProps {
@@ -24,7 +27,7 @@ interface AgentCardProps {
 
 export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
   const [agent, setAgent] = useState<Agent>(initialAgent);
-  const [childAgents, setChildAgents] = useState<Agent[]>(initialAgent.childAgents || []);
+  const [childOrParentAgents, setChildOrParentAgents] = useState<Agent[]>(initialAgent.childAgents || initialAgent.parentAgents || []);
   const [isLoadingChildren, setIsLoadingChildren] = useState(false);
   const { toast } = useToast();
 
@@ -34,6 +37,11 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
         try {
             const fullAgentData = await getAgentById(initialAgent.id);
             setAgent(fullAgentData);
+             if (fullAgentData.type === 'ROUTER') {
+                setChildOrParentAgents(fullAgentData.parentAgents || []);
+            } else {
+                setChildOrParentAgents(fullAgentData.childAgents || []);
+            }
         } catch (error) {
              toast({
                 variant: 'destructive',
@@ -46,16 +54,17 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
   }, [initialAgent.id, toast])
 
   const fetchChildren = async () => {
+    // This function can now fetch both child and parent agents depending on the type
     if (agent.type === 'ROUTER' || agent.type === 'PARENT') {
       setIsLoadingChildren(true);
       try {
-        const children = await getChildAgents(agent.id);
-        setChildAgents(children);
+        const agents = await getChildAgents(agent.id); // API needs to handle returning parents for a router
+        setChildOrParentAgents(agents);
       } catch (error) {
         toast({
           variant: 'destructive',
           title: 'Erro',
-          description: 'Não foi possível carregar os agentes filhos.'
+          description: `Não foi possível carregar os agentes subordinados.`
         })
       } finally {
         setIsLoadingChildren(false);
@@ -63,8 +72,8 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
     }
   }
 
-  const handleChildAgentCreated = (newChildAgent: Agent) => {
-    setChildAgents(prev => [newChildAgent, ...prev]);
+  const handleAgentCreated = (newAgent: Agent) => {
+    setChildOrParentAgents(prev => [newAgent, ...prev]);
   };
   
   const getBadgeVariant = (type: Agent['type']) => {
@@ -75,6 +84,8 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
       default: return 'secondary';
     }
   }
+  
+  const accordionLabel = agent.type === 'ROUTER' ? 'Agentes Pais' : 'Agentes Filhos';
 
   return (
     <Card className="flex flex-col hover:shadow-lg transition-shadow duration-300 bg-card/50">
@@ -115,7 +126,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
                 <AccordionTrigger className='text-sm' onClick={() => fetchChildren()}>
                     <div className='flex items-center gap-2'>
                     <Users className='h-4 w-4'/>
-                    Agentes Filhos ({childAgents.length})
+                    {accordionLabel} ({childOrParentAgents.length})
                     </div>
                 </AccordionTrigger>
                 <AccordionContent>
@@ -123,9 +134,9 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
                     <div className='flex items-center justify-center p-4'>
                         <Loader2 className='h-5 w-5 animate-spin' />
                     </div>
-                    ) : childAgents.length > 0 ? (
+                    ) : childOrParentAgents.length > 0 ? (
                     <div className='space-y-2 p-2 max-h-48 overflow-y-auto'>
-                        {childAgents.map(child => (
+                        {childOrParentAgents.map(child => (
                         <div key={child.id} className='flex items-center justify-between p-2 rounded-md bg-muted/50'>
                             <div>
                             <p className='text-sm font-medium'>{child.name}</p>
@@ -140,7 +151,7 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
                         ))}
                     </div>
                     ) : (
-                    <p className='text-xs text-muted-foreground text-center p-4'>Nenhum agente filho encontrado.</p>
+                    <p className='text-xs text-muted-foreground text-center p-4'>Nenhum agente subordinado encontrado.</p>
                     )}
                 </AccordionContent>
                 </AccordionItem>
@@ -178,14 +189,25 @@ export function AgentCard({ agent: initialAgent, onDelete }: AgentCardProps) {
               <span>Editar</span>
             </Link>
         </Button>
-        {(agent.type === 'ROUTER' || agent.type === 'PARENT') && (
-           <CreateChildAgentDialog parentAgentId={agent.id} onChildAgentCreated={handleChildAgentCreated}>
+
+        {agent.type === 'ROUTER' && (
+           <CreateParentAgentDialog routerAgentId={agent.id} onParentAgentCreated={handleAgentCreated}>
+             <Button variant="default" size="sm">
+                <PlusCircle className="mr-2 h-3 w-3"/>
+                <span>Add Pai</span>
+              </Button>
+           </CreateParentAgentDialog>
+        )}
+
+        {agent.type === 'PARENT' && (
+           <CreateChildAgentDialog parentAgentId={agent.id} onChildAgentCreated={handleAgentCreated}>
              <Button variant="default" size="sm">
                 <PlusCircle className="mr-2 h-3 w-3"/>
                 <span>Add Filho</span>
               </Button>
            </CreateChildAgentDialog>
         )}
+
         <Button asChild variant="secondary" size="sm">
             <Link href={`/agents/${agent.id}/tune`}>
               <Wand2 className="mr-2 h-3 w-3"/>
