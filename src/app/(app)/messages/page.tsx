@@ -53,8 +53,8 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col">
-      <Card>
+    <div className="h-full flex flex-col gap-6">
+      <Card className="shrink-0">
         <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex-1">
             <h2 className="text-lg font-medium flex items-center gap-2">
@@ -97,14 +97,14 @@ export default function MessagesPage() {
 
       {selectedInstance ? (
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-0">
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="md:col-span-1 lg:col-span-1 h-full min-h-0">
             <ConversationsList 
                 instanceId={selectedInstance} 
                 selectedContact={selectedContact}
                 onSelectContact={setSelectedContact}
             />
           </div>
-          <div className="md:col-span-2 lg:col-span-3">
+          <div className="md:col-span-2 lg:col-span-3 h-full min-h-0">
              <MessageHistory 
                 instanceId={selectedInstance}
                 contact={selectedContact}
@@ -112,7 +112,7 @@ export default function MessagesPage() {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center text-center py-16 border-2 border-dashed rounded-lg">
+        <div className="flex-1 flex items-center justify-center text-center py-16 border-2 border-dashed rounded-lg bg-card">
           <div>
             <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-xl font-semibold">Por favor, selecione uma instância</h3>
