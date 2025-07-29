@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback } from 'eact';
+import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback } from 'react';
 
 const getWebSocketURL = () => {
   if (typeof window === 'undefined') {
