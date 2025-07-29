@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ArrowLeft, Edit, Wand2 } from 'lucide-react';
@@ -44,7 +45,7 @@ export default function AgentDetailLayout({ children }: { children: ReactNode })
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button asChild variant="outline" size="icon">
-          <Link href="/agents">
+          <Link href={agent ? `/agents?instanceId=${agent.instanceId}` : '/agents'}>
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Voltar para Agentes</span>
           </Link>
