@@ -14,6 +14,8 @@ import type { Instance } from '@/lib/types';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   sender: 'user' | 'agent';
@@ -224,7 +226,21 @@ export default function PlaygroundPage() {
                                 : 'bg-muted'
                             )}
                         >
-                            <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                            {message.sender === 'agent' ? (
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    className="prose prose-sm dark:prose-invert prose-p:before:hidden prose-p:after:hidden"
+                                    components={{
+                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary underline" />,
+                                        // You can add more custom components here for styling
+                                    }}
+                                >
+                                    {message.text}
+                                </ReactMarkdown>
+                            ) : (
+                                <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                            )}
+
                         </div>
                         {message.sender === 'user' && (
                             <Avatar className="h-8 w-8">
