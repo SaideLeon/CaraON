@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { improveAgentPersona, type ImproveAgentPersonaOutput } from '@/ai/flows/improve-agent-persona';
-import { getAgentById, updateAgent, getOrganizations } from '@/services/api';
+import { getAgentById, updateAgent, getInstanceOrganizations } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import type { Agent, Organization } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -23,7 +23,6 @@ export default function TuneAgentPage() {
   const router = useRouter();
 
   const [agent, setAgent] = useState<Agent | null>(null);
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -35,12 +34,8 @@ export default function TuneAgentPage() {
       const fetchAgentData = async () => {
         try {
           setLoading(true);
-          const [foundAgent, allOrgs] = await Promise.all([
-            getAgentById(agentId),
-            getOrganizations(), // Fetch all organizations
-          ]);
+          const foundAgent = await getAgentById(agentId);
           setAgent(foundAgent);
-          setOrganizations(allOrgs);
         } catch (error) {
           toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados necessários.' });
         } finally {
@@ -57,14 +52,23 @@ export default function TuneAgentPage() {
     setIsSuggesting(true);
     setSuggestion(null);
 
-    const organization = organizations.find(org => org.id === agent.organizationId);
+    let organizationName;
+    if (agent.organizationId && agent.instanceId) {
+        try {
+            const orgs = await getInstanceOrganizations(agent.instanceId);
+            organizationName = orgs.find(org => org.id === agent.organizationId)?.name;
+        } catch (e) {
+            console.error("Could not fetch organization name", e);
+        }
+    }
+
 
     try {
       const result = await improveAgentPersona({
         agentId: agent.id,
         currentPersona: agent.persona,
         agentType: agent.type,
-        organizationName: agent.type === 'PARENT' ? organization?.name : undefined,
+        organizationName: agent.type === 'PARENT' ? organizationName : undefined,
         childAgentNames: agent.type === 'PARENT' ? agent.childAgents?.map(child => child.name) : undefined,
         toolNames: agent.type === 'CHILD' ? agent.tools?.map(tool => tool.name) : undefined,
       });
