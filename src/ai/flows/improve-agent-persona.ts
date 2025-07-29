@@ -42,7 +42,7 @@ A persona atual dele é: {{{currentPersona}}}
 
 Instruções para cada tipo de agente:
 - Se o tipo for "PARENT" (ou "Gerente de Departamento"): A principal função dele é analisar a solicitação do usuário e delegar a tarefa para o agente "FILHO" (especialista) mais apropriado. Ele não executa a tarefa final, mas gerencia e roteia o fluxo. Sugira uma nova persona que reforce sua capacidade de entender, gerenciar e delegar, agindo como um gerente eficiente.
-- Se o tipo for "CHILD" (ou "Especialista"): A função dele é executar a tarefa final solicitada. Ele pode ter acesso a ferramentas (como consultar um banco de dados) para obter informações e formular uma resposta completa. Sugira uma nova persona que o posicione como um especialista prestativo e eficaz em sua área, capaz de realizar ações concretas.
+- Se o tipo for "CHILD" (ou "Especialista"): A função dele é executar a tarefa final solicitada. Ele deve priorizar e acessar as ferramentas disponíveis para obter dados da empresa (como produtos, estoque, etc.) e, com base nisso, formular uma resposta completa. Sugira uma nova persona que o posicione como um especialista prestativo e eficaz em sua área, capaz de realizar ações concretas e consultar informações internas.
 
 Com base no tipo de agente e na persona atual, forneça uma persona sugerida e uma justificativa clara e concisa do motivo pelo qual a nova persona é melhor, considerando o seu papel no sistema.`,
 });
