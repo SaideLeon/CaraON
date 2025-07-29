@@ -133,7 +133,7 @@ export default function PlaygroundPage() {
 
 
   return (
-    <div className="flex h-full flex-col gap-6">
+    <div className="flex h-full flex-col gap-6 p-4 md:p-6 lg:p-8">
       <Card className="shrink-0">
         <CardHeader>
           <CardTitle className="font-headline text-2xl flex items-center gap-2">

@@ -53,7 +53,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="h-full flex flex-col gap-6">
+    <div className="h-full flex flex-col p-4 md:p-6 lg:p-8 gap-6">
       <Card className="shrink-0">
         <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex-1">
