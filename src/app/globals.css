@@ -82,6 +82,4 @@
     background: hsl(var(--ring));
   }
 }
-body > div.group\/sidebar-wrapper.flex.min-h-svh.w-full.has-\[\[data-variant\=inset\]\]\:bg-sidebar > main > main > div > div > div.rounded-lg.border.bg-card.text-card-foreground.shadow-sm.flex.flex-1.flex-col.overflow-hidden{
-  height: 960px;
-}
+ 
