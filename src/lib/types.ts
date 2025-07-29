@@ -49,6 +49,7 @@ export interface Agent {
   templateId?: string | null;
   childAgents?: Agent[];
   parentAgents?: Agent[];
+  organization?: Organization | null;
 }
 
 export interface Template {

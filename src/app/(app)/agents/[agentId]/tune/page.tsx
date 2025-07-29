@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { improveAgentPersona, type ImproveAgentPersonaOutput } from '@/ai/flows/improve-agent-persona';
-import { getAgentById, updateAgent } from '@/services/api';
+import { getAgentById, updateAgent, getOrganizations } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
-import type { Agent } from '@/lib/types';
+import type { Agent, Organization } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,6 +23,7 @@ export default function TuneAgentPage() {
   const router = useRouter();
 
   const [agent, setAgent] = useState<Agent | null>(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -31,18 +32,22 @@ export default function TuneAgentPage() {
 
   useEffect(() => {
     if (agentId) {
-      const fetchAgent = async () => {
+      const fetchAgentData = async () => {
         try {
           setLoading(true);
-          const foundAgent = await getAgentById(agentId);
+          const [foundAgent, allOrgs] = await Promise.all([
+            getAgentById(agentId),
+            getOrganizations(), // Fetch all organizations
+          ]);
           setAgent(foundAgent);
+          setOrganizations(allOrgs);
         } catch (error) {
-          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
+          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados necessários.' });
         } finally {
           setLoading(false);
         }
       };
-      fetchAgent();
+      fetchAgentData();
     }
   }, [agentId, toast]);
 
@@ -51,11 +56,17 @@ export default function TuneAgentPage() {
 
     setIsSuggesting(true);
     setSuggestion(null);
+
+    const organization = organizations.find(org => org.id === agent.organizationId);
+
     try {
       const result = await improveAgentPersona({
         agentId: agent.id,
         currentPersona: agent.persona,
         agentType: agent.type,
+        organizationName: agent.type === 'PARENT' ? organization?.name : undefined,
+        childAgentNames: agent.type === 'PARENT' ? agent.childAgents?.map(child => child.name) : undefined,
+        toolNames: agent.type === 'CHILD' ? agent.tools?.map(tool => tool.name) : undefined,
       });
       setSuggestion(result);
     } catch (error) {

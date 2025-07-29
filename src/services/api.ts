@@ -87,6 +87,11 @@ export const deleteInstance = async (instanceId: string): Promise<void> => {
 };
 
 // Organizations
+export const getOrganizations = async (): Promise<Organization[]> => {
+    const response = await api.get('/organizations');
+    return response.data.data;
+}
+
 export const getInstanceOrganizations = async (instanceId: string): Promise<Organization[]> => {
     const response = await api.get(`/instances/${instanceId}/organizations`);
     return response.data;
