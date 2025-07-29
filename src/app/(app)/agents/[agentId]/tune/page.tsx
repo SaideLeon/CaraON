@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Wand2, Loader2, Sparkles, Save } from 'lucide-react';
+import { Wand2, Loader2, Sparkles, Save, ShieldAlert } from 'lucide-react';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Agent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function TuneAgentPage() {
   const params = useParams();
@@ -46,7 +47,7 @@ export default function TuneAgentPage() {
   }, [agentId, toast]);
 
   const handleGetSuggestion = async () => {
-    if (!agent) return;
+    if (!agent || agent.type === 'ROUTER') return;
 
     setIsSuggesting(true);
     setSuggestion(null);
@@ -54,6 +55,7 @@ export default function TuneAgentPage() {
       const result = await improveAgentPersona({
         agentId: agent.id,
         currentPersona: agent.persona,
+        agentType: agent.type,
       });
       setSuggestion(result);
     } catch (error) {
@@ -97,6 +99,8 @@ export default function TuneAgentPage() {
     )
   }
 
+  const isRouterAgent = agent?.type === 'ROUTER';
+
   return (
     <>
       <CardHeader>
@@ -121,14 +125,25 @@ export default function TuneAgentPage() {
 
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Sugestão da IA</h3>
-           <Button onClick={handleGetSuggestion} disabled={isSuggesting} size="sm">
-            {isSuggesting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Wand2 className="mr-2 h-4 w-4" />
-            )}
-            {suggestion ? 'Gerar Outra Sugestão' : 'Obter Sugestão'}
-          </Button>
+          {isRouterAgent ? (
+            <Alert variant="destructive">
+                <ShieldAlert className="h-4 w-4" />
+                <AlertTitle>Refinamento não disponível</AlertTitle>
+                <AlertDescription>
+                   O Agente Roteador é configurado pelo sistema e a sua persona não pode ser modificada para garantir a estabilidade do fluxo principal da instância.
+                </AlertDescription>
+            </Alert>
+          ) : (
+             <Button onClick={handleGetSuggestion} disabled={isSuggesting} size="sm">
+                {isSuggesting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                <Wand2 className="mr-2 h-4 w-4" />
+                )}
+                {suggestion ? 'Gerar Outra Sugestão' : 'Obter Sugestão'}
+            </Button>
+          )}
+
           {isSuggesting && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando as interações...</p>}
           
           {suggestion && (
@@ -152,7 +167,7 @@ export default function TuneAgentPage() {
         </div>
       </CardContent>
        <CardFooter className="flex justify-end">
-          <Button onClick={handleApplySuggestion} disabled={!suggestion || isSaving || isSuggesting}>
+          <Button onClick={handleApplySuggestion} disabled={!suggestion || isSaving || isSuggesting || isRouterAgent}>
             {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Aplicar Sugestão
           </Button>
