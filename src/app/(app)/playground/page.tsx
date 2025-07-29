@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Send, Bot, User, BrainCircuit, Server } from 'lucide-react';
+import { Loader2, Send, Bot, User, BrainCircuit, Server, SwitchCamera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getUserInstances } from '@/services/api';
 import type { Instance } from '@/lib/types';
@@ -127,132 +127,139 @@ export default function PlaygroundPage() {
     setInput('');
   };
 
+  const handleSelectInstance = (instanceId: string) => {
+    setSelectedInstanceId(instanceId);
+    setMessages([]); // Clear previous chat history
+  }
+
+  const handleChangeInstance = () => {
+    setSelectedInstanceId(null);
+    setMessages([]);
+  }
+
   const selectedInstance = instances.find(i => i.id === selectedInstanceId);
   const currentStatus = selectedInstance?.status?.toLowerCase() as keyof typeof statusConfig | undefined;
   const statusColorClass = currentStatus ? statusConfig[currentStatus]?.textColor : 'text-muted-foreground';
 
 
-  return (
-    <div className="flex h-full flex-col gap-6">
-      <Card className="shrink-0">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl flex items-center gap-2">
-            <BrainCircuit className="h-6 w-6" />
-            <span>Playground do Agente</span>
-          </CardTitle>
-          <CardDescription>
-            Selecione uma instância e inicie uma conversa para testar o fluxo de orquestração completo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Select onValueChange={setSelectedInstanceId} disabled={loadingInstances || instances.length === 0}>
-            <SelectTrigger className="w-full md:w-1/3">
-              <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma Instância'} />
-            </SelectTrigger>
-            <SelectContent>
-              {instances.map((instance) => {
-                const status = instance.status?.toLowerCase() as keyof typeof statusConfig | undefined;
-                const colorClass = status ? statusConfig[status]?.bgColor : 'bg-muted-foreground';
-                return (
-                    <SelectItem key={instance.id} value={instance.id}>
-                        <div className="flex items-center gap-2">
-                            <div className={cn('h-2 w-2 rounded-full', colorClass)} />
-                            <span>{instance.name}</span>
-                        </div>
-                    </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-      
-      <Card className="flex flex-1 flex-col overflow-hidden">
-        {selectedInstanceId ? (
-            <>
-                <CardHeader className="border-b shrink-0">
-                    <div className="flex items-center gap-3">
-                        <Avatar>
-                            <AvatarFallback>
-                                <Server className={cn("h-5 w-5", statusColorClass)} />
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <CardTitle className="text-xl">{selectedInstance?.name}</CardTitle>
-                            <CardDescription className="text-xs line-clamp-1">Testando a instância: {selectedInstance?.clientId}</CardDescription>
-                        </div>
-                    </div>
+  if (!selectedInstanceId) {
+    return (
+        <div className="flex h-full items-center justify-center">
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                    <BrainCircuit className="h-6 w-6" />
+                    <span>Playground do Agente</span>
+                </CardTitle>
+                <CardDescription>
+                    Selecione uma instância para iniciar uma conversa e testar o fluxo completo.
+                </CardDescription>
                 </CardHeader>
-                <CardContent className="p-0 flex-1 flex flex-col min-h-0">
-                    <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                         <div className="space-y-4">
-                            {messages.map((message, index) => (
-                                <div
-                                key={index}
-                                className={cn(
-                                    'flex items-end gap-2',
-                                    message.sender === 'user' ? 'justify-end' : 'justify-start'
-                                )}
-                                >
-                                {message.sender === 'agent' && (
-                                    <Avatar className="h-8 w-8">
-                                    <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
-                                    </Avatar>
-                                )}
-                                <div
-                                    className={cn(
-                                    'max-w-xs rounded-lg px-4 py-2 md:max-w-md lg:max-w-2xl',
-                                    message.sender === 'user'
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'bg-muted'
-                                    )}
-                                >
-                                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                <CardContent>
+                <Select onValueChange={handleSelectInstance} disabled={loadingInstances || instances.length === 0}>
+                    <SelectTrigger>
+                    <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma Instância'} />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {instances.map((instance) => {
+                        const status = instance.status?.toLowerCase() as keyof typeof statusConfig | undefined;
+                        const colorClass = status ? statusConfig[status]?.bgColor : 'bg-muted-foreground';
+                        return (
+                            <SelectItem key={instance.id} value={instance.id}>
+                                <div className="flex items-center gap-2">
+                                    <div className={cn('h-2 w-2 rounded-full', colorClass)} />
+                                    <span>{instance.name}</span>
                                 </div>
-                                {message.sender === 'user' && (
-                                    <Avatar className="h-8 w-8">
-                                    <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
-                                    </Avatar>
-                                )}
-                                </div>
-                            ))}
-                            {isSending && (
-                                <div className="flex items-end gap-2 justify-start">
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
-                                    </Avatar>
-                                    <div className="max-w-xs rounded-lg px-4 py-2 bg-muted flex items-center">
-                                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </ScrollArea>
-                    <div className="border-t p-4 mt-auto shrink-0">
-                        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                        <Input
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Escreva a sua mensagem..."
-                            disabled={isSending}
-                        />
-                        <Button type="submit" disabled={isSending || !input.trim()}>
-                            <Send className="h-4 w-4" />
-                            <span className="sr-only">Enviar</span>
-                        </Button>
-                        </form>
-                    </div>
+                            </SelectItem>
+                        )
+                    })}
+                    </SelectContent>
+                </Select>
                 </CardContent>
-            </>
-        ) : (
-            <div className="flex flex-1 items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                    <BrainCircuit className="mx-auto h-12 w-12" />
-                    <p className="mt-4">Por favor, selecione uma instância para começar.</p>
+            </Card>
+        </div>
+    )
+  }
+
+  return (
+    <Card className="h-full flex flex-col overflow-hidden">
+        <CardHeader className="border-b shrink-0 flex flex-row items-center justify-between space-y-0">
+            <div className="flex items-center gap-3">
+                <Avatar>
+                    <AvatarFallback>
+                        <Server className={cn("h-5 w-5", statusColorClass)} />
+                    </AvatarFallback>
+                </Avatar>
+                <div>
+                    <CardTitle className="text-xl">{selectedInstance?.name}</CardTitle>
+                    <CardDescription className="text-xs line-clamp-1">Testando a instância: {selectedInstance?.clientId}</CardDescription>
                 </div>
-          </div>
-        )}
-      </Card>
-    </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleChangeInstance}>
+                <SwitchCamera className="mr-2 h-4 w-4" />
+                Trocar Instância
+            </Button>
+        </CardHeader>
+        <CardContent className="p-0 flex-1 flex flex-col min-h-0">
+            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                 <div className="space-y-4">
+                    {messages.map((message, index) => (
+                        <div
+                        key={index}
+                        className={cn(
+                            'flex items-end gap-2',
+                            message.sender === 'user' ? 'justify-end' : 'justify-start'
+                        )}
+                        >
+                        {message.sender === 'agent' && (
+                            <Avatar className="h-8 w-8">
+                            <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
+                            </Avatar>
+                        )}
+                        <div
+                            className={cn(
+                            'max-w-xs rounded-lg px-4 py-2 md:max-w-md lg:max-w-2xl',
+                            message.sender === 'user'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted'
+                            )}
+                        >
+                            <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                        </div>
+                        {message.sender === 'user' && (
+                            <Avatar className="h-8 w-8">
+                            <AvatarFallback><User className="h-4 w-4" /></AvatarFallback>
+                            </Avatar>
+                        )}
+                        </div>
+                    ))}
+                    {isSending && (
+                        <div className="flex items-end gap-2 justify-start">
+                            <Avatar className="h-8 w-8">
+                                <AvatarFallback><Bot className="h-4 w-4" /></AvatarFallback>
+                            </Avatar>
+                            <div className="max-w-xs rounded-lg px-4 py-2 bg-muted flex items-center">
+                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </ScrollArea>
+            <div className="border-t p-4 mt-auto shrink-0">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Escreva a sua mensagem..."
+                    disabled={isSending}
+                />
+                <Button type="submit" disabled={isSending || !input.trim()}>
+                    <Send className="h-4 w-4" />
+                    <span className="sr-only">Enviar</span>
+                </Button>
+                </form>
+            </div>
+        </CardContent>
+    </Card>
   );
 }
