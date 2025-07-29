@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -60,7 +61,7 @@ const improveAgentPersonaFlow = ai.defineFlow(
   },
   async input => {
     // We prevent ROUTER type from being processed at the UI level,
-    // but as a safeguard, we could also add a check here.
+    // but as a safeguard, we add a check here to prevent calling the LLM.
     if (input.agentType === 'ROUTER') {
       return {
         suggestedPersona: input.currentPersona,
