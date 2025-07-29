@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { improveAgentPersona, type ImproveAgentPersonaOutput } from '@/ai/flows/improve-agent-persona';
-import { getAgentById, updateAgent, getInstanceOrganizations } from '@/services/api';
+import { getAgentById, updateAgent } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
-import type { Agent, Organization } from '@/lib/types';
+import type { Agent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -34,10 +34,11 @@ export default function TuneAgentPage() {
       const fetchAgentData = async () => {
         try {
           setLoading(true);
+          // The getAgentById should ideally include the relations we need
           const foundAgent = await getAgentById(agentId);
           setAgent(foundAgent);
         } catch (error) {
-          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados necessários.' });
+          toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
         } finally {
           setLoading(false);
         }
@@ -52,23 +53,13 @@ export default function TuneAgentPage() {
     setIsSuggesting(true);
     setSuggestion(null);
 
-    let organizationName;
-    if (agent.organizationId && agent.instanceId) {
-        try {
-            const orgs = await getInstanceOrganizations(agent.instanceId);
-            organizationName = orgs.find(org => org.id === agent.organizationId)?.name;
-        } catch (e) {
-            console.error("Could not fetch organization name", e);
-        }
-    }
-
-
     try {
       const result = await improveAgentPersona({
         agentId: agent.id,
-        currentPersona: agent.persona,
+        currentPersona: agent.persona || '',
         agentType: agent.type,
-        organizationName: agent.type === 'PARENT' ? organizationName : undefined,
+        // Pass contextual information based on agent type
+        organizationName: agent.type === 'PARENT' ? agent.organization?.name : undefined,
         childAgentNames: agent.type === 'PARENT' ? agent.childAgents?.map(child => child.name) : undefined,
         toolNames: agent.type === 'CHILD' ? agent.tools?.map(tool => tool.name) : undefined,
       });
