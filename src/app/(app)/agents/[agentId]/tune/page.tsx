@@ -59,6 +59,7 @@ export default function TuneAgentPage() {
       });
       setSuggestion(result);
     } catch (error) {
+      console.error(error);
       toast({ variant: 'destructive', title: 'Erro da IA', description: 'Não foi possível gerar uma sugestão.' });
     } finally {
       setIsSuggesting(false);
@@ -134,7 +135,7 @@ export default function TuneAgentPage() {
                 </AlertDescription>
             </Alert>
           ) : (
-             <Button onClick={handleGetSuggestion} disabled={isSuggesting} size="sm">
+             <Button onClick={handleGetSuggestion} disabled={isSuggesting}>
                 {isSuggesting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
