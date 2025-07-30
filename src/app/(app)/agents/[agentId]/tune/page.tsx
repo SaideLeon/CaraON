@@ -34,7 +34,6 @@ export default function TuneAgentPage() {
       const fetchAgentData = async () => {
         try {
           setLoading(true);
-          // The getAgentById should ideally include the relations we need
           const foundAgent = await getAgentById(agentId);
           setAgent(foundAgent);
         } catch (error) {
@@ -77,8 +76,12 @@ export default function TuneAgentPage() {
 
     setIsSaving(true);
     try {
-      await updateAgent(agent.id, { persona: suggestion.suggestedPersona });
+      await updateAgent(agent.id, { persona: suggestion.suggestedPrompt });
       toast({ title: 'Sucesso!', description: 'A persona do agente foi atualizada com a sugestão da IA.' });
+      
+      // Update agent state locally to reflect the change immediately
+      setAgent(prev => prev ? { ...prev, persona: suggestion.suggestedPrompt } : null);
+      
       router.push(`/agents/${agent.id}/edit`); // Navigate to edit page to see the change
       router.refresh(); // Refresh server components
     } catch (error) {
@@ -111,9 +114,9 @@ export default function TuneAgentPage() {
   return (
     <>
       <CardHeader>
-        <CardTitle>Afinar Persona com IA</CardTitle>
+        <CardTitle>Afinar Prompt com IA</CardTitle>
         <CardDescription>
-          Use a nossa IA para obter sugestões sobre como melhorar a persona do agente <span className="font-bold text-foreground">{agent?.name}</span> com base no desempenho e nas interações.
+          Use a nossa IA para obter sugestões sobre como melhorar o prompt de orquestração do agente <span className="font-bold text-foreground">{agent?.name}</span>.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -151,16 +154,16 @@ export default function TuneAgentPage() {
             </Button>
           )}
 
-          {isSuggesting && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando as interações...</p>}
+          {isSuggesting && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando o agente e gerando um novo prompt...</p>}
           
           {suggestion && (
             <div className="space-y-4 pt-4">
                 <div className="p-4 border rounded-md bg-accent/20 space-y-2">
-                    <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-accent shrink-0" /> Nova Persona Sugerida</h4>
+                    <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-accent shrink-0" /> Novo Prompt Sugerido</h4>
                     <Textarea 
                         readOnly 
-                        value={suggestion.suggestedPersona}
-                        className="bg-background/50 h-32"
+                        value={suggestion.suggestedPrompt}
+                        className="bg-background/50 h-64 font-mono text-xs"
                     />
                 </div>
                  <div className="p-4 border rounded-md bg-accent/20 space-y-2">

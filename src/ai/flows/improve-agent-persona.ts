@@ -2,10 +2,11 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for improving an agent's persona.
+ * @fileOverview This file defines a Genkit flow for improving an agent's persona prompt.
  *
- * The flow takes the agent's ID, current persona, and contextual information 
- * (like type, organization, child agents, and tools) to generate suggestions for improvement.
+ * The flow takes the agent's ID, current persona, and contextual information
+ * (like type, organization, child agents, and tools) to generate suggestions for a complete,
+ * structured prompt for orchestration, following best practices.
  * - improveAgentPersona - A function that handles the agent persona improvement process.
  * - ImproveAgentPersonaInput - The input type for the improveAgentPersona function.
  * - ImproveAgentPersonaOutput - The return type for the improveAgentPersona function.
@@ -16,7 +17,7 @@ import {z} from 'genkit';
 
 const ImproveAgentPersonaInputSchema = z.object({
   agentId: z.string().describe('The ID of the agent to improve.'),
-  currentPersona: z.string().describe('The current persona of the agent.'),
+  currentPersona: z.string().describe('The current persona/prompt of the agent.'),
   agentType: z.enum(['ROUTER', 'PARENT', 'CHILD']).describe('The type of the agent.'),
   organizationName: z.string().optional().describe('The name of the organization the agent belongs to (for PARENT agents).'),
   childAgentNames: z.array(z.string()).optional().describe('A list of child agent names managed by this agent (for PARENT agents).'),
@@ -25,8 +26,8 @@ const ImproveAgentPersonaInputSchema = z.object({
 export type ImproveAgentPersonaInput = z.infer<typeof ImproveAgentPersonaInputSchema>;
 
 const ImproveAgentPersonaOutputSchema = z.object({
-  suggestedPersona: z.string().describe('The suggested new persona for the agent.'),
-  reasoning: z.string().describe('The reasoning behind the suggested persona.'),
+  suggestedPrompt: z.string().describe('The suggested new and complete structured prompt for the agent.'),
+  reasoning: z.string().describe('The reasoning behind the suggested prompt.'),
 });
 export type ImproveAgentPersonaOutput = z.infer<typeof ImproveAgentPersonaOutputSchema>;
 
@@ -38,11 +39,13 @@ const prompt = ai.definePrompt({
   name: 'improveAgentPersonaPrompt',
   input: {schema: ImproveAgentPersonaInputSchema},
   output: {schema: ImproveAgentPersonaOutputSchema},
-  prompt: `Você é um especialista em criar personas de agentes de IA eficazes para um sistema hierárquico.
-A sua resposta (persona sugerida e justificativa) deve ser sempre em Português do Brasil.
+  prompt: `Você é um especialista em engenharia de prompts para agentes de IA de um sistema de orquestração hierárquico chamado CaraON.
+A sua resposta (prompt sugerido e justificativa) deve ser sempre em Português do Brasil.
+
+Sua tarefa é criar um prompt completo e estruturado para um agente, seguindo as melhores práticas. O prompt deve ser claro, definir um papel, apresentar opções e exigir uma saída JSON estruturada.
 
 O agente que você irá refinar é do tipo: {{{agentType}}}
-A persona atual dele é: {{{currentPersona}}}
+A persona/prompt atual dele é: {{{currentPersona}}}
 
 {{#if organizationName}}
 Ele atua no departamento (Organização): {{{organizationName}}}
@@ -62,11 +65,25 @@ Ele tem acesso e pode utilizar as seguintes ferramentas para obter dados da empr
 {{/each}}
 {{/if}}
 
-Instruções para cada tipo de agente:
-- Se o tipo for "PARENT" (ou "Gerente de Departamento"): A principal função dele é analisar a solicitação do usuário e delegar a tarefa para o agente "FILHO" (especialista) mais apropriado. Ele não executa a tarefa final, mas gerencia e roteia o fluxo. Com base no departamento que ele gerencia e nos especialistas que ele comanda, sugira uma nova persona que reforce sua capacidade de entender, gerenciar e delegar, agindo como um gerente eficiente.
-- Se o tipo for "CHILD" (ou "Especialista"): A função dele é executar a tarefa final solicitada. Ele deve priorizar e acessar as ferramentas disponíveis para obter dados da empresa (como produtos, estoque, etc.) e, com base nisso, formular uma resposta completa. Com base nas ferramentas que ele possui, sugira uma nova persona que o posicione como um especialista prestativo e eficaz em sua área, capaz de realizar ações concretas e consultar informações internas.
+Instruções para a criação do prompt sugerido:
 
-Com base no tipo de agente, na persona atual e em todo o contexto fornecido (departamento, especialistas, ferramentas), forneça uma persona sugerida e uma justificativa clara e concisa do motivo pelo qual a nova persona é melhor, considerando o seu papel no sistema.`,
+- Se o tipo for "PARENT" (ou "Gerente de Departamento"):
+  O prompt que você criar deve instruir o agente a agir como um roteador que analisa a mensagem do cliente e a delega para o Agente Filho (especialista) mais apropriado.
+  O prompt deve:
+  1. Definir a persona como um gerente eficiente do departamento '{{{organizationName}}}'.
+  2. Listar os agentes filhos disponíveis (usando um placeholder como '{{#each availableAgents}}') e suas especialidades.
+  3. Exigir uma saída JSON com os campos "agentId" e "justificativa".
+  4. Incluir uma lógica de fallback (retornar null) se nenhum agente for adequado.
+
+- Se o tipo for "CHILD" (ou "Especialista"):
+  O prompt que você criar deve instruir o agente a executar uma tarefa final. Ele deve decidir entre usar uma de suas ferramentas para obter informações ou responder diretamente ao cliente.
+  O prompt deve:
+  1. Definir a persona como um especialista prestativo e eficaz.
+  2. Listar as ferramentas disponíveis (usando um placeholder como '{{#each availableTools}}') com nome e descrição.
+  3. Exigir uma saída JSON com os campos "action" (com os valores "TOOL_CALL" ou "REPLY"), "toolName", "parameters" e "replyText".
+  4. A lógica de decisão deve ser baseada na mensagem do cliente e no histórico da conversa.
+
+Com base no tipo de agente e no contexto fornecido, gere um 'suggestedPrompt' completo e bem estruturado e uma 'reasoning' clara do motivo pelo qual o novo prompt é melhor.`,
 });
 
 const improveAgentPersonaFlow = ai.defineFlow(
@@ -80,7 +97,7 @@ const improveAgentPersonaFlow = ai.defineFlow(
     // but as a safeguard, we add a check here to prevent calling the LLM.
     if (input.agentType === 'ROUTER') {
       return {
-        suggestedPersona: input.currentPersona,
+        suggestedPrompt: input.currentPersona,
         reasoning: 'O Agente Roteador é configurado pelo sistema e não pode ser refinado pela IA para garantir a estabilidade do fluxo principal da instância.'
       };
     }
