@@ -28,6 +28,7 @@ const agentUpdateSchema = z.object({
     model: z.string().optional(),
     temperature: z.coerce.number().min(0).max(1).optional(),
     maxTokens: z.coerce.number().int().positive().optional(),
+    systemPrompt: z.string().optional(),
     fallbackMessage: z.string().optional(),
     timeoutSeconds: z.coerce.number().int().positive().optional(),
     maxRetries: z.coerce.number().int().min(0).optional(),
@@ -81,6 +82,7 @@ export default function EditAgentPage() {
               model: foundAgent.config?.model || 'googleai/gemini-2.0-flash',
               temperature: foundAgent.config?.temperature || 0.7,
               maxTokens: foundAgent.config?.maxTokens || 1000,
+              systemPrompt: foundAgent.config?.systemPrompt || '',
               fallbackMessage: foundAgent.config?.fallbackMessage || '',
               timeoutSeconds: foundAgent.config?.timeoutSeconds || 30,
               maxRetries: foundAgent.config?.maxRetries || 3,
@@ -107,6 +109,7 @@ export default function EditAgentPage() {
           model: data.config.model,
           temperature: data.config.temperature,
           maxTokens: data.config.maxTokens,
+          systemPrompt: data.config.systemPrompt,
           fallbackMessage: data.config.fallbackMessage,
           timeoutSeconds: data.config.timeoutSeconds,
           maxRetries: data.config.maxRetries,
@@ -152,6 +155,23 @@ export default function EditAgentPage() {
           <CardDescription>Modifique os prompts, prioridade e outras instruções do seu agente.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <FormField
+            control={form.control}
+            name="config.systemPrompt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>System Prompt</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Defina o papel, objetivo e formato de saída do agente..."
+                    className="min-h-[120px] font-mono text-xs"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
            <FormField
             control={form.control}
             name="persona"
@@ -343,3 +363,5 @@ export default function EditAgentPage() {
     </Form>
   );
 }
+
+    
