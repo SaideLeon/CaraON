@@ -58,7 +58,7 @@ type UpdateAgentPayload = {
     persona?: string;
     priority?: number;
     routerAgentId?: string | null;
-    config?: Partial<AgentConfig>;
+    config?: Partial<Omit<AgentConfig, 'id' | 'agentId'>>;
 };
 
 export const updateAgent = async (agentId: string, data: UpdateAgentPayload): Promise<Agent> => {
