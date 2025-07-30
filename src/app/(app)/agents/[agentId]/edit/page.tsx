@@ -25,7 +25,6 @@ const agentUpdateSchema = z.object({
   priority: z.coerce.number().int().min(0, 'A prioridade deve ser um número positivo.'),
   routerAgentId: z.string().optional().nullable(),
   config: z.object({
-    systemPrompt: z.string().optional(),
     model: z.string().optional(),
     temperature: z.coerce.number().min(0).max(1).optional(),
     maxTokens: z.coerce.number().int().positive().optional(),
@@ -79,7 +78,6 @@ export default function EditAgentPage() {
             priority: foundAgent.priority || 0,
             routerAgentId: foundAgent.routerAgentId || 'none',
             config: {
-              systemPrompt: foundAgent.config?.systemPrompt || '',
               model: foundAgent.config?.model || 'googleai/gemini-2.0-flash',
               temperature: foundAgent.config?.temperature || 0.7,
               maxTokens: foundAgent.config?.maxTokens || 1000,
@@ -106,7 +104,6 @@ export default function EditAgentPage() {
         priority: data.priority,
         routerAgentId: data.routerAgentId === 'none' ? null : data.routerAgentId,
         config: {
-          systemPrompt: data.config.systemPrompt,
           model: data.config.model,
           temperature: data.config.temperature,
           maxTokens: data.config.maxTokens,
@@ -155,23 +152,6 @@ export default function EditAgentPage() {
           <CardDescription>Modifique os prompts, prioridade e outras instruções do seu agente.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <FormField
-            control={form.control}
-            name="config.systemPrompt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>System Prompt</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Defina o papel, objetivo e formato de saída do agente..."
-                    className="min-h-[150px] font-mono text-xs"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
            <FormField
             control={form.control}
             name="persona"
