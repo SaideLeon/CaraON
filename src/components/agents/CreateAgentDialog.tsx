@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Agent, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { createAgent, getInstanceOrganizations, getInstanceParentAgents } from '@/services/api';
+import { ScrollArea } from '../ui/scroll-area';
 
 const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
@@ -154,89 +155,90 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
             Preencha os detalhes abaixo para configurar o seu novo agente orquestrador.
           </DialogDescription>
         </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome do Agente</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ex: Regente de Vendas" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="config.systemPrompt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>System Prompt (Opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Defina o papel, objetivo e formato de saída do agente..." 
-                      className="min-h-[100px]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="persona"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Template de Persona (Handlebars)</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Descreva o template da persona com placeholders como {{messageContent}}..."
-                      className="min-h-[150px]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
+        <ScrollArea className="max-h-[70vh] p-1">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-4">
+              <FormField
                 control={form.control}
-                name="organizationId"
+                name="name"
                 render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Organização (Opcional)</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingDeps}>
+                  <FormItem>
+                    <FormLabel>Nome do Agente</FormLabel>
                     <FormControl>
-                        <SelectTrigger>
-                        <SelectValue placeholder={loadingDeps ? "Carregando..." : "Nenhuma"} />
-                        </SelectTrigger>
+                      <Input placeholder="ex: Regente de Vendas" {...field} />
                     </FormControl>
-                    <SelectContent>
-                        <SelectItem value="none">Nenhuma (Será um Roteador)</SelectItem>
-                        {organizations.map((org) => (
-                        <SelectItem key={org.id} value={org.id}>
-                            {org.name}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
                     <FormMessage />
-                </FormItem>
+                  </FormItem>
                 )}
-            />
-            <DialogFooter>
-              <Button type="submit" disabled={loading || loadingDeps}>
-                {(loading || loadingDeps) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Criar Agente
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              />
+              <FormField
+                control={form.control}
+                name="config.systemPrompt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>System Prompt (Opcional)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Defina o papel, objetivo e formato de saída do agente..." 
+                        className="min-h-[100px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="persona"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Template de Persona (Handlebars)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Descreva o template da persona com placeholders como {{messageContent}}..."
+                        className="min-h-[150px]"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                  control={form.control}
+                  name="organizationId"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Organização (Opcional)</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || 'none'} disabled={loadingDeps}>
+                      <FormControl>
+                          <SelectTrigger>
+                          <SelectValue placeholder={loadingDeps ? "Carregando..." : "Nenhuma"} />
+                          </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                          <SelectItem value="none">Nenhuma (Será um Roteador)</SelectItem>
+                          {organizations.map((org) => (
+                          <SelectItem key={org.id} value={org.id}>
+                              {org.name}
+                          </SelectItem>
+                          ))}
+                      </SelectContent>
+                      </Select>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              <DialogFooter>
+                <Button type="submit" disabled={loading || loadingDeps}>
+                  {(loading || loadingDeps) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Criar Agente
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

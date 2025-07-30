@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { Agent, Organization } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { createAgent, getInstanceOrganizations, getAgentById } from '@/services/api';
+import { ScrollArea } from '../ui/scroll-area';
 
 const parentAgentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
@@ -119,70 +120,72 @@ export function CreateParentAgentDialog({ children, routerAgentId, onParentAgent
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nome do Agente</FormLabel>
-                  <FormControl>
-                    <Input placeholder="ex: Gerente de Vendas" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
-              control={form.control}
-              name="persona"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Persona</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Descreva a personalidade e o papel deste gerente de departamento..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
+        <ScrollArea className="max-h-[70vh] p-1">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4 pr-4">
+              <FormField
                 control={form.control}
-                name="organizationId"
+                name="name"
                 render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Organização</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} disabled={loadingDeps}>
+                  <FormItem>
+                    <FormLabel>Nome do Agente</FormLabel>
                     <FormControl>
-                        <SelectTrigger>
-                        <SelectValue placeholder={loadingDeps ? "Carregando..." : "Selecione uma organização"} />
-                        </SelectTrigger>
+                      <Input placeholder="ex: Gerente de Vendas" {...field} />
                     </FormControl>
-                    <SelectContent>
-                        {organizations.length === 0 && !loadingDeps ? (
-                            <div className="p-4 text-center text-sm text-muted-foreground">Nenhuma organização encontrada.</div>
-                        ) : (
-                            organizations.map((org) => (
-                                <SelectItem key={org.id} value={org.id}>
-                                    {org.name}
-                                </SelectItem>
-                            ))
-                        )}
-                    </SelectContent>
-                    </Select>
                     <FormMessage />
-                </FormItem>
+                  </FormItem>
                 )}
-            />
-            <DialogFooter>
-              <Button type="submit" disabled={loading || loadingDeps}>
-                {(loading || loadingDeps) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Criar Agente Pai
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+              />
+              <FormField
+                control={form.control}
+                name="persona"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Persona</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Descreva a personalidade e o papel deste gerente de departamento..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                  control={form.control}
+                  name="organizationId"
+                  render={({ field }) => (
+                  <FormItem>
+                      <FormLabel>Organização</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={loadingDeps}>
+                      <FormControl>
+                          <SelectTrigger>
+                          <SelectValue placeholder={loadingDeps ? "Carregando..." : "Selecione uma organização"} />
+                          </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                          {organizations.length === 0 && !loadingDeps ? (
+                              <div className="p-4 text-center text-sm text-muted-foreground">Nenhuma organização encontrada.</div>
+                          ) : (
+                              organizations.map((org) => (
+                                  <SelectItem key={org.id} value={org.id}>
+                                      {org.name}
+                                  </SelectItem>
+                              ))
+                          )}
+                      </SelectContent>
+                      </Select>
+                      <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              <DialogFooter>
+                <Button type="submit" disabled={loading || loadingDeps}>
+                  {(loading || loadingDeps) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Criar Agente Pai
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
