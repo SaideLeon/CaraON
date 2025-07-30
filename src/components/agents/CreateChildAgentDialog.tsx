@@ -28,7 +28,9 @@ import { Checkbox } from '../ui/checkbox';
 const childAgentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   persona: z.string().min(10, 'A persona deve ter pelo menos 10 caracteres.'),
-  flow: z.string().optional(),
+  config: z.object({
+      flow: z.string().optional(),
+  }).optional(),
   toolIds: z.array(z.string()).optional(),
 });
 
@@ -52,7 +54,9 @@ export function CreateChildAgentDialog({ children, parentAgentId, onChildAgentCr
     defaultValues: {
       name: '',
       persona: '',
-      flow: '',
+      config: {
+        flow: ''
+      },
       toolIds: [],
     },
   });
@@ -86,7 +90,7 @@ export function CreateChildAgentDialog({ children, parentAgentId, onChildAgentCr
         persona: data.persona,
         parentAgentId: parentAgentId,
         type: 'CHILD',
-        config: data.flow ? JSON.parse(data.flow) : undefined,
+        config: data.config?.flow ? { flow: JSON.parse(data.config.flow) } : {},
         tools: data.toolIds?.map(id => ({ id })) // Send only IDs
       };
 
@@ -153,7 +157,7 @@ export function CreateChildAgentDialog({ children, parentAgentId, onChildAgentCr
               />
                <FormField
                 control={form.control}
-                name="flow"
+                name="config.flow"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Flow (Opcional)</FormLabel>
