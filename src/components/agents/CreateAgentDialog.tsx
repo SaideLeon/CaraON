@@ -28,7 +28,9 @@ const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   persona: z.string().min(10, 'A persona deve ter pelo menos 10 caracteres.'),
   organizationId: z.string().optional(),
-  systemPrompt: z.string().optional(),
+  config: z.object({
+    systemPrompt: z.string().optional(),
+  }).optional(),
 });
 
 type AgentFormValues = z.infer<typeof agentSchema>;
@@ -54,7 +56,9 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
       name: '',
       persona: '',
       organizationId: 'none',
-      systemPrompt: '',
+      config: {
+        systemPrompt: '',
+      },
     },
   });
 
@@ -119,7 +123,7 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
         type: isCreatingRouter ? 'ROUTER' : 'PARENT',
         organizationId: isCreatingRouter ? undefined : data.organizationId,
         config: {
-            systemPrompt: data.systemPrompt
+            systemPrompt: data.config?.systemPrompt
         }
       };
 
@@ -168,7 +172,7 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
             />
              <FormField
               control={form.control}
-              name="systemPrompt"
+              name="config.systemPrompt"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>System Prompt (Opcional)</FormLabel>
