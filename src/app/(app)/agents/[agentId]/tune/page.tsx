@@ -76,7 +76,7 @@ export default function TuneAgentPage() {
 
     setIsSaving(true);
     try {
-      const updatedAgent = await updateAgent(agent.id, { 
+      await updateAgent(agent.id, { 
         persona: suggestion.suggestedPersonaTemplate,
         config: {
           ...agent.config,
@@ -85,10 +85,9 @@ export default function TuneAgentPage() {
       });
       toast({ title: 'Sucesso!', description: 'Os prompts do agente foram atualizados com a sugestão da IA.' });
       
-      setAgent(updatedAgent);
-      
+      // Redirect to the edit page to see the changes
       router.push(`/agents/${agent.id}/edit`);
-      router.refresh();
+
     } catch (error) {
       toast({ variant: 'destructive', title: 'Erro ao Salvar', description: 'Não foi possível aplicar a sugestão.' });
     } finally {
