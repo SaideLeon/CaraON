@@ -28,6 +28,7 @@ const agentSchema = z.object({
   name: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   persona: z.string().min(10, 'A persona deve ter pelo menos 10 caracteres.'),
   organizationId: z.string().optional(),
+  systemPrompt: z.string().optional(),
 });
 
 type AgentFormValues = z.infer<typeof agentSchema>;
@@ -53,6 +54,7 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
       name: '',
       persona: '',
       organizationId: 'none',
+      systemPrompt: '',
     },
   });
 
@@ -110,12 +112,15 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
         }
       }
 
-      const payload: Partial<Agent> = {
+      const payload: Partial<Agent> & { config?: { systemPrompt?: string } } = {
         name: data.name,
         persona: data.persona,
         instanceId: instanceId,
         type: isCreatingRouter ? 'ROUTER' : 'PARENT',
         organizationId: isCreatingRouter ? undefined : data.organizationId,
+        config: {
+            systemPrompt: data.systemPrompt
+        }
       };
 
       const newAgent = await createAgent(payload);
@@ -163,12 +168,33 @@ export function CreateAgentDialog({ children, instanceId, onAgentCreated, onRequ
             />
              <FormField
               control={form.control}
+              name="systemPrompt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>System Prompt (Opcional)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Defina o papel, objetivo e formato de saída do agente..." 
+                      className="min-h-[100px]"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
               name="persona"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Persona</FormLabel>
+                  <FormLabel>Template de Persona (Handlebars)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Descreva a personalidade e o papel do agente orquestrador..." {...field} />
+                    <Textarea 
+                      placeholder="Descreva o template da persona com placeholders como {{messageContent}}..."
+                      className="min-h-[150px]"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
