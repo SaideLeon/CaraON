@@ -62,8 +62,21 @@ type UpdateAgentPayload = {
 };
 
 export const updateAgent = async (agentId: string, data: UpdateAgentPayload): Promise<Agent> => {
-    const response = await api.put(`/agents/${agentId}`, data);
-    return response.data;
+    const { config, ...agentData } = data;
+
+    // Se houver dados de configuração, atualize-os primeiro com PATCH
+    if (config && Object.keys(config).length > 0) {
+        await api.patch(`/agents/${agentId}/config`, config);
+    }
+    
+    // Se houver outros dados do agente, atualize-os com PUT
+    if (Object.keys(agentData).length > 0) {
+        const response = await api.put(`/agents/${agentId}`, agentData);
+        return response.data;
+    }
+
+    // Se apenas a config foi atualizada, precisamos buscar o agente atualizado
+    return getAgentById(agentId);
 };
 
 export const deleteAgent = async (agentId: string): Promise<void> => {
