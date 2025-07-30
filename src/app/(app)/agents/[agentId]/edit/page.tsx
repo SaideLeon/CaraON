@@ -63,7 +63,7 @@ export default function EditAgentPage() {
           form.reset({ 
             persona: foundAgent.persona || '',
             priority: foundAgent.priority || 0,
-            routerAgentId: foundAgent.routerAgentId,
+            routerAgentId: foundAgent.routerAgentId || 'none',
             systemPrompt: foundAgent.config?.systemPrompt || '',
           });
         } catch (error) {
