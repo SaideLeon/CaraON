@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Wand2, Loader2, Sparkles, Save, ShieldAlert } from 'lucide-react';
+import { Wand2, Loader2, Sparkles, Save, ShieldAlert, FileCode, Bot } from 'lucide-react';
 import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -56,11 +56,11 @@ export default function TuneAgentPage() {
       const result = await improveAgentPersona({
         agentId: agent.id,
         currentPersona: agent.persona || '',
+        currentSystemPrompt: agent.config?.systemPrompt || '',
         agentType: agent.type,
-        // Pass contextual information based on agent type
-        organizationName: agent.type === 'PARENT' ? agent.organization?.name : undefined,
-        childAgentNames: agent.type === 'PARENT' ? agent.childAgents?.map(child => child.name) : undefined,
-        toolNames: agent.type === 'CHILD' ? agent.tools?.map(tool => tool.name) : undefined,
+        organizationName: agent.organization?.name,
+        childAgentNames: agent.childAgents?.map(child => child.name),
+        toolNames: agent.tools?.map(tool => tool.name),
       });
       setSuggestion(result);
     } catch (error) {
@@ -76,14 +76,19 @@ export default function TuneAgentPage() {
 
     setIsSaving(true);
     try {
-      await updateAgent(agent.id, { persona: suggestion.suggestedPrompt });
-      toast({ title: 'Sucesso!', description: 'A persona do agente foi atualizada com a sugestão da IA.' });
+      const updatedAgent = await updateAgent(agent.id, { 
+        persona: suggestion.suggestedPersonaTemplate,
+        config: {
+          ...agent.config,
+          systemPrompt: suggestion.suggestedSystemPrompt,
+        }
+      });
+      toast({ title: 'Sucesso!', description: 'Os prompts do agente foram atualizados com a sugestão da IA.' });
       
-      // Update agent state locally to reflect the change immediately
-      setAgent(prev => prev ? { ...prev, persona: suggestion.suggestedPrompt } : null);
+      setAgent(updatedAgent);
       
-      router.push(`/agents/${agent.id}/edit`); // Navigate to edit page to see the change
-      router.refresh(); // Refresh server components
+      router.push(`/agents/${agent.id}/edit`);
+      router.refresh();
     } catch (error) {
       toast({ variant: 'destructive', title: 'Erro ao Salvar', description: 'Não foi possível aplicar a sugestão.' });
     } finally {
@@ -116,7 +121,7 @@ export default function TuneAgentPage() {
       <CardHeader>
         <CardTitle>Afinar Prompt com IA</CardTitle>
         <CardDescription>
-          Use a nossa IA para obter sugestões sobre como melhorar o prompt de orquestração do agente <span className="font-bold text-foreground">{agent?.name}</span>.
+          Use nossa IA para sugerir um <span className="font-bold text-foreground">System Prompt</span> e um <span className="font-bold text-foreground">Template de Persona</span> para o agente {agent?.name}.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -154,20 +159,30 @@ export default function TuneAgentPage() {
             </Button>
           )}
 
-          {isSuggesting && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando o agente e gerando um novo prompt...</p>}
+          {isSuggesting && <p className="text-sm text-muted-foreground animate-pulse">A IA está analisando o agente e gerando novos prompts...</p>}
           
           {suggestion && (
-            <div className="space-y-4 pt-4">
-                <div className="p-4 border rounded-md bg-accent/20 space-y-2">
-                    <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-accent shrink-0" /> Novo Prompt Sugerido</h4>
+            <div className="space-y-6 pt-4">
+                <div className="p-4 border rounded-md bg-muted/30 space-y-2">
+                    <h4 className="font-semibold flex items-center gap-2"><Bot className="h-4 w-4 text-accent shrink-0" /> System Prompt Sugerido</h4>
+                    <p className="text-xs text-muted-foreground">Define o papel, objetivo e formato de saída do agente. É mais estático.</p>
                     <Textarea 
                         readOnly 
-                        value={suggestion.suggestedPrompt}
-                        className="bg-background/50 h-64 font-mono text-xs"
+                        value={suggestion.suggestedSystemPrompt}
+                        className="bg-background/50 h-48 font-mono text-xs"
+                    />
+                </div>
+                 <div className="p-4 border rounded-md bg-muted/30 space-y-2">
+                    <h4 className="font-semibold flex items-center gap-2"><FileCode className="h-4 w-4 text-accent shrink-0" /> Template de Persona Sugerido</h4>
+                    <p className="text-xs text-muted-foreground">Template Handlebars com os placeholders para o contexto dinâmico da conversa.</p>
+                    <Textarea 
+                        readOnly 
+                        value={suggestion.suggestedPersonaTemplate}
+                        className="bg-background/50 h-48 font-mono text-xs"
                     />
                 </div>
                  <div className="p-4 border rounded-md bg-accent/20 space-y-2">
-                    <h4 className="font-semibold">Justificativa</h4>
+                    <h4 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-accent shrink-0" /> Justificativa da IA</h4>
                     <p className="text-sm text-foreground">
                         {suggestion.reasoning}
                     </p>

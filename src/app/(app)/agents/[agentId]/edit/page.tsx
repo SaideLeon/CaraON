@@ -19,9 +19,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const agentUpdateSchema = z.object({
-  persona: z.string().min(10, { message: 'A persona deve ter pelo menos 10 caracteres.' }),
+  persona: z.string().min(10, { message: 'O template de persona deve ter pelo menos 10 caracteres.' }),
   priority: z.coerce.number().int().min(0, 'A prioridade deve ser um número positivo.'),
   routerAgentId: z.string().optional().nullable(),
+  systemPrompt: z.string().optional(),
 });
 
 type AgentUpdateFormValues = z.infer<typeof agentUpdateSchema>;
@@ -60,9 +61,10 @@ export default function EditAgentPage() {
           setParentAgents(allParentAgents.filter(p => p.id !== agentId));
 
           form.reset({ 
-            persona: foundAgent.persona,
+            persona: foundAgent.persona || '',
             priority: foundAgent.priority || 0,
-            routerAgentId: foundAgent.routerAgentId
+            routerAgentId: foundAgent.routerAgentId,
+            systemPrompt: foundAgent.config?.systemPrompt || '',
           });
         } catch (error) {
           toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os dados do agente.' });
@@ -78,8 +80,13 @@ export default function EditAgentPage() {
     setSaving(true);
     try {
       const payload = {
-        ...data,
+        persona: data.persona,
+        priority: data.priority,
         routerAgentId: data.routerAgentId === 'none' ? null : data.routerAgentId,
+        config: {
+          ...agent?.config,
+          systemPrompt: data.systemPrompt,
+        }
       };
       await updateAgent(agentId, payload);
       toast({ title: 'Sucesso', description: 'O agente foi atualizado.' });
@@ -101,6 +108,7 @@ export default function EditAgentPage() {
             <CardContent>
                 <div className="space-y-4">
                     <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
                     <Skeleton className="h-10 w-1/4" />
                     <Skeleton className="h-10 w-1/2" />
                 </div>
@@ -117,19 +125,36 @@ export default function EditAgentPage() {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <CardHeader>
           <CardTitle>Editar Agente</CardTitle>
-          <CardDescription>Modifique a personalidade, prioridade e outras instruções do seu agente.</CardDescription>
+          <CardDescription>Modifique os prompts, prioridade e outras instruções do seu agente.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <FormField
             control={form.control}
+            name="systemPrompt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>System Prompt</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Defina o papel, objetivo e formato de saída do agente..."
+                    className="min-h-[150px] font-mono text-xs"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
             name="persona"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Persona</FormLabel>
+                <FormLabel>Template de Persona (Handlebars)</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Descreva a personalidade e o papel do agente..."
-                    className="min-h-[200px]"
+                    placeholder="Descreva o template da persona com placeholders como {{messageContent}}..."
+                    className="min-h-[200px] font-mono text-xs"
                     {...field}
                   />
                 </FormControl>

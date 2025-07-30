@@ -2,11 +2,11 @@
 'use server';
 
 /**
- * @fileOverview This file defines a Genkit flow for improving an agent's persona prompt.
+ * @fileOverview This file defines a Genkit flow for improving an agent's persona and system prompt.
  *
  * The flow takes the agent's ID, current persona, and contextual information
- * (like type, organization, child agents, and tools) to generate suggestions for a complete,
- * structured prompt for orchestration, following best practices.
+ * to generate suggestions for a complete, structured system prompt and a dynamic persona template,
+ * following orchestration best practices.
  * - improveAgentPersona - A function that handles the agent persona improvement process.
  * - ImproveAgentPersonaInput - The input type for the improveAgentPersona function.
  * - ImproveAgentPersonaOutput - The return type for the improveAgentPersona function.
@@ -17,7 +17,8 @@ import {z} from 'genkit';
 
 const ImproveAgentPersonaInputSchema = z.object({
   agentId: z.string().describe('The ID of the agent to improve.'),
-  currentPersona: z.string().describe('The current persona/prompt of the agent.'),
+  currentPersona: z.string().describe('The current persona/prompt template of the agent.'),
+  currentSystemPrompt: z.string().optional().describe('The current system prompt of the agent.'),
   agentType: z.enum(['ROUTER', 'PARENT', 'CHILD']).describe('The type of the agent.'),
   organizationName: z.string().optional().describe('The name of the organization the agent belongs to (for PARENT agents).'),
   childAgentNames: z.array(z.string()).optional().describe('A list of child agent names managed by this agent (for PARENT agents).'),
@@ -26,8 +27,9 @@ const ImproveAgentPersonaInputSchema = z.object({
 export type ImproveAgentPersonaInput = z.infer<typeof ImproveAgentPersonaInputSchema>;
 
 const ImproveAgentPersonaOutputSchema = z.object({
-  suggestedPrompt: z.string().describe('The suggested new and complete structured prompt for the agent.'),
-  reasoning: z.string().describe('The reasoning behind the suggested prompt.'),
+  suggestedSystemPrompt: z.string().describe("The suggested new static system prompt that defines the agent's role, objective, and strict output format."),
+  suggestedPersonaTemplate: z.string().describe("The suggested new dynamic persona Handlebars template containing placeholders for context."),
+  reasoning: z.string().describe('The reasoning behind the suggested changes.'),
 });
 export type ImproveAgentPersonaOutput = z.infer<typeof ImproveAgentPersonaOutputSchema>;
 
@@ -40,19 +42,19 @@ const prompt = ai.definePrompt({
   input: {schema: ImproveAgentPersonaInputSchema},
   output: {schema: ImproveAgentPersonaOutputSchema},
   prompt: `Você é um especialista em engenharia de prompts para agentes de IA de um sistema de orquestração hierárquico chamado CaraON.
-A sua resposta (prompt sugerido e justificativa) deve ser sempre em Português do Brasil.
-
-Sua tarefa é criar um prompt completo e estruturado para um agente, seguindo as melhores práticas. O prompt deve ser claro, definir um papel, apresentar opções e exigir uma saída JSON estruturada.
+Sua tarefa é refinar os prompts de um agente, separando a lógica entre um "System Prompt" (estático, define o papel e o formato de saída) e um "Template de Persona" (dinâmico, contém os dados do contexto).
+A sua resposta (prompts sugeridos e justificativa) deve ser sempre em Português do Brasil.
 
 O agente que você irá refinar é do tipo: {{{agentType}}}
-A persona/prompt atual dele é: {{{currentPersona}}}
+Persona Template Atual: {{{currentPersona}}}
+System Prompt Atual: {{{currentSystemPrompt}}}
 
 {{#if organizationName}}
 Ele atua no departamento (Organização): {{{organizationName}}}
 {{/if}}
 
 {{#if childAgentNames}}
-Ele é responsável por gerenciar e delegar tarefas para os seguintes especialistas (Agentes Filhos):
+Ele é responsável por delegar tarefas para os seguintes especialistas (Agentes Filhos):
 {{#each childAgentNames}}
 - {{{this}}}
 {{/each}}
@@ -65,25 +67,31 @@ Ele tem acesso e pode utilizar as seguintes ferramentas para obter dados da empr
 {{/each}}
 {{/if}}
 
-Instruções para a criação do prompt sugerido:
+Instruções para a criação dos prompts sugeridos:
+
+- Gere um 'suggestedSystemPrompt':
+  - Deve ser estático e reutilizável.
+  - Deve definir claramente o papel/persona do agente.
+  - Deve instruir o agente a usar o contexto do "Template de Persona" para tomar sua decisão.
+  - Deve exigir uma saída ESTRITAMENTE EM JSON, definindo os campos exatos.
+
+- Gere um 'suggestedPersonaTemplate':
+  - Deve ser um template Handlebars dinâmico.
+  - Deve conter apenas os placeholders para os dados que mudam a cada chamada (ex: mensagem do cliente, histórico, lista de ferramentas/agentes disponíveis).
+
+- Modelos de Saída JSON esperados:
+  - Para 'PARENT'/'ROUTER': { "agentId": "ID_DO_AGENTE_SELECIONADO | null", "justificativa": "MOTIVO_DA_ESCOLHA" }
+  - Para 'CHILD': { "action": "TOOL_CALL | REPLY", "toolName": "NOME_DA_FERRAMENTA | null", "parameters": { ... } | null, "replyText": "RESPOSTA_AO_CLIENTE | null" }
 
 - Se o tipo for "PARENT" (ou "Gerente de Departamento"):
-  O prompt que você criar deve instruir o agente a agir como um roteador que analisa a mensagem do cliente e a delega para o Agente Filho (especialista) mais apropriado.
-  O prompt deve:
-  1. Definir a persona como um gerente eficiente do departamento '{{{organizationName}}}'.
-  2. Listar os agentes filhos disponíveis (usando um placeholder como '{{#each availableAgents}}') e suas especialidades.
-  3. Exigir uma saída JSON com os campos "agentId" e "justificativa".
-  4. Incluir uma lógica de fallback (retornar null) se nenhum agente for adequado.
+  - System Prompt: Deve instruir o agente a agir como um roteador que analisa a mensagem do cliente (fornecida no template) e delega para o Agente Filho (especialista) mais apropriado. Deve mencionar o formato de saída JSON.
+  - Persona Template: Deve conter placeholders como '{{messageContent}}' e '{{#each availableAgents}}...{{/each}}'.
 
 - Se o tipo for "CHILD" (ou "Especialista"):
-  O prompt que você criar deve instruir o agente a executar uma tarefa final. Ele deve decidir entre usar uma de suas ferramentas para obter informações ou responder diretamente ao cliente.
-  O prompt deve:
-  1. Definir a persona como um especialista prestativo e eficaz.
-  2. Listar as ferramentas disponíveis (usando um placeholder como '{{#each availableTools}}') com nome e descrição.
-  3. Exigir uma saída JSON com os campos "action" (com os valores "TOOL_CALL" ou "REPLY"), "toolName", "parameters" e "replyText".
-  4. A lógica de decisão deve ser baseada na mensagem do cliente e no histórico da conversa.
+  - System Prompt: Deve instruir o agente a executar uma tarefa final. Ele deve decidir entre usar uma de suas ferramentas (listadas no template) ou responder diretamente ao cliente, com base no histórico e na mensagem atual. Deve mencionar o formato de saída JSON.
+  - Persona Template: Deve conter placeholders como '{{messageContent}}', '{{conversationHistory}}', e '{{#each availableTools}}...{{/each}}'.
 
-Com base no tipo de agente e no contexto fornecido, gere um 'suggestedPrompt' completo e bem estruturado e uma 'reasoning' clara do motivo pelo qual o novo prompt é melhor.`,
+Com base no tipo de agente e no contexto, gere um 'suggestedSystemPrompt', um 'suggestedPersonaTemplate' e uma 'reasoning' clara do motivo pelo qual a nova estrutura é melhor.`,
 });
 
 const improveAgentPersonaFlow = ai.defineFlow(
@@ -97,7 +105,8 @@ const improveAgentPersonaFlow = ai.defineFlow(
     // but as a safeguard, we add a check here to prevent calling the LLM.
     if (input.agentType === 'ROUTER') {
       return {
-        suggestedPrompt: input.currentPersona,
+        suggestedSystemPrompt: 'Este é um prompt de sistema para o agente roteador principal. Sua função é analisar a mensagem do cliente e o contexto fornecido para delegar a tarefa ao departamento (Agente Pai) mais apropriado. Responda apenas com um JSON no formato: { "agentId": "ID_DO_AGENTE_SELECIONADO | null", "justificativa": "MOTIVO_DA_ESCOLHA" }',
+        suggestedPersonaTemplate: 'Mensagem do Cliente: "{{messageContent}}"\n\nDepartamentos Disponíveis:\n{{#each availableAgents}}\n- ID: "{{this.id}}", Nome: "{{this.name}}", Especialidade: "{{this.persona}}"\n{{/each}}',
         reasoning: 'O Agente Roteador é configurado pelo sistema e não pode ser refinado pela IA para garantir a estabilidade do fluxo principal da instância.'
       };
     }

@@ -2,7 +2,7 @@
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary, Message, PaginatedMessages } from '@/lib/types';
+import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentConfig } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'caraon-token';
@@ -54,7 +54,14 @@ export const createAgent = async (data: Partial<Agent>): Promise<Agent> => {
     return response.data;
 };
 
-export const updateAgent = async (agentId: string, data: { persona?: string, priority?: number, routerAgentId?: string | null }): Promise<Agent> => {
+type UpdateAgentPayload = {
+    persona?: string;
+    priority?: number;
+    routerAgentId?: string | null;
+    config?: Partial<AgentConfig>;
+};
+
+export const updateAgent = async (agentId: string, data: UpdateAgentPayload): Promise<Agent> => {
     const response = await api.put(`/agents/${agentId}`, data);
     return response.data;
 };
