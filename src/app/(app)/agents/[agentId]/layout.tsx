@@ -11,28 +11,35 @@ import type { Agent } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
 
+// Note: Agent data is now fetched by child pages (edit/tune)
+// to ensure data freshness after updates. This component
+// only fetches the name for the header.
+
 export default function AgentDetailLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const params = useParams();
   const agentId = params.agentId as string;
 
-  const [agent, setAgent] = useState<Agent | null>(null);
+  const [agentName, setAgentName] = useState<string>('');
+  const [instanceId, setInstanceId] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (agentId) {
-      const fetchAgent = async () => {
+      const fetchAgentName = async () => {
         try {
           setLoading(true);
           const foundAgent = await getAgentById(agentId);
-          setAgent(foundAgent);
+          setAgentName(foundAgent?.name || '');
+          setInstanceId(foundAgent?.instanceId || '');
         } catch (error) {
-          console.error('Failed to fetch agent', error);
+          console.error('Failed to fetch agent name', error);
+          setAgentName('Agente não encontrado');
         } finally {
           setLoading(false);
         }
       };
-      fetchAgent();
+      fetchAgentName();
     }
   }, [agentId]);
 
@@ -45,7 +52,7 @@ export default function AgentDetailLayout({ children }: { children: ReactNode })
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Button asChild variant="outline" size="icon">
-          <Link href={agent ? `/agents?instanceId=${agent.instanceId}` : '/agents'}>
+          <Link href={instanceId ? `/agents?instanceId=${instanceId}` : '/agents'}>
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Voltar para Agentes</span>
           </Link>
@@ -58,7 +65,7 @@ export default function AgentDetailLayout({ children }: { children: ReactNode })
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-bold font-headline">{agent?.name}</h1>
+              <h1 className="text-2xl font-bold font-headline">{agentName}</h1>
               <p className="text-muted-foreground text-sm">Gerencie a configuração do seu agente.</p>
             </>
           )}
