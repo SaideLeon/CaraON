@@ -81,8 +81,8 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    socket.onerror = (event) => {
-      console.error('A WebSocket error occurred:', event);
+    socket.onerror = () => {
+      console.error('A WebSocket error occurred. This is a generic error; see the "onclose" event for more details.');
       socket.close(); 
     };
   }, []);
