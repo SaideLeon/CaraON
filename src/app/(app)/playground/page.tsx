@@ -39,6 +39,10 @@ const statusConfig = {
         textColor: 'text-yellow-500',
         bgColor: 'bg-yellow-500',
     },
+    reconnecting: {
+        textColor: 'text-yellow-500',
+        bgColor: 'bg-yellow-500',
+    },
      error: {
         textColor: 'text-destructive',
         bgColor: 'bg-destructive',

@@ -6,7 +6,7 @@ export interface User {
   email: string;
 }
 
-export type InstanceStatus = 'connected' | 'disconnected' | 'pending' | 'error' | 'CONNECTED' | 'DISCONNECTED' | 'PENDING' | 'ERROR' | 'PENDING_QR';
+export type InstanceStatus = 'connected' | 'disconnected' | 'pending' | 'error' | 'reconnecting' | 'CONNECTED' | 'DISCONNECTED' | 'PENDING' | 'ERROR' | 'PENDING_QR' | 'RECONNECTING';
 
 export interface Instance {
   id: string;

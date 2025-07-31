@@ -34,7 +34,12 @@ const statusConfig = {
         textColor: 'text-yellow-400'
     },
     pending_qr: {
-        label: 'Pendente QR',
+        label: 'Aguardando QR',
+        color: 'bg-yellow-500',
+        textColor: 'text-yellow-400'
+    },
+    reconnecting: {
+        label: 'Reconectando...',
         color: 'bg-yellow-500',
         textColor: 'text-yellow-400'
     },
@@ -49,6 +54,8 @@ const statusConfig = {
 export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: InstanceCardProps) {
     const currentStatus = instance.status?.toLowerCase() as keyof typeof statusConfig || 'pending';
     const config = statusConfig[currentStatus] || statusConfig.error;
+    const canReconnect = currentStatus === 'disconnected' || currentStatus === 'error';
+    const canDisconnect = currentStatus === 'connected';
   
   return (
     <Card className="flex flex-col hover:border-primary transition-colors duration-300">
@@ -85,19 +92,19 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {(currentStatus === 'disconnected' || currentStatus === 'error') && (
+              {canReconnect && (
                  <DropdownMenuItem onClick={() => onReconnect(instance)}>
                     <RefreshCw className="mr-2 h-4 w-4"/>
                     <span>Reconectar</span>
                 </DropdownMenuItem>
               )}
-              {currentStatus === 'connected' && (
+              {canDisconnect && (
                 <DropdownMenuItem onClick={() => onDisconnect(instance)}>
                     <PowerOff className="mr-2 h-4 w-4" />
                     <span>Desconectar</span>
                 </DropdownMenuItem>
               )}
-              <DropdownMenuSeparator />
+              {(canReconnect || canDisconnect) && <DropdownMenuSeparator />}
               <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete(instance)}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 <span>Excluir</span>

@@ -18,6 +18,7 @@ const statusConfig = {
     disconnected: { bgColor: 'bg-red-500' },
     pending: { bgColor: 'bg-yellow-500' },
     pending_qr: { bgColor: 'bg-yellow-500' },
+    reconnecting: { bgColor: 'bg-yellow-500' },
     error: { bgColor: 'bg-destructive' },
 };
 
