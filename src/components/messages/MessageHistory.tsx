@@ -178,9 +178,11 @@ export function MessageHistory({ instanceId, contact }: MessageHistoryProps) {
                             )}
                         >
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                             <p className={cn("text-xs mt-1", message.fromMe ? 'text-primary-foreground/70' : 'text-muted-foreground/80')}>
-                                {format(parseISO(message.timestamp), 'HH:mm')}
-                            </p>
+                             {message.timestamp && (
+                                <p className={cn("text-xs mt-1", message.fromMe ? 'text-primary-foreground/70' : 'text-muted-foreground/80')}>
+                                    {format(parseISO(message.timestamp), 'HH:mm')}
+                                </p>
+                             )}
                         </div>
                     </div>
 
