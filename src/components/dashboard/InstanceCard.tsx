@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
-import { CaraOnIcon } from '../icons/CaraOnIcon';
+import { SariacIcon } from '../icons/SariacIcon';
 
 interface InstanceCardProps {
   instance: Instance;
@@ -62,7 +62,7 @@ export function InstanceCard({ instance, onReconnect, onDisconnect, onDelete }: 
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
            <div className="flex items-center gap-3 min-w-0">
-             <CaraOnIcon className="h-8 w-8 text-primary shrink-0" />
+             <SariacIcon className="h-8 w-8 text-primary shrink-0" />
              <div className="flex-1 min-w-0">
                 <CardTitle className="font-headline text-xl truncate" title={instance.name}>{instance.name}</CardTitle>
                 <CardDescription className="text-xs text-muted-foreground truncate">ID: {instance.clientId}</CardDescription>

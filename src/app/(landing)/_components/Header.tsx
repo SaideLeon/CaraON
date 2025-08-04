@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
+import { SariacIcon } from '@/components/icons/SariacIcon';
 
 export function Header() {
   return (
@@ -10,8 +10,8 @@ export function Header() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <CaraOnIcon className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline">CaraON</span>
+            <SariacIcon className="h-6 w-6 text-primary" />
+            <span className="font-bold font-headline">SARIAC</span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">

@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { User } from '@/lib/types';
 import api from '@/services/api';
 
-const TOKEN_KEY = 'caraon-token';
+const TOKEN_KEY = 'sariac-token';
 
 interface AuthContextType {
   user: User | null;

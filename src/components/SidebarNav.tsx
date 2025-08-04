@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree, ShoppingCart, FlaskConical, Users2, MessageSquare, Info } from 'lucide-react';
-import { CaraOnIcon } from '@/components/icons/CaraOnIcon';
+import { SariacIcon } from '@/components/icons/SariacIcon';
 
 import {
   Sidebar,
@@ -59,8 +59,8 @@ export function SidebarNav() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2">
-           <CaraOnIcon className="h-7 w-7 text-primary" />
-           <span className="text-lg font-semibold font-headline">CaraON</span>
+           <SariacIcon className="h-7 w-7 text-primary" />
+           <span className="text-lg font-semibold font-headline">SARIAC</span>
         </div>
         <SidebarTrigger className="md:hidden" />
       </SidebarHeader>

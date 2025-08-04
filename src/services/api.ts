@@ -5,7 +5,7 @@ import axios from 'axios';
 import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentConfig } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
-const TOKEN_KEY = 'caraon-token';
+const TOKEN_KEY = 'sariac-token';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
