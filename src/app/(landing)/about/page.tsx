@@ -3,11 +3,20 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function AboutPage() {
     
   return (
-    <div className="max-w-4xl mx-auto space-y-8 py-10 px-4">
+    <div className="relative max-w-4xl mx-auto space-y-8 py-10 px-4">
+      <Button asChild variant="outline" size="icon" className="absolute top-4 left-4 md:top-10 md:left-10 z-10">
+          <Link href="/">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="sr-only">Voltar para a página inicial</span>
+          </Link>
+        </Button>
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-3xl">SARIAC – Sistema de Agentes Robóticos de Interação e Automação Conversacional</CardTitle>
