@@ -8,7 +8,7 @@ const getWebSocketURL = () => {
     return ''; // Return empty string for SSR
   }
   // Connect directly to the secure WebSocket endpoint.
-  return 'wss://app.sariac.qzz.io/';
+  return 'wss://app.caraon.qzz.io/';
 }
 
 export interface WebSocketMessage {
