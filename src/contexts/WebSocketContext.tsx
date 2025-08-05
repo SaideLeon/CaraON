@@ -15,7 +15,7 @@ export interface WebSocketMessage {
   type: 'qr_code' | 'instance_status' | 'playground_response' | 'playground_error' | 'playground_response_chunk' | 'playground_response_complete';
   clientId?: string; // For instance updates
   data?: any; // For qr_code
-  status?: 'connected' | 'disconnected'; // For instance_status
+  status?: 'connected' | 'disconnected' | 'reconnecting'; // For instance_status
   // For playground_response
   response?: {
     finalResponse: string;
@@ -82,7 +82,7 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     };
 
     socket.onerror = () => {
-      console.error('A WebSocket error occurred. This is a generic error; see the "onclose" event for more details.');
+      console.log('A WebSocket error occurred. This is a generic error; see the "onclose" event for more details.');
       socket.close(); 
     };
   }, []);
