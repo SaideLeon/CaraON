@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, Briefcase, LayoutGrid, LogOut, User, MoreVertical, Wrench, Bookmark, FolderTree, ShoppingCart, FlaskConical, Users2, MessageSquare, Info } from 'lucide-react';
+import { Bot, LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, MessageSquare, Info } from 'lucide-react';
 import { SariacIcon } from '@/components/icons/SariacIcon';
 
 import {
@@ -15,7 +15,6 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
   SidebarFooter,
-  SidebarGroup,
   SidebarGroupLabel,
   SidebarSeparator,
   useSidebar,
@@ -50,10 +49,6 @@ export function SidebarNav() {
     }
     return pathname.startsWith(path);
   };
-
-  const isAboutActive = () => {
-    return pathname === '/about';
-  }
 
   return (
     <Sidebar>
@@ -110,54 +105,7 @@ export function SidebarNav() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/tools')} tooltip="Ferramentas" onClick={handleLinkClick}>
-              <Link href="/tools">
-                <Wrench />
-                <span>Ferramentas</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/organizations')} tooltip="Organizações" onClick={handleLinkClick}>
-              <Link href="/organizations">
-                <Briefcase />
-                <span>Organizações</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
-        <SidebarSeparator />
-        <SidebarGroup>
-          <SidebarGroupLabel>E-commerce</SidebarGroupLabel>
-          <SidebarMenu>
-             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive('/products')} tooltip="Produtos" onClick={handleLinkClick}>
-                <Link href="/products">
-                  <ShoppingCart />
-                  <span>Produtos</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive('/brands')} tooltip="Marcas" onClick={handleLinkClick}>
-                <Link href="/brands">
-                  <Bookmark />
-                  <span>Marcas</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={isActive('/categories')} tooltip="Categorias" onClick={handleLinkClick}>
-                <Link href="/categories">
-                  <FolderTree />
-                  <span>Categorias</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-
       </SidebarContent>
       <SidebarFooter>
         <DropdownMenu>

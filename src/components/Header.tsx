@@ -5,11 +5,7 @@ import { PlusCircle, Wifi, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from './ui/sidebar';
 import { useWebSocket } from '@/contexts/WebSocketContext';
-import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { CreateAgentDialog } from './agents/CreateAgentDialog';
-import { CreateOrganizationDialog } from './organizations/CreateOrganizationDialog';
-import { CreateToolDialog } from './tools/CreateToolDialog';
 
 
 const pageConfig: Record<string, { title: string; description: string }> = {
@@ -31,27 +27,7 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     },
     '/agents': {
         title: 'Agentes',
-        description: 'Crie e gira os seus agentes de IA.',
-    },
-    '/tools': {
-        title: 'Ferramentas',
-        description: 'Crie e gira ferramentas para dar novas habilidades aos seus agentes.',
-    },
-    '/organizations': {
-        title: 'Organizações',
-        description: 'Gira as suas organizações e equipas.',
-    },
-    '/products': {
-        title: 'Produtos',
-        description: 'Crie e gira os produtos da sua loja.',
-    },
-     '/brands': {
-        title: 'Marcas',
-        description: 'Crie e gira as marcas dos produtos da sua loja.',
-    },
-    '/categories': {
-        title: 'Categorias',
-        description: 'Crie e gira as categorias dos produtos da sua loja.',
+        description: 'Crie e configure a hierarquia de agentes da sua instância.',
     },
     '/about': {
         title: 'Sobre o Sistema',
@@ -64,50 +40,6 @@ export function Header() {
   const pathname = usePathname();
   const { title, description } = pageConfig[pathname] || { title: '', description: '' };
   
-  // This would ideally come from a context or page props
-  const handleActionCreated = () => {
-    // This logic should be lifted to the page component
-    window.location.reload(); // Simple reload to refresh the list
-  };
-
-  const renderActionButtons = () => {
-    switch (pathname) {
-      case '/agents':
-        return (
-          <CreateAgentDialog onAgentCreated={handleActionCreated} >
-            <Button size="sm">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Novo Agente</span>
-              <span className="sm:hidden">Novo</span>
-            </Button>
-          </CreateAgentDialog>
-        );
-      case '/tools':
-        return (
-          <CreateToolDialog onToolCreated={handleActionCreated} >
-            <Button size="sm">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Nova Ferramenta</span>
-              <span className="sm:hidden">Nova</span>
-            </Button>
-          </CreateToolDialog>
-        );
-      case '/organizations':
-         return (
-          <CreateOrganizationDialog onOrganizationCreated={handleActionCreated}>
-            <Button size="sm">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Nova Organização</span>
-              <span className="sm:hidden">Nova</span>
-            </Button>
-          </CreateOrganizationDialog>
-        );
-      default:
-        return null;
-    }
-  }
-
-
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
         <SidebarTrigger className="sm:hidden" />
@@ -120,7 +52,6 @@ export function Header() {
                 {isConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
                 <span className="hidden sm:inline">{isConnected ? 'Conectado' : 'Desconectado'}</span>
             </div>
-             {renderActionButtons()}
         </div>
     </header>
   );

@@ -17,131 +17,29 @@ export interface Instance {
   createdAt: string;
 }
 
-export type AgentType = 'ROUTER' | 'PARENT' | 'CHILD';
-
-export interface AgentConfig {
-    id: string;
-    agentId: string;
-    maxTokens: number;
-    temperature: number;
-    model: string;
-    systemPrompt: string;
-    fallbackMessage: string;
-    timeoutSeconds: number;
-    maxRetries: number;
+export interface AgentTool {
+    type: 'DUCKDUCKGO' | 'YFINANCE' | string; // Making it extensible
+    config?: Record<string, any> | null;
 }
 
-export interface Agent {
-  id: string;
-  name: string;
-  type: AgentType;
-  persona: string;
-  instanceId: string;
-  organizationId?: string | null;
-  parentAgentId?: string | null;
-  routerAgentId?: string | null;
-  isActive: boolean;
-  priority: number;
-  createdAt: string;
-  updatedAt: string;
-  config?: AgentConfig | any;
-  tools?: Tool[];
-  templateId?: string | null;
-  childAgents?: Agent[];
-  parentAgents?: Agent[];
-  organization?: Organization | null;
-}
-
-export interface Template {
-    id: string;
+export interface AgentDefinition {
+    agent_id?: string;
     name: string;
-    description: string;
-    category: string;
-    defaultPersona: string;
-    isSystem: boolean;
-    userId: string | null;
+    role: string;
+    model_provider: 'GEMINI' | string;
+    model_id: string;
+    tools: AgentTool[];
+    parent_id?: string | null;
 }
 
-export interface Tool {
-    id: string;
-    name: string;
-    description: string;
-    type: string;
-    config: {
-      connectionString?: string;
-      collection?: string;
-      query?: string;
-    };
-    isSystem: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
-
-
-export interface Organization {
-  id: string;
-  name: string;
-  instanceId: string;
-}
-
-export interface Brand {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  logo?: string | null;
-  website?: string | null;
-  isActive: boolean;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  image?: string | null;
-  parentId?: string | null;
-  isActive: boolean;
-}
-
-export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED';
-
-export interface ProductImage {
-  id?: string;
-  url: string;
-  altText?: string;
-  order?: number;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string | null;
-  shortDescription?: string | null;
-  sku: string;
-  price: number;
-  comparePrice?: number | null;
-  cost?: number | null;
-  weight?: number | null;
-  length?: number | null;
-  width?: number | null;
-  height?: number | null;
-  status: ProductStatus;
-  isDigital: boolean;
-  trackStock: boolean;
-  stock: number;
-  minStock: number;
-  maxStock?: number | null;
-  featured: boolean;
-  categoryId: string;
-  brandId?: string | null;
-  tags: string[];
-  seoTitle?: string | null;
-  seoDescription?: string | null;
-  images: ProductImage[];
-  createdAt: string;
-  updatedAt: string;
+export interface AgentHierarchy {
+    _id?: string;
+    user_id?: string;
+    instance_id: string;
+    router_instructions: string;
+    agents: AgentDefinition[];
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface Contact {

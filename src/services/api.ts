@@ -2,7 +2,7 @@
 'use client';
 
 import axios from 'axios';
-import type { Agent, User, Instance, Organization, Tool, Brand, Category, Product, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentConfig } from '@/lib/types';
+import type { User, Instance, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentHierarchy } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'sariac-token';
@@ -27,67 +27,18 @@ api.interceptors.request.use(
   }
 );
 
-// Agents
-export const getInstanceParentAgents = async (instanceId: string): Promise<Agent[]> => {
-    const response = await api.get(`/agents/parents/${instanceId}`);
+
+// Agent Hierarchy
+export const getAgentHierarchyForInstance = async (instanceId: string): Promise<AgentHierarchy> => {
+    const response = await api.get(`/agent/instances/${instanceId}`);
+    // The API returns { "instances": [...] }, so we get the first one.
+    return response.data.instances[0];
+};
+
+export const updateAgentHierarchy = async (hierarchy: AgentHierarchy): Promise<{message: string}> => {
+    const response = await api.put(`/agent/hierarchy`, hierarchy);
     return response.data;
-};
-
-export const getUserParentAgents = async (): Promise<Agent[]> => {
-    const response = await api.get('/agents/user/parents');
-    return response.data;
-};
-
-export const getAgentById = async (agentId: string): Promise<Agent> => {
-    const response = await api.get(`/agents/${agentId}`);
-    return response.data;
-};
-
-
-export const getChildAgents = async (parentAgentId: string): Promise<Agent[]> => {
-    const response = await api.get(`/agents/child/${parentAgentId}`);
-    return response.data;
-};
-
-export const createAgent = async (data: Partial<Agent>): Promise<Agent> => {
-    const response = await api.post('/agents', data);
-    return response.data;
-};
-
-type UpdateAgentPayload = {
-    persona?: string;
-    priority?: number;
-    routerAgentId?: string | null;
-    config?: Partial<Omit<AgentConfig, 'id' | 'agentId'>>;
-};
-
-export const updateAgent = async (agentId: string, data: UpdateAgentPayload): Promise<Agent> => {
-    const { config, ...agentData } = data;
-
-    // Se houver dados de configuração, atualize-os primeiro com PATCH
-    if (config && Object.keys(config).length > 0) {
-        await api.patch(`/agents/${agentId}/config`, config);
-    }
-    
-    // Se houver outros dados do agente, atualize-os com PUT
-    if (Object.keys(agentData).length > 0) {
-        const response = await api.put(`/agents/${agentId}`, agentData);
-        return response.data;
-    }
-
-    // Se apenas a config foi atualizada, precisamos buscar o agente atualizado
-    return getAgentById(agentId);
-};
-
-export const deleteAgent = async (agentId: string): Promise<void> => {
-    await api.delete(`/agents/${agentId}`);
 }
-
-// Agent Chat
-export const callAgentChat = async (agentId: string, data: { message: string, history: any[] }): Promise<string> => {
-    const response = await api.post(`/agents/${agentId}/chat`, data);
-    return response.data; // Assuming the backend returns the string response directly
-};
 
 
 // Auth
@@ -104,74 +55,6 @@ export const getUserInstances = async (): Promise<Instance[]> => {
 
 export const deleteInstance = async (instanceId: string): Promise<void> => {
     await api.delete(`/instances/${instanceId}`);
-};
-
-// Organizations
-export const getInstanceOrganizations = async (instanceId: string): Promise<Organization[]> => {
-    const response = await api.get(`/instances/${instanceId}/organizations`);
-    return response.data;
-}
-
-// Tools
-export const getTools = async (): Promise<Tool[]> => {
-    const response = await api.get('/tools');
-    return response.data;
-}
-
-export const createTool = async (data: Omit<Tool, 'id' | 'isSystem' | 'createdAt' | 'updatedAt'>): Promise<Tool> => {
-    const response = await api.post('/tools', data);
-    return response.data;
-}
-
-export const deleteTool = async (toolId: string): Promise<void> => {
-    await api.delete(`/tools/${toolId}`);
-}
-
-// Brands
-export const getBrands = async (): Promise<Brand[]> => {
-    const response = await api.get('/brands');
-    // The API returns a paginated response, so we extract the data array.
-    return response.data.data;
-};
-
-export const createBrand = async (data: Omit<Brand, 'id' | 'isActive'>): Promise<Brand> => {
-    const response = await api.post('/brands', data);
-    return response.data;
-};
-
-export const deleteBrand = async (brandId: string): Promise<void> => {
-    await api.delete(`/brands/${brandId}`);
-};
-
-// Categories
-export const getCategories = async (): Promise<Category[]> => {
-    const response = await api.get('/categories');
-    // The API returns a paginated response, so we extract the data array.
-    return response.data.data;
-};
-
-export const createCategory = async (data: Omit<Category, 'id' | 'isActive'>): Promise<Category> => {
-    const response = await api.post('/categories', data);
-    return response.data;
-};
-
-export const deleteCategory = async (categoryId: string): Promise<void> => {
-    await api.delete(`/categories/${categoryId}`);
-};
-
-// Products
-export const getProducts = async (): Promise<Product[]> => {
-    const response = await api.get('/products');
-    return response.data.data;
-};
-
-export const createProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'images'> & { images: { url: string; altText?: string }[] }): Promise<Product> => {
-    const response = await api.post('/products', data);
-    return response.data;
-};
-
-export const deleteProduct = async (productId: string): Promise<void> => {
-    await api.delete(`/products/${productId}`);
 };
 
 // Contacts
