@@ -12,7 +12,6 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Bot, GripVertical, Loader2, PlusCircle, Save, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
 import { updateAgentHierarchy } from '@/services/api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
@@ -53,7 +52,6 @@ const availableTools = [
 
 export function HierarchyEditor({ hierarchy, instance, onHierarchyUpdated }: HierarchyEditorProps) {
   const { toast } = useToast();
-  const { user } = useAuth();
   
   const form = useForm<HierarchyFormValues>({
     resolver: zodResolver(hierarchySchema),
@@ -70,12 +68,12 @@ export function HierarchyEditor({ hierarchy, instance, onHierarchyUpdated }: Hie
   });
 
   const onSubmit = async (data: HierarchyFormValues) => {
-    if (!user) {
-        toast({ variant: 'destructive', title: 'Erro de Autenticação', description: 'Usuário não encontrado.' });
+    if (!instance.userId) {
+        toast({ variant: 'destructive', title: 'Erro de Autenticação', description: 'ID do usuário não encontrado na instância.' });
         return;
     }
     
-    const payload = { ...data, user_id: user.id };
+    const payload = { ...data, user_id: instance.userId };
 
     try {
       await updateAgentHierarchy(payload);
