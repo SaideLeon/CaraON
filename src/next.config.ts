@@ -1,3 +1,4 @@
+
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -20,10 +21,10 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      {
+       {
         source: '/api/v1/agent/:path*',
         // This rewrite is for the agent-specific microservice
-        destination: 'https://ariac.sariac.qzz.io/:path*',
+        destination: 'https://ariac.sariac.qzz.io/agent/:path*',
       },
       {
         source: '/api/v1/:path*',

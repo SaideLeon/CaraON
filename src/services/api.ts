@@ -30,16 +30,14 @@ api.interceptors.request.use(
 
 // Agent Hierarchy
 export const getAgentHierarchyForInstance = async (instanceId: string): Promise<AgentHierarchy> => {
-    // This now correctly uses the rewrite rule for the agent service
-    // GET /api/v1/agent/instances/:instanceId -> rewrites to https://ariac.sariac.qzz.io/instances/:instanceId
+    // GET /api/v1/agent/instances/:instanceId -> rewrites to https://ariac.sariac.qzz.io/agent/instances/:instanceId
     const response = await api.get(`/agent/instances/${instanceId}`);
     // The API returns { "instances": [...] }, so we get the first one.
     return response.data.instances[0];
 };
 
 export const updateAgentHierarchy = async (hierarchy: AgentHierarchy): Promise<{message: string}> => {
-    // This now correctly uses the rewrite rule for the agent service
-    // PUT /api/v1/agent/hierarchy -> rewrites to https://ariac.sariac.qzz.io/hierarchy
+    // PUT /api/v1/agent/hierarchy -> rewrites to https://ariac.sariac.qzz.io/agent/hierarchy
     const response = await api.put(`/agent/hierarchy`, hierarchy);
     return response.data;
 }
