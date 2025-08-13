@@ -21,11 +21,6 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-       {
-        source: '/api/v1/agent/:path*',
-        // This rewrite is for the agent-specific microservice
-        destination: 'https://ariac.sariac.qzz.io/agent/:path*',
-      },
       {
         source: '/api/v1/:path*',
         // This is the main application backend

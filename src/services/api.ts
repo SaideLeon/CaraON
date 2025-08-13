@@ -11,9 +11,9 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+// Main API instance that uses the /api/v1 prefix and includes the token.
 api.interceptors.request.use(
   (config) => {
-    // Check if window is defined to ensure this runs only on the client-side
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem(TOKEN_KEY);
       if (token) {
@@ -27,18 +27,21 @@ api.interceptors.request.use(
   }
 );
 
+// A separate axios instance for agent API calls that go through our own proxy.
+// This instance does not need the base URL or token interceptor as the proxy handles it.
+const agentApi = axios.create();
+
 
 // Agent Hierarchy
 export const getAgentHierarchyForInstance = async (instanceId: string): Promise<AgentHierarchy> => {
-    // GET /api/v1/agent/instances/:instanceId -> rewrites to https://ariac.sariac.qzz.io/agent/instances/:instanceId
-    const response = await api.get(`/agent/instances/${instanceId}`);
-    // The API returns { "instances": [...] }, so we get the first one.
+    // This now calls our internal Next.js proxy route
+    const response = await agentApi.get(`/api/agent/instances/${instanceId}`);
     return response.data.instances[0];
 };
 
 export const updateAgentHierarchy = async (hierarchy: AgentHierarchy): Promise<{message: string}> => {
-    // PUT /api/v1/agent/hierarchy -> rewrites to https://ariac.sariac.qzz.io/agent/hierarchy
-    const response = await api.put(`/agent/hierarchy`, hierarchy);
+    // This now calls our internal Next.js proxy route
+    const response = await agentApi.put(`/api/agent/hierarchy`, hierarchy);
     return response.data;
 }
 
@@ -80,5 +83,5 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
     await api.delete(`/messages/${messageId}`);
 }
 
-
+// Default export is the main API client
 export default api;
