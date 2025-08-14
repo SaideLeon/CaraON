@@ -42,6 +42,10 @@ export interface AgentHierarchy {
     updated_at?: string;
 }
 
+export interface PaginatedHierarchies {
+    instances: AgentHierarchy[];
+}
+
 export interface Contact {
   id: string;
   phoneNumber: string; // Corrected from 'phone'

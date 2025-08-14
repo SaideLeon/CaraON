@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, ServerCrash, Bot, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Instance, AgentHierarchy } from '@/lib/types';
-import { getUserInstances, getAgentHierarchyForInstance } from '@/services/api';
+import { getUserInstances, getAgentHierarchies } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,81 +23,55 @@ const statusConfig = {
 
 export default function AgentsPage() {
   const [instances, setInstances] = useState<Instance[]>([]);
+  const [hierarchies, setHierarchies] = useState<AgentHierarchy[]>([]);
   const [selectedInstance, setSelectedInstance] = useState<Instance | null>(null);
-  const [agentHierarchy, setAgentHierarchy] = useState<AgentHierarchy | null>(null);
-  const [loadingInstances, setLoadingInstances] = useState(true);
-  const [loadingHierarchy, setLoadingHierarchy] = useState(false);
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [selectedHierarchy, setSelectedHierarchy] = useState<AgentHierarchy | null>(null);
+  const [loadingData, setLoadingData] = useState(true);
 
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchInstances = async () => {
-      setLoadingInstances(true);
-      try {
-        const response = await getUserInstances();
-        setInstances(response);
-        if (response.length > 0) {
-          // Automatically select the first instance
-          // handleInstanceChange(response[0].id);
-        }
-      } catch (error) {
+  const fetchData = useCallback(async () => {
+    setLoadingData(true);
+    try {
+        const [instancesResponse, hierarchiesResponse] = await Promise.all([
+            getUserInstances(),
+            getAgentHierarchies()
+        ]);
+        
+        setInstances(instancesResponse);
+        setHierarchies(hierarchiesResponse.instances || []);
+
+    } catch (error) {
         toast({
           variant: 'destructive',
           title: 'Erro',
-          description: 'Não foi possível carregar as suas instâncias.',
+          description: 'Não foi possível carregar os dados das instâncias e agentes.',
         });
-      } finally {
-        setLoadingInstances(false);
-      }
-    };
-    fetchInstances();
-  }, [toast]);
-
-  const fetchHierarchy = useCallback(async (instanceId: string) => {
-    setLoadingHierarchy(true);
-    setAgentHierarchy(null);
-    try {
-      const response = await getAgentHierarchyForInstance(instanceId);
-      if (response && response.agents) {
-         setAgentHierarchy(response);
-      } else {
-         // Initialize with a default structure if no hierarchy exists
-         setAgentHierarchy({
-            instance_id: instanceId,
-            router_instructions: "Você é um roteador inteligente. Sua função é analisar a pergunta do usuário e direcioná-la para o especialista mais adequado. Responda apenas com o nome do especialista.",
-            agents: [],
-         });
-      }
-    } catch (error: any) {
-        if (error.response?.status === 404) {
-            setAgentHierarchy({
-                instance_id: instanceId,
-                router_instructions: "Você é um roteador inteligente. Sua função é analisar a pergunta do usuário e direcioná-la para o especialista mais adequado. Responda apenas com o nome do especialista.",
-                agents: [],
-            });
-             toast({
-                title: 'Hierarquia não encontrada',
-                description: 'Nenhuma hierarquia de agentes encontrada. Você pode criar uma nova.',
-            });
-        } else {
-            toast({
-                variant: 'destructive',
-                title: 'Erro',
-                description: 'Não foi possível carregar a hierarquia de agentes para esta instância.',
-            });
-        }
     } finally {
-      setLoadingHierarchy(false);
+        setLoadingData(false);
     }
   }, [toast]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
   
   const handleInstanceChange = (instanceId: string) => {
     const instance = instances.find(i => i.id === instanceId);
     if(instance) {
         setSelectedInstance(instance);
-        fetchHierarchy(instanceId);
-        setIsEditorOpen(true);
+        const hierarchy = hierarchies.find(h => h.instance_id === instanceId);
+        
+        if (hierarchy) {
+            setSelectedHierarchy(hierarchy);
+        } else {
+            // If no hierarchy exists for the selected instance, create a default one
+            setSelectedHierarchy({
+                instance_id: instanceId,
+                router_instructions: "Você é um roteador inteligente. Sua função é analisar a pergunta do usuário e direcioná-la para o especialista mais adequado. Responda apenas com o nome do especialista.",
+                agents: [],
+            });
+        }
     }
   };
   
@@ -114,22 +88,22 @@ export default function AgentsPage() {
       );
     }
     
-    if (loadingHierarchy) {
+    if (loadingData) {
       return (
         <div className="flex justify-center items-center py-16">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="ml-4 text-muted-foreground">Carregando hierarquia de agentes...</p>
+          <p className="ml-4 text-muted-foreground">Carregando dados...</p>
         </div>
       );
     }
 
-    if (agentHierarchy) {
+    if (selectedHierarchy) {
         return (
             <HierarchyEditor
                 key={selectedInstance.id}
-                hierarchy={agentHierarchy}
+                hierarchy={selectedHierarchy}
                 instance={selectedInstance}
-                onHierarchyUpdated={() => fetchHierarchy(selectedInstance.id)}
+                onHierarchyUpdated={fetchData} // Refetch all data on update
             />
         )
     }
@@ -137,9 +111,9 @@ export default function AgentsPage() {
     return (
         <div className="text-center py-16 border-2 border-dashed rounded-lg">
           <ServerCrash className="mx-auto h-12 w-12 text-muted-foreground" />
-          <h3 className="mt-4 text-xl font-semibold">Nenhuma hierarquia de agentes encontrada</h3>
+          <h3 className="mt-4 text-xl font-semibold">Nenhuma configuração encontrada</h3>
           <p className="text-muted-foreground mt-2">
-            Parece que algo deu errado ao buscar a configuração. Tente selecionar a instância novamente.
+            Não foi possível carregar a configuração para esta instância. Tente selecionar novamente.
           </p>
         </div>
       );
@@ -153,9 +127,9 @@ export default function AgentsPage() {
                 <CardDescription>Selecione uma instância para configurar seus agentes, roteador e ferramentas.</CardDescription>
             </CardHeader>
             <CardContent>
-            <Select onValueChange={handleInstanceChange} disabled={loadingInstances}>
+            <Select onValueChange={handleInstanceChange} disabled={loadingData}>
                 <SelectTrigger className="w-full md:w-[380px]">
-                    <SelectValue placeholder={loadingInstances ? 'Carregando instâncias...' : 'Selecione uma instância'} />
+                    <SelectValue placeholder={loadingData ? 'Carregando instâncias...' : 'Selecione uma instância'} />
                 </SelectTrigger>
                 <SelectContent>
                 {instances.map((instance) => {

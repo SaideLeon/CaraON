@@ -2,7 +2,7 @@
 'use client';
 
 import axios from 'axios';
-import type { User, Instance, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentHierarchy } from '@/lib/types';
+import type { User, Instance, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentHierarchy, PaginatedHierarchies } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'sariac-token';
@@ -28,21 +28,28 @@ api.interceptors.request.use(
 );
 
 
-// Agent Hierarchy - Now using the main 'api' instance
-export const getAgentHierarchyForInstance = async (instanceId: string): Promise<AgentHierarchy> => {
-    // This now calls the main backend endpoint
-    const response = await api.get(`/agents/hierarchy/${instanceId}`);
+// Agent Hierarchy
+export const getAgentHierarchies = async (): Promise<PaginatedHierarchies> => {
+    const response = await api.get('/agents/instances');
     return response.data;
 };
 
-export const updateAgentHierarchy = async (hierarchy: Omit<AgentHierarchy, 'user_id'>): Promise<{message: string}> => {
-    // This now calls the main backend endpoint. Backend gets user_id from token.
-    const response = await api.put(`/agents/hierarchy`, hierarchy);
+export const updateAgentHierarchy = async (hierarchy: Omit<AgentHierarchy, '_id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<{message: string}> => {
+    const response = await api.put('/agents/hierarchy', hierarchy);
     return response.data;
 }
 
 
 // Auth
+export const login = async (data: any): Promise<{ token: string, user: User }> => {
+    const response = await api.post('/auth/login', data);
+    return response.data;
+};
+
+export const register = async (data: any): Promise<any> => {
+    return await api.post('/auth/register', data);
+};
+
 export const getMe = async (): Promise<User> => {
     const response = await api.get('/auth/me');
     return response.data;
@@ -52,6 +59,19 @@ export const getMe = async (): Promise<User> => {
 export const getUserInstances = async (): Promise<Instance[]> => {
     const response = await api.get('/user/instances');
     return response.data;
+}
+
+export const createInstance = async (data: { name: string }): Promise<{ instance: Instance }> => {
+    const response = await api.post('/new/instance', data);
+    return response.data;
+}
+
+export const reconnectInstance = async (instanceId: string): Promise<void> => {
+    await api.post(`/instances/${instanceId}/reconnect`);
+}
+
+export const disconnectInstance = async (instanceId: string): Promise<void> => {
+    await api.post(`/instances/${instanceId}/disconnect`);
 }
 
 export const deleteInstance = async (instanceId: string): Promise<void> => {
@@ -79,5 +99,4 @@ export const deleteMessage = async (messageId: string): Promise<void> => {
     await api.delete(`/messages/${messageId}`);
 }
 
-// Default export is the main API client
 export default api;
