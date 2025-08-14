@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
       {
         source: '/api/v1/:path*',
         // This is the main application backend
-        destination: 'https://app.sariac.qzz.io/api/v1/:path*',
+        destination: 'https://app.caraon.qzz.io/api/v1/:path*',
       },
     ]
   },
