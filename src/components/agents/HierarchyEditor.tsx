@@ -68,15 +68,9 @@ export function HierarchyEditor({ hierarchy, instance, onHierarchyUpdated }: Hie
   });
 
   const onSubmit = async (data: HierarchyFormValues) => {
-    if (!instance.userId) {
-        toast({ variant: 'destructive', title: 'Erro de Autenticação', description: 'ID do usuário não encontrado na instância.' });
-        return;
-    }
-    
-    const payload = { ...data, user_id: instance.userId };
-
+    // The user_id is no longer needed in the payload, as the backend will get it from the auth token.
     try {
-      await updateAgentHierarchy(payload);
+      await updateAgentHierarchy(data);
       toast({ title: 'Sucesso', description: 'Hierarquia de agentes atualizada.' });
       onHierarchyUpdated();
     } catch (error) {

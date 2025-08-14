@@ -27,21 +27,17 @@ api.interceptors.request.use(
   }
 );
 
-// A separate axios instance for agent API calls that go through our own proxy.
-// This instance does not need the base URL or token interceptor as the proxy handles it.
-const agentApi = axios.create();
 
-
-// Agent Hierarchy
+// Agent Hierarchy - Now using the main 'api' instance
 export const getAgentHierarchyForInstance = async (instanceId: string): Promise<AgentHierarchy> => {
-    // This now calls our internal Next.js proxy route
-    const response = await agentApi.get(`/api/agent/instances/${instanceId}`);
-    return response.data.instances[0];
+    // This now calls the main backend endpoint
+    const response = await api.get(`/agents/hierarchy/${instanceId}`);
+    return response.data;
 };
 
-export const updateAgentHierarchy = async (hierarchy: AgentHierarchy): Promise<{message: string}> => {
-    // This now calls our internal Next.js proxy route
-    const response = await agentApi.put(`/api/agent/hierarchy`, hierarchy);
+export const updateAgentHierarchy = async (hierarchy: Omit<AgentHierarchy, 'user_id'>): Promise<{message: string}> => {
+    // This now calls the main backend endpoint. Backend gets user_id from token.
+    const response = await api.put(`/agents/hierarchy`, hierarchy);
     return response.data;
 }
 
