@@ -74,7 +74,7 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
             <AvatarFallback><User /></AvatarFallback>
         </Avatar>
         <div>
-            <CardTitle className="text-xl">{session.session_id}</CardTitle>
+            <CardTitle className="text-xl">{session.contactName || session.session_id}</CardTitle>
             <p className="text-sm text-muted-foreground">{session.message_count} mensagens na sessão</p>
         </div>
       </CardHeader>

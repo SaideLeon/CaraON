@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { getAgentSessions } from '@/services/api';
-import type { AgentSession } from '@/lib/types';
-import { Loader2, User, Bot } from 'lucide-react';
+import { getAgentSessions, getInstanceContacts } from '@/services/api';
+import type { AgentSession, Contact } from '@/lib/types';
+import { Loader2, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
@@ -27,20 +27,40 @@ export function AgentConversationsList({ instanceId, selectedSession, onSelectSe
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchSessions = async () => {
+    const fetchAndCombineData = async () => {
       setLoading(true);
       try {
-        const response = await getAgentSessions(instanceId);
+        // Fetch both sessions and contacts in parallel
+        const [sessionsResponse, contactsResponse] = await Promise.all([
+          getAgentSessions(instanceId),
+          getInstanceContacts(instanceId, 1, 10000) // Fetch a large number to get all contacts
+        ]);
+
+        const contacts = contactsResponse.data || [];
+        const contactMap = new Map<string, string>();
+        contacts.forEach(contact => {
+          const phoneNumber = contact.phoneNumber.split('@')[0];
+          contactMap.set(phoneNumber, contact.name || contact.pushName || phoneNumber);
+        });
+
+        // Combine session data with contact names
+        const combinedSessions = (sessionsResponse.sessions || []).map(session => ({
+          ...session,
+          contactName: contactMap.get(session.session_id.replace('+', '')) || session.session_id,
+        }));
+        
         // Sort sessions by most recent update
-        const sortedSessions = (response.sessions || []).sort((a, b) => 
+        const sortedSessions = combinedSessions.sort((a, b) => 
             parseISO(b.updated_at).getTime() - parseISO(a.updated_at).getTime()
         );
+
         setSessions(sortedSessions);
+
       } catch (error) {
         toast({
           variant: 'destructive',
-          title: 'Erro ao buscar sessões',
-          description: 'Não foi possível carregar a lista de conversas do agente.',
+          title: 'Erro ao buscar dados',
+          description: 'Não foi possível carregar a lista de conversas e contatos.',
         });
         setSessions([]);
       } finally {
@@ -48,12 +68,16 @@ export function AgentConversationsList({ instanceId, selectedSession, onSelectSe
       }
     };
 
-    fetchSessions();
+    fetchAndCombineData();
   }, [instanceId, toast]);
 
-  const filteredSessions = sessions.filter(session => 
-    session.session_id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSessions = sessions.filter(session => {
+    const name = session.contactName || '';
+    const number = session.session_id;
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    
+    return name.toLowerCase().includes(lowerCaseSearchTerm) || number.toLowerCase().includes(lowerCaseSearchTerm);
+  });
 
   return (
     <Card className="h-full flex flex-col">
@@ -61,7 +85,7 @@ export function AgentConversationsList({ instanceId, selectedSession, onSelectSe
         <CardTitle className="text-xl">Conversas</CardTitle>
         <div className="pt-2">
             <Input 
-                placeholder="Pesquisar por número..."
+                placeholder="Pesquisar por nome ou número..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -88,7 +112,7 @@ export function AgentConversationsList({ instanceId, selectedSession, onSelectSe
                     <AvatarFallback><User /></AvatarFallback>
                   </Avatar>
                   <div className='flex-1 min-w-0'>
-                    <p className="font-semibold truncate">{session.session_id}</p>
+                    <p className="font-semibold truncate">{session.contactName}</p>
                     <p className="text-xs text-muted-foreground">
                         {session.message_count} mensagens
                     </p>

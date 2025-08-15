@@ -100,6 +100,7 @@ export interface AgentSession {
     message_count: number;
     created_at: string;
     updated_at: string;
+    contactName?: string; // Optional field to hold the contact's name
 }
 
 export interface AgentSessionResponse {
