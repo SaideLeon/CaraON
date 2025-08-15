@@ -34,7 +34,7 @@ import { Button } from './ui/button';
 export function SidebarNav() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpenMobile, state: sidebarState } = useSidebar();
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -127,7 +127,12 @@ export function SidebarNav() {
                     </div>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="end" className="w-56">
+            <DropdownMenuContent 
+              side={sidebarState === 'collapsed' ? 'top' : 'right'} 
+              align="end" 
+              className="w-56"
+              sideOffset={8}
+            >
                 <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{user?.name || 'Utilizador'}</p>
