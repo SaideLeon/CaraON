@@ -10,6 +10,7 @@ import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/SidebarNav';
 import { Header } from '@/components/Header';
 import { cn } from '@/lib/utils';
+import { ResponsiveWarning } from '@/components/ResponsiveWarning';
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { user, loading, token } = useAuth();
@@ -54,6 +55,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                  {children}
               </div>
             </main>
+            <ResponsiveWarning />
         </SidebarInset>
       </SidebarProvider>
     </WebSocketProvider>
