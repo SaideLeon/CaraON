@@ -128,10 +128,11 @@ export function SidebarNav() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
-              side={sidebarState === 'collapsed' ? 'top' : 'right'} 
+              side="right"
               align="end" 
               className="w-56"
-              sideOffset={8}
+              sideOffset={12}
+              collisionPadding={10}
             >
                 <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
