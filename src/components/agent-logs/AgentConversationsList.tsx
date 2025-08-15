@@ -38,16 +38,25 @@ export function AgentConversationsList({ instanceId, selectedSession, onSelectSe
 
         const contacts = contactsResponse.data || [];
         const contactMap = new Map<string, string>();
+        
         contacts.forEach(contact => {
-          const phoneNumber = contact.phoneNumber.split('@')[0];
-          contactMap.set(phoneNumber, contact.name || contact.pushName || phoneNumber);
+          // Normalize phone number by removing non-digit characters
+          const normalizedPhoneNumber = contact.phoneNumber.replace(/\D/g, '');
+          const contactName = contact.name || contact.pushName || contact.phoneNumber;
+          if (normalizedPhoneNumber) {
+            contactMap.set(normalizedPhoneNumber, contactName);
+          }
         });
 
         // Combine session data with contact names
-        const combinedSessions = (sessionsResponse.sessions || []).map(session => ({
-          ...session,
-          contactName: contactMap.get(session.session_id.replace('+', '')) || session.session_id,
-        }));
+        const combinedSessions = (sessionsResponse.sessions || []).map(session => {
+           // Normalize session_id (which is a phone number)
+           const normalizedSessionId = session.session_id.replace(/\D/g, '');
+           return {
+            ...session,
+            contactName: contactMap.get(normalizedSessionId) || session.session_id,
+          }
+        });
         
         // Sort sessions by most recent update
         const sortedSessions = combinedSessions.sort((a, b) => 
