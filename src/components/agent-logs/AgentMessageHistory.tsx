@@ -86,42 +86,50 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
             </div>
           ) : (
             <div className="space-y-6">
-                {messages.map((message, index) => (
-                    <div
-                    key={index}
-                    className={cn(
-                        'flex items-start gap-4',
-                        message.role === 'user' ? 'justify-start' : 'justify-start'
-                    )}
-                    >
-                    
-                    <Avatar className="h-8 w-8 border">
-                        <AvatarFallback>
-                            {message.role === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                        </AvatarFallback>
-                    </Avatar>
-
-                    <div
-                        className={cn(
-                        'max-w-3xl rounded-lg px-4 py-3',
-                         message.role === 'user'
-                            ? 'bg-muted'
-                            : 'bg-card'
-                        )}
-                    >
-                        <p className='font-bold text-sm capitalize mb-1'>{message.role === 'user' ? 'Usuário' : 'Agente'}</p>
-                         <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            className="prose prose-sm dark:prose-invert prose-p:before:hidden prose-p:after:hidden"
-                            components={{
-                                a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary underline" />,
-                            }}
+                {messages.map((message, index) => {
+                    const isUser = message.role === 'user';
+                    return (
+                        <div
+                            key={index}
+                            className={cn(
+                                'flex items-start gap-4',
+                                isUser ? 'justify-end' : 'justify-start'
+                            )}
                         >
-                            {message.content}
-                        </ReactMarkdown>
-                    </div>
-                    </div>
-                ))}
+                            {!isUser && (
+                                <Avatar className="h-8 w-8 border">
+                                    <AvatarFallback>
+                                        <Bot className="h-4 w-4" />
+                                    </AvatarFallback>
+                                </Avatar>
+                            )}
+                            <div
+                                className={cn(
+                                    'max-w-3xl rounded-lg px-4 py-3',
+                                    isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                                )}
+                            >
+                                <p className='font-bold text-sm capitalize mb-1'>{isUser ? 'Usuário' : 'Agente'}</p>
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkGfm]}
+                                    className="prose prose-sm dark:prose-invert prose-p:before:hidden prose-p:after:hidden"
+                                    components={{
+                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary underline" />,
+                                    }}
+                                >
+                                    {message.content}
+                                </ReactMarkdown>
+                            </div>
+                            {isUser && (
+                                 <Avatar className="h-8 w-8 border">
+                                    <AvatarFallback>
+                                        <User className="h-4 w-4" />
+                                    </AvatarFallback>
+                                </Avatar>
+                            )}
+                        </div>
+                    );
+                })}
                 {messages.length === 0 && !loading && (
                     <div className="text-center text-muted-foreground py-10">
                         <p>Não há mensagens nesta sessão ainda.</p>
