@@ -72,8 +72,8 @@ export interface ContactSummary {
     phones: string[];
 }
 
+// Kept for old message system if needed, but will be replaced by Agent Logs
 export type MessageStatus = 'sent' | 'delivered' | 'read' | 'error';
-
 export interface Message {
     id: string;
     instanceId: string;
@@ -84,10 +84,33 @@ export interface Message {
     timestamp: string;
     contact?: Contact;
 }
-
 export interface PaginatedMessages {
     data: Message[];
     total: number;
     page: number;
     limit: number;
+}
+
+
+// New types for Agent Logs
+export interface AgentSession {
+    session_id: string; // This is the user's phone number
+    user_id: string;
+    instance_id: string;
+    message_count: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface AgentSessionResponse {
+    sessions: AgentSession[];
+}
+
+export interface AgentMessage {
+    role: 'user' | 'assistant';
+    content: string;
+}
+
+export interface AgentConversationResponse {
+    conversation: AgentMessage[];
 }

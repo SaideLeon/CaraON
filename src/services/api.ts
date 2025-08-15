@@ -2,7 +2,7 @@
 'use client';
 
 import axios from 'axios';
-import type { User, Instance, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentHierarchy, PaginatedHierarchies } from '@/lib/types';
+import type { User, Instance, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentHierarchy, PaginatedHierarchies, AgentSessionResponse, AgentConversationResponse } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'sariac-token';
@@ -89,14 +89,18 @@ export const getInstanceContactsSummary = async (instanceId: string): Promise<Co
     return response.data;
 }
 
-// Messages
-export const getMessages = async (instanceId: string, contactId: string, page = 1, limit = 50): Promise<PaginatedMessages> => {
-    const response = await api.get(`/instances/${instanceId}/messages`, { params: { contactId, page, limit } });
+// Agent Sessions & Conversations
+export const getAgentSessions = async (instanceId: string): Promise<AgentSessionResponse> => {
+    const response = await api.get('/agents/sessions', { params: { instance_id: instanceId } });
     return response.data;
 }
 
-export const deleteMessage = async (messageId: string): Promise<void> => {
-    await api.delete(`/messages/${messageId}`);
+export const getAgentConversation = async (sessionId: string): Promise<AgentConversationResponse> => {
+    // The session_id (phone number) might contain special characters like '+', which need to be encoded.
+    const encodedSessionId = encodeURIComponent(sessionId);
+    const response = await api.get(`/agents/sessions/${encodedSessionId}/conversation`);
+    return response.data;
 }
+
 
 export default api;

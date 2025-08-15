@@ -31,7 +31,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   }
 
   // List of pages that should have no padding to take up full screen height
-  const fullHeightPages = ['/playground', '/messages'];
+  const fullHeightPages = ['/playground', '/agent-logs'];
   const hasPadding = !fullHeightPages.some(page => pathname.startsWith(page));
   
   const isFullHeightPage = fullHeightPages.some(page => pathname.startsWith(page));
