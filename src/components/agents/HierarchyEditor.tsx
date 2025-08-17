@@ -46,7 +46,29 @@ interface HierarchyEditorProps {
 const availableTools = [
     { type: 'DUCKDUCKGO', label: 'DuckDuckGo Search', config: null },
     { type: 'YFINANCE', label: 'Yahoo Finance', config: { stock_price: true, company_news: true } },
-    // Adicionar mais ferramentas aqui no futuro
+    { type: 'PUBMED', label: 'PubMed Search', config: null },
+    { type: 'TAVILY', label: 'Tavily Advanced Search', config: null },
+    { type: 'WIKIPEDIA', label: 'Wikipedia Search', config: null },
+    { type: 'ARXIV', label: 'ArXiv Academic Search', config: null },
+    { type: 'GMAIL', label: 'Gmail Assistant', config: null },
+    { 
+        type: 'EMAIL', 
+        label: 'Email Assistant', 
+        config: {
+            receiver_email: "seu_email@exemplo.com",
+            sender_email: "seu_email@exemplo.com",
+            sender_name: "Seu Nome",
+            sender_passkey: "sua_senha_de_app"
+        } 
+    },
+    { 
+        type: 'PDF_KNOWLEDGE', 
+        label: 'PDF Knowledge Analyzer', 
+        config: {
+            path: "data/pdfs",
+            table_name: "pdf_documents"
+        }
+    }
 ];
 
 
