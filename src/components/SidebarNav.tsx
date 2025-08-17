@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, MessageSquare, Info, BookText } from 'lucide-react';
+import { Bot, LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, MessageSquare, Info, BookText, Wrench } from 'lucide-react';
 import { SariacIcon } from '@/components/icons/SariacIcon';
 
 import {
@@ -128,7 +128,7 @@ export function SidebarNav() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
-              side="right"
+              side={sidebarState === 'collapsed' ? 'top' : 'right'}
               align="end" 
               className="w-56"
               sideOffset={12}
@@ -144,7 +144,13 @@ export function SidebarNav() {
                 <DropdownMenuItem asChild>
                      <Link href="/about" onClick={handleLinkClick}>
                         <Info className="mr-2 h-4 w-4" />
-                        <span>Sobre</span>
+                        <span>Sobre o Sistema</span>
+                    </Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                     <Link href="/about-tools" onClick={handleLinkClick}>
+                        <Wrench className="mr-2 h-4 w-4" />
+                        <span>Sobre as Ferramentas</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>Configurações</DropdownMenuItem>

@@ -32,6 +32,10 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     '/about': {
         title: 'Sobre o Sistema',
         description: 'Entenda como a orquestração de agentes do SARIAC funciona.',
+    },
+    '/about-tools': {
+        title: 'Sobre as Ferramentas',
+        description: 'Aprenda como utilizar as ferramentas disponíveis para os agentes.',
     }
 }
 
