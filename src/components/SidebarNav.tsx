@@ -105,6 +105,14 @@ export function SidebarNav() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/about-tools')} tooltip="Sobre as Ferramentas" onClick={handleLinkClick}>
+              <Link href="/about-tools">
+                <Wrench />
+                <span>Ferramentas</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
@@ -128,7 +136,7 @@ export function SidebarNav() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent 
-              side={sidebarState === 'collapsed' ? 'top' : 'right'}
+              side="top"
               align="end" 
               className="w-56"
               sideOffset={12}
@@ -145,12 +153,6 @@ export function SidebarNav() {
                      <Link href="/about" onClick={handleLinkClick}>
                         <Info className="mr-2 h-4 w-4" />
                         <span>Sobre o Sistema</span>
-                    </Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                     <Link href="/about-tools" onClick={handleLinkClick}>
-                        <Wrench className="mr-2 h-4 w-4" />
-                        <span>Sobre as Ferramentas</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem disabled>Configurações</DropdownMenuItem>
