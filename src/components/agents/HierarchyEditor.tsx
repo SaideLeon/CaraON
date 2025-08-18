@@ -80,7 +80,12 @@ export function HierarchyEditor({ hierarchy, instance, onHierarchyUpdated }: Hie
     defaultValues: {
       instance_id: hierarchy.instance_id,
       router_instructions: hierarchy.router_instructions || '',
-      agents: hierarchy.agents || [],
+      agents: hierarchy.agents.map(agent => ({
+        ...agent,
+        model_provider: agent.model_provider || 'GEMINI',
+        model_id: agent.model_id || 'gemini-1.5-flash',
+        tools: agent.tools || [],
+      })),
     },
   });
 
@@ -235,7 +240,7 @@ function AgentCard({ index, control, remove }: AgentCardProps) {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Provedor do Modelo</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} defaultValue={field.value || 'GEMINI'}>
                                 <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Selecione um provedor" />
