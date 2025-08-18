@@ -25,7 +25,7 @@ const agentDefinitionSchema = z.object({
   name: z.string().min(3, 'O nome do agente deve ter pelo menos 3 caracteres.'),
   role: z.string().min(10, 'O papel deve ter pelo menos 10 caracteres.'),
   model_provider: z.string().default('GEMINI'),
-  model_id: z.string().default('gemini-1.5-flash'),
+  model_id: z.string().min(1, 'O ID do modelo é obrigatório.').default('gemini-1.5-flash'),
   tools: z.array(toolSchema),
 });
 
@@ -90,7 +90,6 @@ export function HierarchyEditor({ hierarchy, instance, onHierarchyUpdated }: Hie
   });
 
   const onSubmit = async (data: HierarchyFormValues) => {
-    // The user_id is no longer needed in the payload, as the backend will get it from the auth token.
     try {
       await updateAgentHierarchy(data);
       toast({ title: 'Sucesso', description: 'Hierarquia de agentes atualizada.' });
@@ -228,6 +227,45 @@ function AgentCard({ index, control, remove }: AgentCardProps) {
                   </FormItem>
                 )}
               />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={control}
+                    name={`agents.${index}.model_provider`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Provedor do Modelo</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione um provedor" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="GEMINI">Gemini (Google)</SelectItem>
+                                    <SelectItem value="OPENAI">OpenAI</SelectItem>
+                                    <SelectItem value="CLAUDE">Claude (Anthropic)</SelectItem>
+                                    <SelectItem value="GROQ">Groq</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={control}
+                    name={`agents.${index}.model_id`}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>ID do Modelo</FormLabel>
+                            <FormControl>
+                                <Input placeholder="ex: gemini-1.5-flash" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
 
             <div className='space-y-2'>
                 <FormLabel>Ferramentas</FormLabel>
