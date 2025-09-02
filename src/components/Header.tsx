@@ -36,6 +36,10 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     '/about-tools': {
         title: 'Sobre as Ferramentas',
         description: 'Aprenda como utilizar as ferramentas disponíveis para os agentes.',
+    },
+    '/knowledge': {
+        title: 'Base de Conhecimento',
+        description: 'Faça upload de documentos PDF para treinar seus agentes.',
     }
 }
 

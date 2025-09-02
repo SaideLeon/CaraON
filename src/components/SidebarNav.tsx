@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, MessageSquare, Info, BookText, Wrench } from 'lucide-react';
+import { Bot, LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, MessageSquare, Info, BookText, Wrench, Database } from 'lucide-react';
 import { SariacIcon } from '@/components/icons/SariacIcon';
 
 import {
@@ -110,6 +110,14 @@ export function SidebarNav() {
               <Link href="/about-tools">
                 <Wrench />
                 <span>Ferramentas</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/knowledge')} tooltip="Base de Conhecimento" onClick={handleLinkClick}>
+              <Link href="/knowledge">
+                <Database />
+                <span>Base de Conhecimento</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
