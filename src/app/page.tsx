@@ -26,7 +26,7 @@ export default function EnhancedLandingPage() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <SariacIcon className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline">SARIAC</span>
+              <span className="font-bold font-headline">ARIAVIS</span>
             </Link>
           </div>
           
@@ -82,11 +82,11 @@ export default function EnhancedLandingPage() {
             <span className="block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               Transforme o WhatsApp
             </span>
-             <span className="block mb-2">em sua principal ferramenta de atendimento com a SARIAC</span>
+             <span className="block mb-2">em sua principal ferramenta de atendimento com a ARIAVIS</span>
           </h1>
           
           <p className="max-w-3xl text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed">
-            A SARIAC desenvolve agentes virtuais inteligentes para WhatsApp que automatizam conversas, respondem perguntas, fecham vendas e geram valor em cada interação.
+            A ARIAVIS desenvolve agentes virtuais inteligentes para WhatsApp que automatizam conversas, respondem perguntas, fecham vendas e geram valor em cada interação.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md mt-6">
@@ -111,14 +111,14 @@ export default function EnhancedLandingPage() {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-4xl text-center mb-12 md:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 font-headline">
-              Com a SARIAC, sua empresa pode:
+              Com a ARIAVIS, sua empresa pode:
             </h2>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
              {[
                 { icon: GitBranch, title: 'Atender clientes 24 horas por dia', description: 'Nossos agentes nunca dormem, garantindo que nenhuma pergunta ou oportunidade de venda seja perdida, não importa o fuso horário.' },
-                { icon: Bot, title: 'Automatizar perguntas frequentes', description: 'Libere sua equipe humana para focar em tarefas complexas, enquanto a SARIAC cuida das dúvidas recorrentes com precisão e rapidez.' },
+                { icon: Bot, title: 'Automatizar perguntas frequentes', description: 'Libere sua equipe humana para focar em tarefas complexas, enquanto a ARIAVIS cuida das dúvidas recorrentes com precisão e rapidez.' },
                 { icon: Wrench, title: 'Integrar com seus sistemas', description: 'Conecte o WhatsApp com seus sistemas internos como ERPs e CRMs para criar fluxos de trabalho poderosos e personalizados.' },
                 { icon: ShoppingCart, title: 'Reduzir custos operacionais', description: 'Diminua a necessidade de uma grande equipe de atendimento, otimizando seus recursos e aumentando a margem de lucro.' },
                 { icon: Zap, title: 'Oferecer atendimento personalizado', description: 'Acesse dados de clientes em tempo real para oferecer uma experiência única e personalizada em cada conversa, aumentando a fidelidade.' },
@@ -149,7 +149,7 @@ export default function EnhancedLandingPage() {
                     Venda, atenda e resolva com uma conversa no WhatsApp.
                 </h2>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                    Deixe isso com a SARIAC.
+                    Deixe isso com a ARIAVIS.
                 </p>
             </div>
             <div className="mx-auto max-w-6xl">

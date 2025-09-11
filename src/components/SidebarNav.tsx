@@ -55,7 +55,7 @@ export function SidebarNav() {
       <SidebarHeader>
         <div className="flex items-center gap-2">
            <SariacIcon className="h-7 w-7 text-primary" />
-           <span className="text-lg font-semibold font-headline">SARIAC</span>
+           <span className="text-lg font-semibold font-headline">ARIAVIS</span>
         </div>
         <SidebarTrigger className="md:hidden" />
       </SidebarHeader>

@@ -9,8 +9,8 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <SariacIcon className="h-8 w-8" />
             </div>
-          <h1 className="font-headline text-4xl font-bold text-foreground">SARIAC</h1>
-          <p className="mt-2 text-muted-foreground">Sistema de Agentes Robóticos de Interação e Automação Conversacional</p>
+          <h1 className="font-headline text-4xl font-bold text-foreground">ARIAVIS</h1>
+          <p className="mt-2 text-muted-foreground">Agentes Robóticos de Interação para Atendimento Virtual Integrado em Serviços</p>
         </div>
         {children}
       </div>

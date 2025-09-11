@@ -19,7 +19,7 @@ export default function AboutPage() {
         </Button>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">SARIAC – Sistema de Agentes Robóticos de Interação e Automação Conversacional</CardTitle>
+          <CardTitle className="font-headline text-3xl">ARIAVIS – Agentes Robóticos de Interação para Atendimento Virtual Integrado em Serviços</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
             
@@ -66,7 +66,7 @@ export default function AboutPage() {
                     </div>
                 </div>
                  <blockquote className="mt-6 border-l-2 pl-6 italic text-muted-foreground">
-                    "Na SARIAC, acreditamos que o futuro da comunicação é automatizado, mas nunca impessoal."
+                    "Na ARIAVIS, acreditamos que o futuro da comunicação é automatizado, mas nunca impessoal."
                 </blockquote>
             </section>
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
              <div>
                 <h2 className="font-headline text-2xl font-semibold mb-2">🔧 Versão Técnica</h2>
                 <p className="text-muted-foreground">
-                    A SARIAC é uma empresa de tecnologia especializada no desenvolvimento de agentes virtuais inteligentes para o WhatsApp, utilizando uma arquitetura escalável com WhatsApp Web API, NLP, automação de fluxos lógicos e integração com sistemas externos como CRMs, bancos de dados e ERPs.
+                    A ARIAVIS é uma empresa de tecnologia especializada no desenvolvimento de agentes virtuais inteligentes para o WhatsApp, utilizando uma arquitetura escalável com WhatsApp Web API, NLP, automação de fluxos lógicos e integração com sistemas externos como CRMs, bancos de dados e ERPs.
                 </p>
                 <p className="text-muted-foreground mt-2">
                     Nosso stack inclui: Integração com WhatsApp via sessão persistente, IA conversacional baseada em modelos de linguagem natural, Gerenciamento de múltiplas instâncias com autenticação segura, Painéis de controle com monitoramento em tempo real, Webhooks, eventos e automações personalizadas.
