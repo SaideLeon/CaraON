@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bot, LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, MessageSquare, Info, BookText, Wrench, Database } from 'lucide-react';
+import { LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, BookText, Database, Info } from 'lucide-react';
 import { SariacIcon } from '@/components/icons/SariacIcon';
 
 import {
@@ -78,7 +78,7 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarSeparator />
-          <SidebarGroupLabel>CRM</SidebarGroupLabel>
+          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
            <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive('/contacts')} tooltip="Contatos" onClick={handleLinkClick}>
               <Link href="/contacts">
@@ -87,37 +87,19 @@ export function SidebarNav() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarSeparator />
-          <SidebarGroupLabel>Agentes</SidebarGroupLabel>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/agents')} tooltip="Agentes" onClick={handleLinkClick}>
-              <Link href="/agents">
-                <Bot />
-                <span>Agentes</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/agent-logs')} tooltip="Logs de Agentes" onClick={handleLinkClick}>
-              <Link href="/agent-logs">
-                <BookText />
-                <span>Logs de Agentes</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/about-tools')} tooltip="Sobre as Ferramentas" onClick={handleLinkClick}>
-              <Link href="/about-tools">
-                <Wrench />
-                <span>Ferramentas</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
            <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive('/knowledge')} tooltip="Base de Conhecimento" onClick={handleLinkClick}>
               <Link href="/knowledge">
                 <Database />
-                <span>Base de Conhecimento</span>
+                <span>Conhecimento</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive('/agent-logs')} tooltip="Logs de Agentes" onClick={handleLinkClick}>
+              <Link href="/agent-logs">
+                <BookText />
+                <span>Logs de Agentes</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

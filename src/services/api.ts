@@ -2,7 +2,7 @@
 'use client';
 
 import axios from 'axios';
-import type { User, Instance, PaginatedContacts, ContactSummary, Message, PaginatedMessages, AgentHierarchy, PaginatedHierarchies, AgentSessionResponse, AgentConversationResponse } from '@/lib/types';
+import type { User, Instance, PaginatedContacts, ContactSummary, AgentSessionResponse, AgentConversationResponse } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'sariac-token';
@@ -26,19 +26,6 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-
-// Agent Hierarchy
-export const getAgentHierarchies = async (): Promise<PaginatedHierarchies> => {
-    const response = await api.get('/agents/instances');
-    return response.data;
-};
-
-export const updateAgentHierarchy = async (hierarchy: Omit<AgentHierarchy, '_id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<{message: string}> => {
-    const response = await api.put('/agents/hierarchy', hierarchy);
-    return response.data;
-}
-
 
 // Auth
 export const login = async (data: any): Promise<{ token: string, user: User }> => {

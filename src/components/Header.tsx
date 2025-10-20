@@ -15,7 +15,7 @@ const pageConfig: Record<string, { title: string; description: string }> = {
     },
     '/playground': {
         title: 'Playground',
-        description: 'Teste a orquestração dos seus agentes em tempo real.',
+        description: 'Teste o agente da sua instância em tempo real.',
     },
     '/contacts': {
         title: 'Contatos',
@@ -25,22 +25,14 @@ const pageConfig: Record<string, { title: string; description: string }> = {
         title: 'Logs de Agentes',
         description: 'Visualize o histórico de conversas dos seus agentes.',
     },
-    '/agents': {
-        title: 'Agentes',
-        description: 'Crie e configure a hierarquia de agentes da sua instância.',
-    },
-    '/about': {
-        title: 'Sobre o Sistema',
-        description: 'Entenda como a orquestração de agentes da ARIAVIS funciona.',
-    },
-    '/about-tools': {
-        title: 'Sobre as Ferramentas',
-        description: 'Aprenda como utilizar as ferramentas disponíveis para os agentes.',
-    },
     '/knowledge': {
         title: 'Base de Conhecimento',
         description: 'Faça upload de documentos PDF para treinar seus agentes.',
-    }
+    },
+    '/about': {
+        title: 'Sobre o Sistema',
+        description: 'Entenda como a ARIAVIS funciona.',
+    },
 }
 
 export function Header() {
