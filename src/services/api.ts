@@ -90,7 +90,7 @@ export const getAgentConversation = async (sessionId: string): Promise<AgentConv
 }
 
 // Knowledge Base
-export const uploadPdfToKnowledgeBase = async (instanceId: string, userId: string, file: File): Promise<any> => {
+export const uploadPdfToKnowledgeBase = async (instanceId: string, userId: string, file: File, onUploadProgress: (progressEvent: any) => void): Promise<any> => {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -98,6 +98,7 @@ export const uploadPdfToKnowledgeBase = async (instanceId: string, userId: strin
         headers: {
             'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress,
     });
     return response.data;
 };

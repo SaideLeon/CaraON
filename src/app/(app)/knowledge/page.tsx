@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getUserInstances, uploadPdfToKnowledgeBase } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Instance } from '@/lib/types';
-import { Loader2, UploadCloud, FileText, X, CheckCircle, AlertTriangle, Database } from 'lucide-react';
+import { Loader2, UploadCloud, FileText, X, CheckCircle, AlertTriangle, Database, Trash2 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -32,12 +32,19 @@ interface UploadingFile {
   error?: string;
 }
 
+interface UploadedDocument {
+    name: string;
+    size: number;
+    uploadedAt: Date;
+}
+
 export default function KnowledgePage() {
   const { user } = useAuth();
   const [instances, setInstances] = useState<Instance[]>([]);
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
   const [loadingInstances, setLoadingInstances] = useState(true);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+  const [uploadedDocuments, setUploadedDocuments] = useState<UploadedDocument[]>([]);
   const { toast } = useToast();
 
   const fetchInstances = useCallback(async () => {
@@ -94,20 +101,20 @@ export default function KnowledgePage() {
         setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, status: 'uploading', progress: 0 } : f));
         
         try {
-            // This is a placeholder for progress simulation
-            // Real progress requires server-side events or a different API design
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                 setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, progress: Math.min(progress, 90) } : f));
-                if(progress >= 90) clearInterval(interval);
-            }, 200);
-
-            await uploadPdfToKnowledgeBase(selectedInstance, user.id, uploadingFile.file);
-
-            clearInterval(interval);
+            await uploadPdfToKnowledgeBase(selectedInstance, user.id, uploadingFile.file, (progressEvent) => {
+                const progress = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
+                setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, progress: progress } : f));
+            });
+            
             setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, status: 'success', progress: 100 } : f));
+            setUploadedDocuments(prev => [...prev, { name: uploadingFile.file.name, size: uploadingFile.file.size, uploadedAt: new Date() }]);
+            
             toast({ title: 'Sucesso!', description: `Arquivo "${uploadingFile.file.name}" enviado com sucesso.`})
+            
+            setTimeout(() => {
+                setUploadingFiles(prev => prev.filter(f => f.file !== uploadingFile.file));
+            }, 2000);
+
 
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Falha no envio.';
@@ -140,7 +147,10 @@ export default function KnowledgePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Select onValueChange={setSelectedInstance} disabled={loadingInstances || instances.length === 0}>
+          <Select onValueChange={(value) => {
+            setSelectedInstance(value);
+            setUploadedDocuments([]); // Limpa a lista de documentos ao trocar de instância
+          }} disabled={loadingInstances || instances.length === 0}>
             <SelectTrigger className="w-full md:w-[280px]">
               <SelectValue
                 placeholder={
@@ -204,15 +214,15 @@ export default function KnowledgePage() {
                                         <p className="text-sm font-medium truncate">{file.name}</p>
                                         {status === 'uploading' && <Progress value={progress} className="h-1.5 mt-1" />}
                                         {status === 'error' && <p className="text-xs text-destructive">{error}</p>}
-                                        {status !== 'uploading' && <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>}
+                                        {status === 'pending' && <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>}
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeFile(file)}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeFile(file)} disabled={status === 'uploading' || status === 'success'}>
                                         <X className="h-4 w-4" />
                                     </Button>
                                 </div>
                             ))}
                         </div>
-                         <Button onClick={handleUpload} disabled={!uploadingFiles.some(f => f.status === 'pending')} className="w-full">
+                         <Button onClick={handleUpload} disabled={!uploadingFiles.some(f => f.status === 'pending') || uploadingFiles.some(f => f.status === 'uploading')} className="w-full">
                             <UploadCloud className="mr-2 h-4 w-4" />
                            {uploadingFiles.some(f => f.status === 'uploading') ? 'Enviando...' : `Enviar ${uploadingFiles.filter(f => f.status === 'pending').length} Arquivo(s)`}
                         </Button>
@@ -227,6 +237,34 @@ export default function KnowledgePage() {
                 <CardDescription>Lista de documentos PDF já disponíveis para esta instância.</CardDescription>
             </CardHeader>
             <CardContent>
+              {!selectedInstance ? (
+                 <div className="flex flex-col items-center justify-center text-center py-12 border-2 border-dashed rounded-lg bg-muted/30">
+                    <Database className="mx-auto h-10 w-10 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-semibold">Selecione uma instância</h3>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                        Selecione uma instância para ver os documentos.
+                    </p>
+                </div>
+              ) : uploadedDocuments.length > 0 ? (
+                <div className="space-y-3">
+                  {uploadedDocuments.map((doc, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 rounded-md border bg-muted/50">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <FileText className="h-5 w-5 text-primary shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{doc.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {`(${(doc.size / 1024).toFixed(2)} KB) - ${doc.uploadedAt.toLocaleDateString()} ${doc.uploadedAt.toLocaleTimeString()}`}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
                 <div className="flex flex-col items-center justify-center text-center py-12 border-2 border-dashed rounded-lg bg-muted/30">
                     <Database className="mx-auto h-10 w-10 text-muted-foreground" />
                     <h3 className="mt-4 text-lg font-semibold">Nenhum documento encontrado</h3>
@@ -234,6 +272,7 @@ export default function KnowledgePage() {
                         Faça upload de PDFs para começar a construir sua base de conhecimento.
                     </p>
                 </div>
+              )}
             </CardContent>
         </Card>
       </div>
