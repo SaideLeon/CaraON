@@ -109,9 +109,10 @@ export default function KnowledgePage() {
             setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, status: 'success', progress: 100 } : f));
             toast({ title: 'Sucesso!', description: `Arquivo "${uploadingFile.file.name}" enviado com sucesso.`})
 
-        } catch (error) {
-             setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, status: 'error', error: 'Falha no envio.' } : f));
-             toast({ variant: 'destructive', title: 'Erro de Upload', description: `Não foi possível enviar o arquivo "${uploadingFile.file.name}".`})
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Falha no envio.';
+            setUploadingFiles(prev => prev.map(f => f.file === uploadingFile.file ? { ...f, status: 'error', error: errorMessage } : f));
+            toast({ variant: 'destructive', title: 'Erro de Upload', description: `Não foi possível enviar o arquivo "${uploadingFile.file.name}": ${errorMessage}`})
         }
     })
   };
