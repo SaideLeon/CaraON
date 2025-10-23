@@ -66,7 +66,7 @@ export default function MessagesPage() {
               Escolha uma instância para visualizar o histórico de mensagens.
             </p>
           </div>
-          <Select onValuechange={handleInstanceChange} disabled={loadingInstances || instances.length === 0}>
+          <Select onValueChange={handleInstanceChange} disabled={loadingInstances || instances.length === 0}>
             <SelectTrigger className="w-full md:w-[280px]">
               <SelectValue
                 placeholder={
