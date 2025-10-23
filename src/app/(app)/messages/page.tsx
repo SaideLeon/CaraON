@@ -6,10 +6,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { getUserInstances } from '@/services/api';
-import type { Instance, AgentSession } from '@/lib/types';
-import { MessageSquare, BookText } from 'lucide-react';
-import { AgentConversationsList } from '@/components/agent-logs/AgentConversationsList';
-import { AgentMessageHistory } from '@/components/agent-logs/AgentMessageHistory';
+import type { Instance, Contact } from '@/lib/types';
+import { MessageSquare } from 'lucide-react';
+import { ConversationsList } from '@/components/messages/ConversationsList';
+import { MessageHistory } from '@/components/messages/MessageHistory';
 import { cn } from '@/lib/utils';
 
 const statusConfig = {
@@ -21,10 +21,10 @@ const statusConfig = {
     error: { bgColor: 'bg-destructive' },
 };
 
-export default function AgentLogsPage() {
+export default function MessagesPage() {
   const [instances, setInstances] = useState<Instance[]>([]);
   const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
-  const [selectedSession, setSelectedSession] = useState<AgentSession | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [loadingInstances, setLoadingInstances] = useState(true);
   const { toast } = useToast();
 
@@ -50,7 +50,7 @@ export default function AgentLogsPage() {
 
   const handleInstanceChange = (instanceId: string) => {
     setSelectedInstance(instanceId);
-    setSelectedSession(null); // Reset session selection when instance changes
+    setSelectedContact(null); // Reset contact selection when instance changes
   }
 
   return (
@@ -59,14 +59,14 @@ export default function AgentLogsPage() {
         <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4">
           <div className="flex-1">
             <h2 className="text-lg font-medium flex items-center gap-2">
-                <BookText className="h-5 w-5"/>
+                <MessageSquare className="h-5 w-5"/>
                 <span>Selecione uma Instância</span>
             </h2>
             <p className="text-sm text-muted-foreground">
-              Escolha uma instância para visualizar os logs de conversas dos agentes.
+              Escolha uma instância para visualizar o histórico de mensagens.
             </p>
           </div>
-          <Select onValueChange={handleInstanceChange} disabled={loadingInstances || instances.length === 0}>
+          <Select onValuechange={handleInstanceChange} disabled={loadingInstances || instances.length === 0}>
             <SelectTrigger className="w-full md:w-[280px]">
               <SelectValue
                 placeholder={
@@ -99,15 +99,16 @@ export default function AgentLogsPage() {
       {selectedInstance ? (
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 min-h-0">
           <div className="md:col-span-1 lg:col-span-1 h-full min-h-0">
-            <AgentConversationsList 
+            <ConversationsList 
                 instanceId={selectedInstance} 
-                selectedSession={selectedSession}
-                onSelectSession={setSelectedSession}
+                selectedContact={selectedContact}
+                onSelectContact={setSelectedContact}
             />
           </div>
           <div className="md:col-span-2 lg:col-span-3 h-full min-h-0">
-             <AgentMessageHistory 
-                session={selectedSession}
+             <MessageHistory 
+                instanceId={selectedInstance}
+                contact={selectedContact}
             />
           </div>
         </div>
@@ -117,7 +118,7 @@ export default function AgentLogsPage() {
             <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-xl font-semibold">Por favor, selecione uma instância</h3>
             <p className="text-muted-foreground mt-2">
-              Selecione uma instância na lista acima para visualizar as conversas.
+              Selecione uma instância na lista acima para visualizar as mensagens.
             </p>
           </div>
         </div>

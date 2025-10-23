@@ -2,7 +2,7 @@
 'use client';
 
 import axios from 'axios';
-import type { User, Instance, PaginatedContacts, ContactSummary, AgentSessionResponse, AgentConversationResponse } from '@/lib/types';
+import type { User, Instance, PaginatedContacts, ContactSummary, PaginatedMessages } from '@/lib/types';
 
 const API_BASE_URL = '/api/v1';
 const TOKEN_KEY = 'sariac-token';
@@ -76,18 +76,14 @@ export const getInstanceContactsSummary = async (instanceId: string): Promise<Co
     return response.data;
 }
 
-// Agent Sessions & Conversations
-export const getAgentSessions = async (instanceId: string): Promise<AgentSessionResponse> => {
-    const response = await api.get('/agents/sessions', { params: { instance_id: instanceId } });
+// Messages
+export const getInstanceMessages = async (instanceId: string, contactId: string, page = 1, limit = 20): Promise<PaginatedMessages> => {
+    const response = await api.get(`/instances/${instanceId}/messages`, {
+        params: { contactId, page, limit }
+    });
     return response.data;
-}
+};
 
-export const getAgentConversation = async (sessionId: string): Promise<AgentConversationResponse> => {
-    // The session_id (phone number) might contain special characters like '+', which need to be encoded.
-    const encodedSessionId = encodeURIComponent(sessionId);
-    const response = await api.get(`/agents/sessions/${encodedSessionId}/conversation`);
-    return response.data;
-}
 
 // Knowledge Base
 export const uploadPdfToKnowledgeBase = async (instanceId: string, userId: string, file: File, onUploadProgress: (progressEvent: any) => void): Promise<any> => {

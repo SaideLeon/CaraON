@@ -7,18 +7,21 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Bot, User, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAgentConversation } from '@/services/api';
-import type { AgentSession, AgentMessage } from '@/lib/types';
+import { getInstanceMessages } from '@/services/api';
+import type { Contact, Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-interface AgentMessageHistoryProps {
-  session: AgentSession | null;
+interface MessageHistoryProps {
+  instanceId: string;
+  contact: Contact | null;
 }
 
-export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
-  const [messages, setMessages] = useState<AgentMessage[]>([]);
+export function MessageHistory({ instanceId, contact }: MessageHistoryProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -26,18 +29,19 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
         setTimeout(() => {
-            scrollAreaRef.current?.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+            scrollAreaRef.current?.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'auto' });
         }, 100);
     }
   };
 
   useEffect(() => {
-    if (session) {
+    if (contact && instanceId) {
       const fetchMessages = async () => {
         setLoading(true);
         try {
-          const response = await getAgentConversation(session.session_id);
-          setMessages(response.conversation || []);
+          const response = await getInstanceMessages(instanceId, contact.id, 1, 1000); // Fetch a large number of messages
+          // The API returns most recent first, so we reverse it for display
+          setMessages((response.data || []).reverse());
           scrollToBottom();
         } catch (error) {
           toast({
@@ -54,9 +58,9 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
     } else {
       setMessages([]);
     }
-  }, [session, toast]);
+  }, [contact, instanceId, toast]);
 
-  if (!session) {
+  if (!contact) {
     return (
       <Card className="h-full flex items-center justify-center">
         <div className="text-center text-muted-foreground">
@@ -74,8 +78,8 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
             <AvatarFallback><User /></AvatarFallback>
         </Avatar>
         <div>
-            <CardTitle className="text-xl">{session.contactName || session.session_id}</CardTitle>
-            <p className="text-sm text-muted-foreground">{session.message_count} mensagens na sessão</p>
+            <CardTitle className="text-xl">{contact.name || contact.pushName || contact.phoneNumber}</CardTitle>
+            <p className="text-sm text-muted-foreground">{contact.phoneNumber.split('@')[0]}</p>
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-0 flex flex-col min-h-0">
@@ -86,17 +90,17 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
             </div>
           ) : (
             <div className="space-y-6">
-                {messages.map((message, index) => {
-                    const isUser = message.role === 'user';
+                {messages.map((message) => {
+                    const isOutgoing = message.direction === 'OUTGOING';
                     return (
                         <div
-                            key={index}
+                            key={message.id}
                             className={cn(
                                 'flex items-start gap-4',
-                                isUser ? 'justify-end' : 'justify-start'
+                                !isOutgoing ? 'justify-start' : 'justify-end'
                             )}
                         >
-                            {!isUser && (
+                            {isOutgoing && (
                                 <Avatar className="h-8 w-8 border">
                                     <AvatarFallback>
                                         <Bot className="h-4 w-4" />
@@ -106,21 +110,23 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
                             <div
                                 className={cn(
                                     'max-w-3xl rounded-lg px-4 py-3',
-                                    isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                                    !isOutgoing ? 'bg-muted' : 'bg-primary text-primary-foreground'
                                 )}
                             >
-                                <p className='font-bold text-sm capitalize mb-1'>{isUser ? 'Usuário' : 'Agente'}</p>
                                 <ReactMarkdown
                                     remarkPlugins={[remarkGfm]}
                                     className="prose prose-sm dark:prose-invert prose-p:before:hidden prose-p:after:hidden"
                                     components={{
-                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-primary underline" />,
+                                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="underline" />,
                                     }}
                                 >
                                     {message.content}
                                 </ReactMarkdown>
+                                <p className={cn('text-xs mt-2', isOutgoing ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                                  {format(new Date(message.sentAt), 'dd MMM, HH:mm', { locale: ptBR })}
+                                </p>
                             </div>
-                            {isUser && (
+                            {!isOutgoing && (
                                  <Avatar className="h-8 w-8 border">
                                     <AvatarFallback>
                                         <User className="h-4 w-4" />
@@ -132,7 +138,7 @@ export function AgentMessageHistory({ session }: AgentMessageHistoryProps) {
                 })}
                 {messages.length === 0 && !loading && (
                     <div className="text-center text-muted-foreground py-10">
-                        <p>Não há mensagens nesta sessão ainda.</p>
+                        <p>Não há mensagens nesta conversa ainda.</p>
                     </div>
                 )}
             </div>

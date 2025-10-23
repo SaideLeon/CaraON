@@ -43,26 +43,40 @@ export interface ContactSummary {
     phones: string[];
 }
 
-// Types for Agent Logs
-export interface AgentSession {
-    session_id: string; // This is the user's phone number
-    user_id: string;
-    instance_id: string;
-    message_count: number;
-    created_at: string;
-    updated_at: string;
-    contactName?: string; // Optional field to hold the contact's name
+
+// Types for Messages
+export interface MessageContact {
+    id: string;
+    instanceId: string;
+    phoneNumber: string;
+    name: string | null;
+    pushName: string | null;
+    isBlocked: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
-export interface AgentSessionResponse {
-    sessions: AgentSession[];
-}
-
-export interface AgentMessage {
-    role: 'user' | 'assistant';
+export interface Message {
+    id: string;
+    instanceId: string;
+    contactId: string;
+    wppId: string;
+    direction: 'INCOMING' | 'OUTGOING';
     content: string;
+    status: 'sent' | 'delivered' | 'read' | 'failed';
+    isRead: boolean;
+    sentAt: string;
+    deliveredAt: string | null;
+    readAt: string | null;
+    contact: MessageContact;
 }
 
-export interface AgentConversationResponse {
-    conversation: AgentMessage[];
+export interface PaginatedMessages {
+    data: Message[];
+    pagination: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
 }

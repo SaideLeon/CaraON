@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, BookText, Database, Info } from 'lucide-react';
+import { LayoutGrid, LogOut, User, MoreVertical, FlaskConical, Users2, Database, Info, MessageSquare } from 'lucide-react';
 import { SariacIcon } from '@/components/icons/SariacIcon';
 
 import {
@@ -96,10 +96,10 @@ export function SidebarNav() {
             </SidebarMenuButton>
           </SidebarMenuItem>
            <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/agent-logs')} tooltip="Logs de Agentes" onClick={handleLinkClick}>
-              <Link href="/agent-logs">
-                <BookText />
-                <span>Logs de Agentes</span>
+            <SidebarMenuButton asChild isActive={isActive('/messages')} tooltip="Mensagens" onClick={handleLinkClick}>
+              <Link href="/messages">
+                <MessageSquare />
+                <span>Mensagens</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

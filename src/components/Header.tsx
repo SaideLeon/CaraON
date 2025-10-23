@@ -21,8 +21,8 @@ const pageConfig: Record<string, { title: string; description: string }> = {
         title: 'Contatos',
         description: 'Visualize e gerencie os contatos de suas instâncias.',
     },
-     '/agent-logs': {
-        title: 'Logs de Agentes',
+     '/messages': {
+        title: 'Mensagens',
         description: 'Visualize o histórico de conversas dos seus agentes.',
     },
     '/knowledge': {
