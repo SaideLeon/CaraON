@@ -13,10 +13,6 @@ const pageConfig: Record<string, { title: string; description: string }> = {
         title: 'Instâncias',
         description: 'Gira as suas ligações WhatsApp.',
     },
-    '/playground': {
-        title: 'Playground',
-        description: 'Teste o agente da sua instância em tempo real.',
-    },
     '/contacts': {
         title: 'Contatos',
         description: 'Visualize e gerencie os contatos de suas instâncias.',

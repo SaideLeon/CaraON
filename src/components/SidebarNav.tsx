@@ -69,14 +69,6 @@ export function SidebarNav() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-           <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive('/playground')} tooltip="Playground" onClick={handleLinkClick}>
-              <Link href="/playground">
-                <FlaskConical />
-                <span>Playground</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarSeparator />
           <SidebarGroupLabel>Gestão</SidebarGroupLabel>
            <SidebarMenuItem>

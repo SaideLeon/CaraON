@@ -12,18 +12,10 @@ const getWebSocketURL = () => {
 }
 
 export interface WebSocketMessage {
-  type: 'qr_code' | 'instance_status' | 'playground_response' | 'playground_error' | 'playground_response_chunk' | 'playground_response_complete';
+  type: 'qr_code' | 'instance_status';
   clientId?: string; // For instance updates
   data?: any; // For qr_code
   status?: 'connected' | 'disconnected' | 'reconnecting'; // For instance_status
-  // For playground_response
-  response?: {
-    finalResponse: string;
-    executionId: string;
-  };
-  // For playground_error
-  error?: string;
-  executionId?: string;
 }
 
 interface WebSocketContextType {
@@ -63,10 +55,6 @@ export function WebSocketProvider({ children }: { children: ReactNode }) {
     socket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        // Normalize server message type for client-side consistency
-        if (message.type === 'playground_response_complete') {
-            message.type = 'playground_response';
-        }
         setLastMessage(message);
       } catch (error) {
         console.error('Failed to parse WebSocket message:', error);
