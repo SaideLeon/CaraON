@@ -21,7 +21,7 @@ RUN npm run build
 
 # Expõe a porta em que a aplicação Next.js será executada.
 # O padrão para `next start` é 3000.
-EXPOSE 3000
+EXPOSE 3003
 
 # Define o comando para iniciar a aplicação em modo de produção.
 # `next start` inicia o servidor otimizado.
