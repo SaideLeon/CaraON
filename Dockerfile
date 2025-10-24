@@ -11,13 +11,14 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instala as dependências de produção.
-RUN npm install --only=production
+RUN npm install
 
 # Copia o restante dos arquivos do projeto para o diretório de trabalho.
 COPY . .
 
 # Faz o build da aplicação Next.js para produção.
 RUN npm run build
+RUN npm prune --production
 
 # Expõe a porta em que a aplicação Next.js será executada.
 # O padrão para `next start` é 3000.
