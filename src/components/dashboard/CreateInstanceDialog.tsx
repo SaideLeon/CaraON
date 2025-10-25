@@ -75,7 +75,7 @@ export function CreateInstanceDialog({
       });
       onInstanceCreated(newInstance);
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Falha ao criar instância.';
+      const message = error.response?.data?.error || error.response?.data?.message || 'Falha ao criar instância.';
       toast({ variant: 'destructive', title: 'Erro', description: message });
       onOpenChange(false); // Close dialog on error
     } finally {
